@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        svg path {
+            fill: none;
+            stroke: #000;
+            /*stroke-linecap: round;*/
+            /*stroke-linejoin: round;*/
+        }
+
+        body.fill_class svg path {
+            fill: black;
+        }
+    </style>
+    <script>
+        function calc() {
+            document.getElementById('body_id').classList.toggle('fill_class');
+        }
+    </script>
+</head>
+<body id="body_id">
+<div><input type="checkbox" id="fill_id" onchange="calc()"/> Fill</div>
+
+%s
+
+</body>
+</html>

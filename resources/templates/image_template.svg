@@ -1,0 +1,10 @@
+<svg viewBox="0 0 200 200"
+     class="svg"
+     height="200px"
+     width="200px">
+
+    <rect height="200" width="200" stroke-width="1" stroke="black" fill="none"/>
+
+    <path d="M%s
+     %s %sZ"/>
+</svg>
