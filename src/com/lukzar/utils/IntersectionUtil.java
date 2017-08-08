@@ -1,27 +1,26 @@
 package com.lukzar.utils;
 
+import com.lukzar.model.Point;
+import com.lukzar.model.elements.Arc;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import com.lukzar.model.Point;
-import com.lukzar.model.elements.Arc;
 
 /**
  * Created by lukasz on 09.07.17.
  */
 public class IntersectionUtil {
 
-    public static boolean arcToArcIntersection(Point arc1Start, Arc arc1, Point arc2Start, Arc arc2) {
-        return arcToArcIntersection2(arc1Start, arc1, arc2Start, arc2)
-                || arcToArcIntersection2(arc2Start, arc2, arc1Start, arc1);
+    public static boolean arcToArcIntersection(Arc arc1, Arc arc2) {
+        return arcToArcIntersection2(arc1, arc2) || arcToArcIntersection2(arc2, arc1);
     }
 
-    public static boolean arcToArcIntersection2(Point arc1Start, Arc arc1, Point arc2Start, Arc arc2) {
-        final Point oppositeToQ = calculateParallelogramPoint(arc1Start, arc1.getQ(), arc1.getEndPos());
+    public static boolean arcToArcIntersection2(Arc arc1, Arc arc2) {
+        final Point oppositeToQ = calculateParallelogramPoint(arc1.getStartPos(), arc1.getQ(), arc1.getEndPos());
         final List<Point> intersectionsWithDiagonal =
-                lineToArcIntersection(arc1.getQ(), oppositeToQ, arc1Start, arc1);
+                lineToArcIntersection(arc1.getQ(), oppositeToQ, arc1);
 
         if (intersectionsWithDiagonal.size() != 1) {
             return true;
@@ -29,11 +28,12 @@ public class IntersectionUtil {
 
         final Point middleOfArc = intersectionsWithDiagonal.get(0);
 
-        return !(lineToArcIntersection(arc1Start, middleOfArc, arc2Start, arc2).isEmpty()
-                && lineToArcIntersection(middleOfArc, arc1.getEndPos(), arc2Start, arc2).isEmpty());
+        return !(lineToArcIntersection(arc1.getStartPos(), middleOfArc, arc2).isEmpty()
+                && lineToArcIntersection(middleOfArc, arc1.getEndPos(), arc2).isEmpty());
     }
 
-    public static List<Point> lineToArcIntersection(Point lineStart, Point lineEnd, Point arcStart, Arc arc) {
+    public static List<Point> lineToArcIntersection(Point lineStart, Point lineEnd, Arc arc) {
+        Point arcStart = arc.getStartPos();
         Point q = arc.getQ();
         Point endPos = arc.getEndPos();
         double[] X = new double[3];
@@ -99,6 +99,9 @@ public class IntersectionUtil {
 
     public static Optional<Point> lineToLineIntersection(Point line1Start, Point l1end,
                                                          Point line2start, Point l2end) {
+        if (line1Start.equals(l2end) || line2start.equals(l1end)) {
+            return Optional.empty();
+        }
         double denominator = (line2start.getX() - l2end.getX()) * (line1Start.getY() - l1end.getY())
                 - (line2start.getY() - l2end.getY()) * (line1Start.getX() - l1end.getX());
         if (denominator == 0) {
@@ -117,11 +120,15 @@ public class IntersectionUtil {
                                 * (line1Start.getX() * l1end.getY() - line1Start.getY() * l1end.getX()))
                         / denominator));
 
-        if (point.getX() <= Math.min(line1Start.getX(), l1end.getX()) ||
-                point.getX() >= Math.max(line1Start.getX(), l1end.getX())) {
-            return Optional.empty();
+        if (isInRangeInclusive(point.getX(), line1Start.getX(), l1end.getX())
+                && isInRangeInclusive(point.getX(), line2start.getX(), l2end.getX())) {
+            return Optional.of(point);
         }
-        return Optional.of(point);
+        return Optional.empty();
+    }
+
+    private static boolean isInRangeInclusive(int x, int a, int b) {
+        return x >= Math.min(a, b) && x <= Math.max(a, b);
     }
 
     private static Point calculateParallelogramPoint(Point A, Point Q, Point B) {

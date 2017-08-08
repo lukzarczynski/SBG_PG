@@ -43,6 +43,18 @@ public abstract class Part {
 
     public abstract String toSvg();
 
-    public abstract String toSvgReversed(Point startPoint, int middle_x);
+    public abstract String toSvgReversed();
+
+
+    public boolean intersects(Part part) {
+        if (part instanceof Line) {
+            return intersectsLine((Line) part);
+        }
+        return intersectsArc((Arc) part);
+    }
+
+    protected abstract boolean intersectsArc(Arc part);
+
+    protected abstract boolean intersectsLine(Line part);
 
 }

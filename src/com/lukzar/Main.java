@@ -23,9 +23,11 @@ public class Main {
 
     public static Configuration CONFIG;
 
-    public static void main(String[] args) throws IOException {
+    static {
         loadConfiguration();
+    }
 
+    public static void main(String[] args) throws IOException {
         final Evolution evolution = new Evolution();
         evolution.initialize();
         System.out.println(evolution.getPopulation().size());
@@ -39,7 +41,7 @@ public class Main {
         }
     }
 
-    private static void writeToFile(Collection<Piece> pieces, String path) throws IOException {
+    public static void writeToFile(Collection<Piece> pieces, String path) throws IOException {
         final File file = new File(path);
 
         try (FileOutputStream os = new FileOutputStream(file)) {
@@ -50,9 +52,13 @@ public class Main {
         }
     }
 
-    private static void loadConfiguration() throws IOException {
-        try (InputStream in = Files.newInputStream(Paths.get("resources/configuration.yml"))) {
-            CONFIG = new Yaml().loadAs(in, Configuration.class);
+    private static void loadConfiguration() {
+        try {
+            try (InputStream in = Files.newInputStream(Paths.get("resources/configuration.yml"))) {
+                CONFIG = new Yaml().loadAs(in, Configuration.class);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

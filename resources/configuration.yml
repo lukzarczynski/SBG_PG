@@ -1,5 +1,5 @@
 pieceGeneration:
-  linePercent: 50
+  linePercent: 10
   minParts: 3
   maxParts: 5
   maxTries: 5
