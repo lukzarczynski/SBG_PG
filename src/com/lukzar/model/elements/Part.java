@@ -2,59 +2,29 @@ package com.lukzar.model.elements;
 
 import com.lukzar.model.Point;
 
+import java.util.List;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 /**
  * Created by lukasz on 04.06.17.
  */
+@EqualsAndHashCode
+@Getter
+@Setter
+@RequiredArgsConstructor
 public abstract class Part {
 
-    protected final Point endPos;
-    protected Point startPos;
-
-    public Part(Point pos) {
-        this.endPos = pos;
-    }
-
-    public Point getEndPos() {
-        return endPos;
-    }
-
-    public Point getStartPos() {
-        return startPos;
-    }
-
-    public void setStartPos(Point startPos) {
-        this.startPos = startPos;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Part part = (Part) o;
-
-        return endPos.equals(part.endPos);
-    }
-
-    @Override
-    public int hashCode() {
-        return endPos.hashCode();
-    }
+    final Point endPos;
+    Point startPos;
 
     public abstract String toSvg();
 
     public abstract String toSvgReversed();
 
-
-    public boolean intersects(Part part) {
-        if (part instanceof Line) {
-            return intersectsLine((Line) part);
-        }
-        return intersectsArc((Arc) part);
-    }
-
-    protected abstract boolean intersectsArc(Arc part);
-
-    protected abstract boolean intersectsLine(Line part);
+    public abstract List<Line> convertToLines();
 
 }

@@ -5,10 +5,10 @@ import lombok.Data;
 @Data
 public class Point {
 
-    private int x;
-    private int y;
+    private double x;
+    private double y;
 
-    public static Point of(int x, int y) {
+    public static Point of(double x, double y) {
         Point point = new Point();
         point.setX(x);
         point.setY(y);
@@ -16,7 +16,7 @@ public class Point {
     }
 
     public String toSvg() {
-        return String.format("%d,%d", x, y);
+        return String.format("%f,%f", x, y);
     }
 
 }

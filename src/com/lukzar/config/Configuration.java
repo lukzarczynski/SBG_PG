@@ -28,13 +28,13 @@ public class Configuration {
         private int tournamentSize;
         private int crossoverSize;
         private double mutationRate;
-        private int mutationOffset;
+        private double mutationOffset;
     }
 
     @Data
     public static class Piece {
         private Point start;
-        private int width;
-        private int height;
+        private double width;
+        private double height;
     }
 }

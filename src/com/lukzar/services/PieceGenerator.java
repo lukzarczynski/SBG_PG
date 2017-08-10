@@ -17,7 +17,7 @@ public class PieceGenerator {
 
 
     public static Piece generate() throws IntersectsException {
-        int numberOfParts = randomRange(
+        int numberOfParts = (int) randomRange(
                 CONFIG.getPieceGeneration().getMinParts(),
                 CONFIG.getPieceGeneration().getMaxParts());
 
@@ -70,18 +70,18 @@ public class PieceGenerator {
         throw new IntersectsException("Generating part failed");
     }
 
-    private static Point randomPoint(int x) {
-        int y_min = 0;
-        int y_max = CONFIG.getPiece().getHeight();
+    private static Point randomPoint(double x) {
+        double y_min = 0;
+        double y_max = CONFIG.getPiece().getHeight();
         return Point.of(x, randomRange(y_min, y_max));
     }
 
     private static Point randomPoint() {
-        int x_min = CONFIG.getPiece().getWidth() / 2;
-        int x_max = CONFIG.getPiece().getWidth();
+        double x_min = CONFIG.getPiece().getWidth() / 2;
+        double x_max = CONFIG.getPiece().getWidth();
 
-        int y_min = 0;
-        int y_max = CONFIG.getPiece().getHeight();
+        double y_min = 0;
+        double y_max = CONFIG.getPiece().getHeight();
 
         return Point.of(randomRange(x_min, x_max), randomRange(y_min, y_max));
     }

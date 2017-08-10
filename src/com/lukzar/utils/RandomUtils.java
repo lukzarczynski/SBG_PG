@@ -8,8 +8,8 @@ public final class RandomUtils {
     /**
      * Random int from range [min, max] both inclusive
      */
-    public static int randomRange(int min, int max) {
-        int range = (max - min) + 1;
-        return (int) (Math.random() * range) + min;
+    public static double randomRange(double min, double max) {
+        double range = (max - min) + 1;
+        return (Math.random() * range) + min;
     }
 }

@@ -1,7 +1,7 @@
 pieceGeneration:
   linePercent: 10
-  minParts: 3
-  maxParts: 5
+  minParts: 2
+  maxParts: 4
   maxTries: 5
 
 evolution:
