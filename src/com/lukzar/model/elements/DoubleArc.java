@@ -1,17 +1,16 @@
 package com.lukzar.model.elements;
 
-import com.lukzar.Main;
+import com.lukzar.config.Configuration;
 import com.lukzar.model.Point;
 import com.lukzar.utils.BezierUtil;
 
 import java.util.List;
 
-import lombok.Getter;
-
 /**
+ * NOT USED for now
+ * <p>
  * Created by lukasz on 04.06.17.
  */
-@Getter
 public class DoubleArc extends Part {
 
     private final Point q1;
@@ -31,9 +30,9 @@ public class DoubleArc extends Part {
     @Override
     public String toSvgReversed() {
         return String.format("C%f,%f %f,%f %f,%f",
-                Main.CONFIG.getPiece().getWidth() - q2.getX(), q2.getY(),
-                Main.CONFIG.getPiece().getWidth() - q1.getX(), q1.getY(),
-                Main.CONFIG.getPiece().getWidth() - startPos.getX(), startPos.getY());
+                Configuration.Piece.WIDTH - q2.getX(), q2.getY(),
+                Configuration.Piece.WIDTH - q1.getX(), q1.getY(),
+                Configuration.Piece.WIDTH - startPos.getX(), startPos.getY());
     }
 
     @Override
@@ -41,4 +40,31 @@ public class DoubleArc extends Part {
         return BezierUtil.convertToLine(this);
     }
 
+    public Point getQ1() {
+        return this.q1;
+    }
+
+    public Point getQ2() {
+        return this.q2;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        DoubleArc doubleArc = (DoubleArc) o;
+
+        if (!q1.equals(doubleArc.q1)) return false;
+        return q2.equals(doubleArc.q2);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + q1.hashCode();
+        result = 31 * result + q2.hashCode();
+        return result;
+    }
 }

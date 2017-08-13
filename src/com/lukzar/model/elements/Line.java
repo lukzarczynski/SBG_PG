@@ -1,6 +1,6 @@
 package com.lukzar.model.elements;
 
-import com.lukzar.Main;
+import com.lukzar.config.Configuration;
 import com.lukzar.model.Point;
 
 import java.util.Collections;
@@ -22,12 +22,13 @@ public class Line extends Part {
 
     @Override
     public String toSvgReversed() {
-        return String.format("L%f,%f", Main.CONFIG.getPiece().getWidth() - startPos.getX(), startPos.getY());
+        return String.format("L%f,%f", Configuration.Piece.WIDTH - startPos.getX(), startPos.getY());
     }
 
     @Override
     public List<Line> convertToLines() {
         return Collections.singletonList(this);
     }
+
 
 }

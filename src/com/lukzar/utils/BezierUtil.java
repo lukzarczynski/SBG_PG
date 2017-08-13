@@ -21,11 +21,10 @@ public class BezierUtil {
 
         double step = 1 / (double) parts;
 
-
         List<Point> points = new ArrayList<>();
 
-        for (double i = 0; i <= 1; i += step) {
-            points.add(compute(i, bezier));
+        for (double i = 1; i <= parts; i++) {
+            points.add(compute(i * step, bezier));
         }
 
         final List<Line> result = points.stream().map(Line::new).collect(Collectors.toList());

@@ -1,17 +1,14 @@
 package com.lukzar.model.elements;
 
-import com.lukzar.Main;
+import com.lukzar.config.Configuration;
 import com.lukzar.model.Point;
 import com.lukzar.utils.BezierUtil;
 
 import java.util.List;
 
-import lombok.Getter;
-
 /**
  * Created by lukasz on 04.06.17.
  */
-@Getter
 public class Arc extends Part {
 
     private final Point q;
@@ -19,6 +16,10 @@ public class Arc extends Part {
     public Arc(Point endPos, Point q) {
         super(endPos);
         this.q = q;
+    }
+
+    public Point getQ() {
+        return q;
     }
 
     @Override
@@ -30,8 +31,8 @@ public class Arc extends Part {
     @Override
     public String toSvgReversed() {
         return String.format("Q%f,%f %f,%f ",
-                Main.CONFIG.getPiece().getWidth() - q.getX(), q.getY(),
-                Main.CONFIG.getPiece().getWidth() - startPos.getX(), startPos.getY());
+                Configuration.Piece.WIDTH - q.getX(), q.getY(),
+                Configuration.Piece.WIDTH - startPos.getX(), startPos.getY());
     }
 
     @Override
@@ -39,4 +40,21 @@ public class Arc extends Part {
         return BezierUtil.convertToLine(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Arc arc = (Arc) o;
+
+        return q.equals(arc.q);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + q.hashCode();
+        return result;
+    }
 }

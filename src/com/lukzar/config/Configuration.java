@@ -5,36 +5,26 @@ package com.lukzar.config;
 
 import com.lukzar.model.Point;
 
-import lombok.Data;
-
-@Data
 public class Configuration {
 
-    private PieceGeneration pieceGeneration;
-    private Evolution evolution;
-    private Piece piece;
-
-    @Data
     public static class PieceGeneration {
-        private int linePercent;
-        private int minParts;
-        private int maxParts;
-        private int maxTries;
+        public static final int LINE_PERCENT = 10;
+        public static final int MIN_PARTS = 2;
+        public static final int MAX_PARTS = 4;
+        public static final int MAX_TRIES = 5;
     }
 
-    @Data
     public static class Evolution {
-        private int initialSize;
-        private int tournamentSize;
-        private int crossoverSize;
-        private double mutationRate;
-        private double mutationOffset;
+        public static final int INITIAL_SIZE = 500;
+        public static final int TOURNAMENT_SIZE = 5;
+        public static final int CROSSOVER_SIZE = 250;
+        public static final double MUTATION_RATE = 0.1;
+        public static final double MUTATION_OFFSET = 20.0;
     }
 
-    @Data
     public static class Piece {
-        private Point start;
-        private double width;
-        private double height;
+        public static final Point START = Point.of(120, 200);
+        public static final double WIDTH = 200;
+        public static final double HEIGHT = 200;
     }
 }

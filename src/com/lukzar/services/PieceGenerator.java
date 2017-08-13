@@ -1,13 +1,19 @@
 package com.lukzar.services;
 
+import com.lukzar.config.Configuration;
+import com.lukzar.exceptions.IntersectsException;
+import com.lukzar.fitness.FitnessUtil;
+import com.lukzar.model.Piece;
+import com.lukzar.model.Point;
 import com.lukzar.model.elements.Arc;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
-import com.lukzar.exceptions.IntersectsException;
-import com.lukzar.model.Piece;
-import com.lukzar.model.Point;
+import com.lukzar.utils.PolygonUtils;
 
-import static com.lukzar.Main.CONFIG;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import static com.lukzar.utils.RandomUtils.randomRange;
 
 /**
@@ -18,8 +24,8 @@ public class PieceGenerator {
 
     public static Piece generate() throws IntersectsException {
         int numberOfParts = (int) randomRange(
-                CONFIG.getPieceGeneration().getMinParts(),
-                CONFIG.getPieceGeneration().getMaxParts());
+                Configuration.PieceGeneration.MIN_PARTS,
+                Configuration.PieceGeneration.MAX_PARTS);
 
         final Piece svg = new Piece();
 
@@ -30,18 +36,26 @@ public class PieceGenerator {
         svg.getParts().add(generateFinalPart(svg));
         svg.updateStartPoints();
 
+        if (FitnessUtil.getMinDegree(svg) < 10.0
+                || FitnessUtil.getMaxDegree(svg) > 350.0) {
+            throw new IntersectsException("asd");
+        }
+
         return svg;
     }
 
     private static Part generateFinalPart(Piece svg) throws IntersectsException {
         int tries = 0;
-        while (tries < CONFIG.getPieceGeneration().getMaxTries()) {
+        while (tries < Configuration.PieceGeneration.MAX_TRIES) {
             tries++;
             final Part p;
-            if (randomRange(0, 99) < CONFIG.getPieceGeneration().getLinePercent()) {
-                p = new Line(randomPoint(CONFIG.getPiece().getWidth() / 2));
+            if (randomRange(0, 99) < Configuration.PieceGeneration.LINE_PERCENT) {
+                p = new Line(randomPoint(svg,
+                        () -> randomPoint(Configuration.Piece.WIDTH / 2)));
             } else {
-                p = new Arc(randomPoint(CONFIG.getPiece().getWidth() / 2), randomPoint());
+                p = new Arc(randomPoint(svg,
+                        () -> randomPoint(Configuration.Piece.WIDTH / 2)),
+                        randomPoint());
             }
 
             if (!svg.intersectsWithAny(p)) {
@@ -53,13 +67,13 @@ public class PieceGenerator {
 
     private static Part generatePart(Piece svg) throws IntersectsException {
         int tries = 0;
-        while (tries < CONFIG.getPieceGeneration().getMaxTries()) {
+        while (tries < Configuration.PieceGeneration.MAX_TRIES) {
             tries++;
             final Part p;
-            if (randomRange(0, 99) < CONFIG.getPieceGeneration().getLinePercent()) {
-                p = new Line(randomPoint());
+            if (randomRange(0, 99) < Configuration.PieceGeneration.LINE_PERCENT) {
+                p = new Line(randomPoint(svg, () -> randomPoint()));
             } else {
-                p = new Arc(randomPoint(), randomPoint());
+                p = new Arc(randomPoint(svg, () -> randomPoint()), randomPoint());
             }
 
             if (!svg.intersectsWithAny(p)) {
@@ -70,18 +84,38 @@ public class PieceGenerator {
         throw new IntersectsException("Generating part failed");
     }
 
+    private static Point randomPoint(Piece svg, Supplier<Point> supp) {
+        Point p = supp.get();
+        List<Point> points = svg.getConverted().stream().map(Line::getEndPos)
+                .collect(Collectors.toList());
+
+        while (true) {
+            boolean b = true;
+            for (Point pos : points) {
+                if (PolygonUtils.distance(pos, p) < 10) {
+                    b = false;
+                    break;
+                }
+            }
+            if (b) {
+                return p;
+            }
+            p = supp.get();
+        }
+    }
+
     private static Point randomPoint(double x) {
         double y_min = 0;
-        double y_max = CONFIG.getPiece().getHeight();
+        double y_max = Configuration.Piece.HEIGHT - 10.0;
         return Point.of(x, randomRange(y_min, y_max));
     }
 
     private static Point randomPoint() {
-        double x_min = CONFIG.getPiece().getWidth() / 2;
-        double x_max = CONFIG.getPiece().getWidth();
+        double x_min = (Configuration.Piece.WIDTH / 2) + 10.0;
+        double x_max = Configuration.Piece.WIDTH;
 
         double y_min = 0;
-        double y_max = CONFIG.getPiece().getHeight();
+        double y_max = Configuration.Piece.HEIGHT - 10.0;
 
         return Point.of(randomRange(x_min, x_max), randomRange(y_min, y_max));
     }

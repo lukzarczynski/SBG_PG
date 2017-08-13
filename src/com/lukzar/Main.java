@@ -1,18 +1,12 @@
 package com.lukzar;
 
-import com.lukzar.config.Configuration;
 import com.lukzar.config.Templates;
 import com.lukzar.model.Piece;
 import com.lukzar.services.Evolution;
 
-import org.yaml.snakeyaml.Yaml;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -21,24 +15,18 @@ import java.util.stream.Collectors;
  */
 public class Main {
 
-    public static Configuration CONFIG;
-
-    static {
-        loadConfiguration();
-    }
-
     public static void main(String[] args) throws IOException {
         final Evolution evolution = new Evolution();
         evolution.initialize();
         System.out.println(evolution.getPopulation().size());
         writeToFile(evolution.getPopulation(), "out/initial_population");
-        writeToFile(evolution.getPopulation().stream().map(Main::getConverted).collect(Collectors.toList()), "out/initial_population_conv");
+//        writeToFile(evolution.getPopulation().stream().map(Main::getConverted).collect(Collectors.toList()), "out/initial_population_conv");
 
         for (int i = 0; i < 4; i++) {
             evolution.evolvePopulation();
             System.out.println(evolution.getPopulation().size());
             writeToFile(evolution.getPopulation(), String.format("out/image_%s", i));
-            writeToFile(evolution.getPopulation().stream().map(Main::getConverted).collect(Collectors.toList()), String.format("out/image_%s_conv", i));
+//            writeToFile(evolution.getPopulation().stream().map(Main::getConverted).collect(Collectors.toList()), String.format("out/image_%s_conv", i));
 
         }
     }
@@ -58,16 +46,6 @@ public class Main {
                     .map(Piece::toSvg)
                     .collect(Collectors.joining("\n"))
             ).getBytes());
-        }
-    }
-
-    private static void loadConfiguration() {
-        try {
-            try (InputStream in = Files.newInputStream(Paths.get("resources/configuration.yml"))) {
-                CONFIG = new Yaml().loadAs(in, Configuration.class);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

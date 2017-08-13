@@ -1,19 +1,18 @@
 package com.lukzar.services;
 
-import com.lukzar.model.elements.Arc;
-import com.lukzar.model.elements.Part;
+import com.lukzar.config.Configuration;
 import com.lukzar.exceptions.IntersectsException;
 import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
+import com.lukzar.model.elements.Arc;
+import com.lukzar.model.elements.Part;
 import com.lukzar.utils.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
-
-import static com.lukzar.Main.CONFIG;
 
 /**
  * Created by lukasz on 16.07.17.
@@ -30,7 +29,7 @@ public class Evolution {
     }
 
     public void initialize() {
-        while (population.size() < CONFIG.getEvolution().getInitialSize()) {
+        while (population.size() < Configuration.Evolution.INITIAL_SIZE) {
             try {
                 population.add(PieceGenerator.generate());
             } catch (IntersectsException ignored) {
@@ -40,7 +39,7 @@ public class Evolution {
 
     // Evolve a population
     public void evolvePopulation() {
-        for (int i = 0; i < CONFIG.getEvolution().getCrossoverSize(); i++) {
+        for (int i = 0; i < Configuration.Evolution.CROSSOVER_SIZE; i++) {
             population.add(crossover(tournamentSelection(), tournamentSelection()));
         }
 
@@ -49,14 +48,14 @@ public class Evolution {
         population.forEach(Piece::updateStartPoints);
         population.removeIf(Piece::intersects);
         population.sort(FITNESS_COMPARATOR);
-        if (population.size() > CONFIG.getEvolution().getInitialSize()) {
-            population.subList(CONFIG.getEvolution().getInitialSize(), population.size()).clear();
+        if (population.size() > Configuration.Evolution.INITIAL_SIZE) {
+            population.subList(Configuration.Evolution.INITIAL_SIZE, population.size()).clear();
         }
     }
 
     private void mutate(Piece piece) {
         for (Part part : piece.getParts()) {
-            if (Math.random() <= CONFIG.getEvolution().getMutationRate()) {
+            if (Math.random() <= Configuration.Evolution.MUTATION_RATE) {
                 mutate(part.getEndPos(), !part.equals(piece.getParts().peekLast()));
                 if (part instanceof Arc) {
                     mutate(((Arc) part).getQ(), true);
@@ -68,14 +67,14 @@ public class Evolution {
 
     private void mutate(Point point, boolean mutateX) {
         point.setY(RandomUtils.randomRange(
-                point.getY() - CONFIG.getEvolution().getMutationOffset(),
-                point.getY() + CONFIG.getEvolution().getMutationOffset()
+                point.getY() - Configuration.Evolution.MUTATION_OFFSET,
+                point.getY() + Configuration.Evolution.MUTATION_OFFSET
         ));
 
         if (mutateX) {
             point.setX(RandomUtils.randomRange(
-                    point.getX() - CONFIG.getEvolution().getMutationOffset(),
-                    point.getX() + CONFIG.getEvolution().getMutationOffset()
+                    point.getX() - Configuration.Evolution.MUTATION_OFFSET,
+                    point.getX() + Configuration.Evolution.MUTATION_OFFSET
             ));
         }
     }
@@ -95,7 +94,7 @@ public class Evolution {
     // Select individuals for crossover
     private Piece tournamentSelection() {
         final TreeSet<Piece> tournament = new TreeSet<>(FITNESS_COMPARATOR);
-        for (int i = 0; i < CONFIG.getEvolution().getTournamentSize(); i++) {
+        for (int i = 0; i < Configuration.Evolution.TOURNAMENT_SIZE; i++) {
             int randomId = (int) (Math.random() * population.size());
             tournament.add(population.get(randomId));
         }

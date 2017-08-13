@@ -11,18 +11,35 @@
             /*stroke-linejoin: round;*/
         }
 
+        svg {
+            background-color: #eeeeee;
+        }
+
         body.fill_class svg path {
             fill: black;
+        }
+
+        body:not(.fill_class) svg path {
+            fill: white;
+        }
+
+        body:not(.description) div.description {
+            display: none;
         }
     </style>
     <script>
         function calc() {
             document.getElementById('body_id').classList.toggle('fill_class');
         }
+
+        function description() {
+            document.getElementById('body_id').classList.toggle('description');
+        }
     </script>
 </head>
 <body id="body_id">
 <div><input type="checkbox" id="fill_id" onchange="calc()"/> Fill</div>
+<div><input type="checkbox" id="descr_id" onchange="description()"/> Show Attributes</div>
 
 %s
 

@@ -1,10 +1,20 @@
-<svg viewBox="0 0 200 200"
-     class="svg"
-     height="200px"
-     width="200px">
+<div style="display: inline-block">
 
-    <rect height="200" width="200" stroke-width="1" stroke="black" fill="none"/>
+    <div style="float: left">
+        <svg viewBox="0 0 200 200"
+             class="svg"
+             height="200px"
+             width="200px">
 
-    <path d="M%s
+            <rect height="200" width="200" stroke-width="1" stroke="black" fill="none"/>
+
+            <path d="M%s
      %s %sZ"/>
-</svg>
+        </svg>
+    </div>
+    <div height="200px" style="float: left" class="description">
+        <ul>
+            %s
+        </ul>
+    </div>
+</div>

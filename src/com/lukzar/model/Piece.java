@@ -1,30 +1,20 @@
 package com.lukzar.model;
 
+import com.lukzar.config.Configuration;
 import com.lukzar.config.Templates;
-import com.lukzar.model.elements.Arc;
+import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
-import com.lukzar.utils.BezierUtil;
 import com.lukzar.utils.IntersectionUtil;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import lombok.Value;
-
-import static com.lukzar.Main.CONFIG;
-
-@Value
 public class Piece {
 
-    LinkedList<Part> parts = new LinkedList<>();
-    Map<Part, List<Line>> convertedToLines = new HashMap<>();
+    private final LinkedList<Part> parts = new LinkedList<>();
+    private final Map<Part, List<Line>> convertedToLines = new HashMap<>();
 
     public String toSvg() {
         StringBuilder reverse = new StringBuilder("\n");
@@ -35,11 +25,14 @@ public class Piece {
                 .forEachRemaining(p -> reverse.append(p.toSvgReversed()).append("\n"));
 
         return String.format(Templates.getImageTemplate(),
-                CONFIG.getPiece().getStart().toSvg(),
+                Configuration.Piece.START.toSvg(),
                 parts.stream()
                         .map(Part::toSvg)
                         .collect(Collectors.joining("\n")),
-                reverse.toString());
+                reverse.toString(),
+                FitnessUtil.getAttributes(this).stream()
+        .map(s -> "<li>" + s + "</li>")
+        .collect(Collectors.joining("\n")));
     }
 
     /**
@@ -77,7 +70,7 @@ public class Piece {
     }
 
     public void updateStartPoints() {
-        Point s = CONFIG.getPiece().getStart();
+        Point s = Configuration.Piece.START;
         for (Part p : parts) {
             p.setStartPos(s);
             s = p.getEndPos();
@@ -93,4 +86,33 @@ public class Piece {
     }
 
 
+    public LinkedList<Part> getParts() {
+        return this.parts;
+    }
+
+    public Map<Part, List<Line>> getConvertedToLines() {
+        return this.convertedToLines;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Piece piece = (Piece) o;
+
+        if (!parts.equals(piece.parts)) return false;
+        return convertedToLines.equals(piece.convertedToLines);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = parts.hashCode();
+        result = 31 * result + convertedToLines.hashCode();
+        return result;
+    }
+
+    public String toString() {
+        return "com.lukzar.model.Piece(parts=" + this.getParts() + ", convertedToLines=" + this.getConvertedToLines() + ")";
+    }
 }
