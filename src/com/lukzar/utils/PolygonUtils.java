@@ -1,13 +1,33 @@
 package com.lukzar.utils;
 
 import com.lukzar.model.Point;
+import com.lukzar.model.elements.Line;
+import com.lukzar.model.elements.Part;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by lukasz on 13.08.17.
  */
 public class PolygonUtils {
+
+
+    public static List<Line> trim(List<Line> lines, int min, int max) {
+        return lines.stream()
+                .map(Part::getEndPos)
+                .map(p -> Point.of(p.getX(), trim(p.getY(), min, max)))
+                .map(Line::new)
+                .collect(Collectors.toList());
+
+    }
+
+    private static double trim(double x, double min, double max) {
+        return x > max ? max
+                : x < min ? min
+                : x;
+    }
+
 
     /**
      * https://en.wikipedia.org/wiki/Polygon

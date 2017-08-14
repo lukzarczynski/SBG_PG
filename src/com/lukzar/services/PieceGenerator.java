@@ -36,9 +36,8 @@ public class PieceGenerator {
         svg.getParts().add(generateFinalPart(svg));
         svg.updateStartPoints();
 
-        if (FitnessUtil.getMinDegree(svg) < 10.0
-                || FitnessUtil.getMaxDegree(svg) > 350.0) {
-            throw new IntersectsException("asd");
+        if (FitnessUtil.getMinDegree(svg) < Configuration.Piece.MIN_DEGREE) {
+            throw new IntersectsException("Degree to small");
         }
 
         return svg;

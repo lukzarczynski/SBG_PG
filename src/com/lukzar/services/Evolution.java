@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Created by lukasz on 16.07.17.
@@ -39,14 +40,24 @@ public class Evolution {
 
     // Evolve a population
     public void evolvePopulation() {
-        for (int i = 0; i < Configuration.Evolution.CROSSOVER_SIZE; i++) {
-            population.add(crossover(tournamentSelection(), tournamentSelection()));
+        int i = 0;
+        int j = 0;
+        while (i < Configuration.Evolution.CROSSOVER_SIZE) {
+            Piece crossover = crossover(tournamentSelection(), tournamentSelection());
+            if (!crossover.intersects()) {
+                population.add(crossover);
+                i++;
+            } else {
+                j++;
+            }
         }
+        System.out.println("Crossover intersects: " + j);
 
         // Mutate population
         population.forEach(this::mutate);
-        population.forEach(Piece::updateStartPoints);
         population.removeIf(Piece::intersects);
+        population.removeIf(p -> FitnessUtil.getMinDegree(p) < Configuration.Piece.MIN_DEGREE);
+        population = population.stream().distinct().collect(Collectors.toList());
         population.sort(FITNESS_COMPARATOR);
         if (population.size() > Configuration.Evolution.INITIAL_SIZE) {
             population.subList(Configuration.Evolution.INITIAL_SIZE, population.size()).clear();
@@ -67,14 +78,14 @@ public class Evolution {
 
     private void mutate(Point point, boolean mutateX) {
         point.setY(RandomUtils.randomRange(
-                point.getY() - Configuration.Evolution.MUTATION_OFFSET,
-                point.getY() + Configuration.Evolution.MUTATION_OFFSET
+                Math.max(0, point.getY() - Configuration.Evolution.MUTATION_OFFSET),
+                Math.min(Configuration.Piece.HEIGHT, point.getY() + Configuration.Evolution.MUTATION_OFFSET)
         ));
 
         if (mutateX) {
             point.setX(RandomUtils.randomRange(
-                    point.getX() - Configuration.Evolution.MUTATION_OFFSET,
-                    point.getX() + Configuration.Evolution.MUTATION_OFFSET
+                    Math.max(Configuration.Piece.WIDTH / 2.0, point.getX() - Configuration.Evolution.MUTATION_OFFSET),
+                    Math.min(Configuration.Piece.HEIGHT, point.getX() + Configuration.Evolution.MUTATION_OFFSET)
             ));
         }
     }

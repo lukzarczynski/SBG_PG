@@ -17,7 +17,7 @@ public class Configuration {
     public static class Evolution {
         public static final int INITIAL_SIZE = 500;
         public static final int TOURNAMENT_SIZE = 5;
-        public static final int CROSSOVER_SIZE = 250;
+        public static final int CROSSOVER_SIZE = 200;
         public static final double MUTATION_RATE = 0.1;
         public static final double MUTATION_OFFSET = 20.0;
     }
@@ -26,5 +26,6 @@ public class Configuration {
         public static final Point START = Point.of(120, 200);
         public static final double WIDTH = 200;
         public static final double HEIGHT = 200;
+        public static final double MIN_DEGREE = 15;
     }
 }
