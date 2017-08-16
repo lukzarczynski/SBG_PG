@@ -7,14 +7,27 @@ import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.IntersectionUtil;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Piece {
 
+    private final Point start;
     private final LinkedList<Part> parts = new LinkedList<>();
     private final Map<Part, List<Line>> convertedToLines = new HashMap<>();
+
+    public Piece(Point start) {
+        this.start = start;
+    }
+
+    public Piece() {
+        this.start = Configuration.Piece.START;
+    }
 
     public String toSvg() {
         StringBuilder reverse = new StringBuilder("\n");
@@ -25,14 +38,14 @@ public class Piece {
                 .forEachRemaining(p -> reverse.append(p.toSvgReversed()).append("\n"));
 
         return String.format(Templates.getImageTemplate(),
-                Configuration.Piece.START.toSvg(),
+                this.start.toSvg(),
                 parts.stream()
                         .map(Part::toSvg)
                         .collect(Collectors.joining("\n")),
                 reverse.toString(),
                 FitnessUtil.getAttributes(this).stream()
-        .map(s -> "<li>" + s + "</li>")
-        .collect(Collectors.joining("\n")));
+                        .map(s -> "<li>" + s + "</li>")
+                        .collect(Collectors.joining("\n")));
     }
 
     /**
@@ -64,13 +77,12 @@ public class Piece {
 
 
     public boolean intersects() {
-        updateStartPoints();
         return IntStream.range(0, parts.size())
                 .anyMatch(i -> intersectsWithAny(parts.get(i), i));
     }
 
     public void updateStartPoints() {
-        Point s = Configuration.Piece.START;
+        Point s = this.start;
         for (Part p : parts) {
             p.setStartPos(s);
             s = p.getEndPos();
@@ -85,9 +97,23 @@ public class Piece {
                 .collect(Collectors.toList());
     }
 
+    public Point getStart() {
+        return start;
+    }
 
     public LinkedList<Part> getParts() {
         return this.parts;
+    }
+
+    public void add(Part part) {
+        this.parts.add(part);
+        part.setStartPos(this.parts.isEmpty()
+                ? this.start
+                : this.parts.getLast().getEndPos());
+    }
+
+    public void addAll(List<? extends Part> parts) {
+        parts.forEach(this::add);
     }
 
     public Map<Part, List<Line>> getConvertedToLines() {
@@ -101,14 +127,13 @@ public class Piece {
 
         Piece piece = (Piece) o;
 
-        if (!parts.equals(piece.parts)) return false;
-        return convertedToLines.equals(piece.convertedToLines);
+        return start.equals(piece.start) && parts.equals(piece.parts);
     }
 
     @Override
     public int hashCode() {
-        int result = parts.hashCode();
-        result = 31 * result + convertedToLines.hashCode();
+        int result = start.hashCode();
+        result = 31 * result + parts.hashCode();
         return result;
     }
 

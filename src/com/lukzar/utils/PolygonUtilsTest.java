@@ -1,15 +1,16 @@
 package com.lukzar.utils;
 
 import com.lukzar.Main;
+import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
-import com.lukzar.model.elements.Arc;
 import com.lukzar.model.elements.Line;
 
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 public class PolygonUtilsTest {
 
@@ -25,18 +26,41 @@ public class PolygonUtilsTest {
         Piece converted = new Piece();
         converted.getParts().addAll(piece.getConverted());
 
-        Piece bottom = new Piece();
-        bottom.getParts().addAll(PolygonUtils.trim(piece.getConverted(), 100, 200));
+        System.out.println(FitnessUtil.area(converted));
 
-        Piece top = new Piece();
-        top.getParts().addAll(PolygonUtils.trim(piece.getConverted(), 0, 100));
+        double bottomHalf = FitnessUtil.area(piece, 100, 200);
+        System.out.println(bottomHalf);
+        double topHalf = FitnessUtil.area(piece, 0, 100);
+        System.out.println(topHalf);
+        System.out.println(bottomHalf + topHalf);
 
-        Piece middle = new Piece();
-        middle.getParts().addAll(PolygonUtils.trim(piece.getConverted(), 50, 150));
+        System.out.println(FitnessUtil.area(piece, 50, 150));
+        System.out.println(FitnessUtil.area(piece, 0, 50) + FitnessUtil.area(piece, 150, 200));
 
 
-        Main.writeToFile(Arrays.asList(piece, converted, bottom, top, middle), "out/trim");
+        Main.writeToFile(Arrays.asList(piece, converted,
+                trim(piece, 100, 200),
+                trim(piece, 0, 100),
+                trim(piece, 50, 150),
+                trim(piece, 0, 50),
+                trim(piece, 150, 200)
+        ), "out/trim");
+    }
 
+    private Piece trim(Piece piece, double min, double max) {
+        List<Point> trimmed = PolygonUtils.trim(piece, min, max);
+        Piece result = new Piece(trimmed.get(0));
+
+        trimmed.forEach(p -> result.add(new Line(p)));
+
+        double trimArea = FitnessUtil.area(piece, min, max);
+        double trimPieceArea = FitnessUtil.area(result);
+
+        System.out.println("Min: " + min + ", Max: " + max);
+        System.out.println("\tTrim Area: " + trimArea);
+        System.out.println("\tTrim Piece Area: " + trimPieceArea);
+
+        return result;
 
     }
 

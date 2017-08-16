@@ -16,6 +16,11 @@ public abstract class Part {
         this.endPos = endPos;
     }
 
+    public Part(Point startPos, Point endPos) {
+        this.endPos = endPos;
+        this.startPos = startPos;
+    }
+
     public abstract String toSvg();
 
     public abstract String toSvgReversed();

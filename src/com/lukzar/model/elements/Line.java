@@ -14,6 +14,9 @@ public class Line extends Part {
     public Line(Point endPos) {
         super(endPos);
     }
+    public Line(Point startPos, Point endPos) {
+        super(startPos, endPos);
+    }
 
     @Override
     public String toSvg() {
@@ -29,6 +32,7 @@ public class Line extends Part {
     public List<Line> convertToLines() {
         return Collections.singletonList(this);
     }
+
 
 
 }

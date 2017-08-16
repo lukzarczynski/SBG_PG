@@ -20,8 +20,11 @@ import java.util.stream.Collectors;
  */
 public class Evolution {
 
-    private static final Comparator<Piece> FITNESS_COMPARATOR = Comparator
-            .comparing(FitnessUtil::calculateFitness).reversed();
+    private static final Comparator<Piece> FITNESS_COMPARATOR = (a, b) -> {
+        double d1 = FitnessUtil.calculateFitness(b);
+        double d2 = FitnessUtil.calculateFitness(a);
+        return Double.compare(d1, d2);
+    };
 
     private List<Piece> population = new ArrayList<>();
 
@@ -44,6 +47,7 @@ public class Evolution {
         int j = 0;
         while (i < Configuration.Evolution.CROSSOVER_SIZE) {
             Piece crossover = crossover(tournamentSelection(), tournamentSelection());
+            crossover.updateStartPoints();
             if (!crossover.intersects()) {
                 population.add(crossover);
                 i++;
@@ -55,6 +59,7 @@ public class Evolution {
 
         // Mutate population
         population.forEach(this::mutate);
+        population.forEach(Piece::updateStartPoints);
         population.removeIf(Piece::intersects);
         population.removeIf(p -> FitnessUtil.getMinDegree(p) < Configuration.Piece.MIN_DEGREE);
         population = population.stream().distinct().collect(Collectors.toList());
@@ -93,10 +98,10 @@ public class Evolution {
     private Piece crossover(Piece piece1, Piece piece2) {
         Piece newSol = new Piece();
         for (int i = 0; i < Math.ceil(piece1.getParts().size() / 2); i++) {
-            newSol.getParts().add(piece1.getParts().get(i));
+            newSol.add(piece1.getParts().get(i));
         }
         for (int i = piece2.getParts().size() / 2; i < piece2.getParts().size(); i++) {
-            newSol.getParts().add(piece2.getParts().get(i));
+            newSol.add(piece2.getParts().get(i));
         }
         newSol.updateStartPoints();
         return newSol;

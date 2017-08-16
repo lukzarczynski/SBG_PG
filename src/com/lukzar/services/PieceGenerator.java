@@ -30,11 +30,9 @@ public class PieceGenerator {
         final Piece svg = new Piece();
 
         while (svg.getParts().size() < numberOfParts - 1) {
-            svg.getParts().add(generatePart(svg));
-            svg.updateStartPoints();
+            svg.add(generatePart(svg));
         }
-        svg.getParts().add(generateFinalPart(svg));
-        svg.updateStartPoints();
+        svg.add(generateFinalPart(svg));
 
         if (FitnessUtil.getMinDegree(svg) < Configuration.Piece.MIN_DEGREE) {
             throw new IntersectsException("Degree to small");

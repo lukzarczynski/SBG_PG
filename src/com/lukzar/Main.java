@@ -22,7 +22,7 @@ public class Main {
         writeToFile(evolution.getPopulation(), "out/initial_population");
 //        writeToFile(evolution.getPopulation().stream().map(Main::getConverted).collect(Collectors.toList()), "out/initial_population_conv");
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             evolution.evolvePopulation();
             System.out.println(evolution.getPopulation().size());
             writeToFile(evolution.getPopulation(), String.format("out/image_%s", i));
@@ -33,7 +33,7 @@ public class Main {
 
     private static Piece getConverted(Piece piece) {
         Piece p = new Piece();
-        p.getParts().addAll(piece.getConverted());
+        p.addAll(piece.getConverted());
         p.updateStartPoints();
         return p;
     }

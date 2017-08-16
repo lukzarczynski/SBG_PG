@@ -41,7 +41,7 @@ public class BezierUtilTest {
         piece.getParts().add(new Arc(Point.of(165.004800, 30.919027), Point.of(110.061532, 146.851712)));
         piece.getParts().add(new Arc(Point.of(100.000000, 61.518794), Point.of(160.114489, 157.239375)));
 
-        List<Double> arcs = FitnessUtil.arcs(piece);
+        List<Double> arcs = FitnessUtil.getArcs(piece);
         for (int i = 0; i < arcs.size(); i++) {
             Double arc = arcs.get(i);
             System.out.println(i + " " + arc);
