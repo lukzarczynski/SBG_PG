@@ -5,6 +5,7 @@ import com.lukzar.model.Point;
 import com.lukzar.utils.BezierUtil;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * NOT USED for now
@@ -24,12 +25,12 @@ public class DoubleArc extends Part {
 
     @Override
     public String toSvg() {
-        return String.format("C%s %s %s ", q1.toSvg(), q2.toSvg(), endPos.toSvg());
+        return String.format(Locale.US, "C%s %s %s ", q1.toSvg(), q2.toSvg(), endPos.toSvg());
     }
 
     @Override
     public String toSvgReversed() {
-        return String.format("C%f,%f %f,%f %f,%f",
+        return String.format(Locale.US, "C%f,%f %f,%f %f,%f",
                 Configuration.Piece.WIDTH - q2.getX(), q2.getY(),
                 Configuration.Piece.WIDTH - q1.getX(), q1.getY(),
                 Configuration.Piece.WIDTH - startPos.getX(), startPos.getY());

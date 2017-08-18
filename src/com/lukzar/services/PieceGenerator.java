@@ -6,6 +6,7 @@ import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
 import com.lukzar.model.elements.Arc;
+import com.lukzar.model.elements.DoubleArc;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.PolygonUtils;
@@ -55,6 +56,9 @@ public class PieceGenerator {
                         randomPoint());
             }
 
+//            p = new DoubleArc(randomPoint(svg, () -> randomPoint(Configuration.Piece.WIDTH / 2)),
+//                    randomPoint(), randomPoint());
+
             if (!svg.intersectsWithAny(p)) {
                 return p;
             }
@@ -68,10 +72,11 @@ public class PieceGenerator {
             tries++;
             final Part p;
             if (randomRange(0, 99) < Configuration.PieceGeneration.LINE_PERCENT) {
-                p = new Line(randomPoint(svg, () -> randomPoint()));
+                p = new Line(randomPoint(svg, PieceGenerator::randomPoint));
             } else {
-                p = new Arc(randomPoint(svg, () -> randomPoint()), randomPoint());
+                p = new Arc(randomPoint(svg, PieceGenerator::randomPoint), randomPoint());
             }
+//             p = new DoubleArc(randomPoint(svg, PieceGenerator::randomPoint), randomPoint(), randomPoint());
 
             if (!svg.intersectsWithAny(p)) {
                 return p;

@@ -5,6 +5,7 @@ import com.lukzar.model.Point;
 import com.lukzar.utils.BezierUtil;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by lukasz on 04.06.17.
@@ -24,13 +25,13 @@ public class Arc extends Part {
 
     @Override
     public String toSvg() {
-        return String.format("Q%f,%f %f,%f ", q.getX(), q.getY(),
-                endPos.getX(), endPos.getY());
+        return String.format("Q%s %s ", q.toSvg(),
+                endPos.toSvg());
     }
 
     @Override
     public String toSvgReversed() {
-        return String.format("Q%f,%f %f,%f ",
+        return String.format(Locale.US, "Q%f,%f %f,%f ",
                 Configuration.Piece.WIDTH - q.getX(), q.getY(),
                 Configuration.Piece.WIDTH - startPos.getX(), startPos.getY());
     }

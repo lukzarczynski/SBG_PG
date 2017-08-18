@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 public class Main {
 
     public static void main(String[] args) throws IOException {
+        Locale.setDefault(Locale.US);
+
         final Evolution evolution = new Evolution();
         evolution.initialize();
         System.out.println(evolution.getPopulation().size());

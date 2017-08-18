@@ -1,5 +1,7 @@
 package com.lukzar.model;
 
+import java.util.Locale;
+
 public class Point {
 
     private double x;
@@ -16,7 +18,7 @@ public class Point {
     }
 
     public String toSvg() {
-        return String.format("%f,%f", x, y);
+        return String.format(Locale.US, "%f,%f", x, y);
     }
 
     public double getX() {
