@@ -47,19 +47,22 @@ public class PieceGenerator {
         while (tries < Configuration.PieceGeneration.MAX_TRIES) {
             tries++;
             final Part p;
-            if (randomRange(0, 99) < Configuration.PieceGeneration.LINE_PERCENT) {
+            double random = randomRange(0, 99);
+            if (random < Configuration.PieceGeneration.LINE_PERCENT) {
                 p = new Line(randomPoint(svg,
                         () -> randomPoint(Configuration.Piece.WIDTH / 2)));
-            } else {
+            } else if (random < Configuration.PieceGeneration.ARC_PERCENT) {
                 p = new Arc(randomPoint(svg,
                         () -> randomPoint(Configuration.Piece.WIDTH / 2)),
                         randomPoint());
+            } else {
+                p = new DoubleArc(randomPoint(svg,
+                        () -> randomPoint(Configuration.Piece.WIDTH / 2)),
+                        randomPoint(), randomPoint());
             }
 
-//            p = new DoubleArc(randomPoint(svg, () -> randomPoint(Configuration.Piece.WIDTH / 2)),
-//                    randomPoint(), randomPoint());
 
-            if (!svg.intersectsWithAny(p)) {
+            if (Configuration.ALLOW_INTERSECTIONS || !svg.intersectsWithAny(p)) {
                 return p;
             }
         }
@@ -71,14 +74,17 @@ public class PieceGenerator {
         while (tries < Configuration.PieceGeneration.MAX_TRIES) {
             tries++;
             final Part p;
-            if (randomRange(0, 99) < Configuration.PieceGeneration.LINE_PERCENT) {
+            double random = randomRange(0, 99);
+            if (random < Configuration.PieceGeneration.LINE_PERCENT) {
                 p = new Line(randomPoint(svg, PieceGenerator::randomPoint));
-            } else {
+            } else if (random < Configuration.PieceGeneration.ARC_PERCENT) {
                 p = new Arc(randomPoint(svg, PieceGenerator::randomPoint), randomPoint());
+            } else {
+                p = new DoubleArc(randomPoint(svg, PieceGenerator::randomPoint),
+                        randomPoint(), randomPoint());
             }
-//             p = new DoubleArc(randomPoint(svg, PieceGenerator::randomPoint), randomPoint(), randomPoint());
 
-            if (!svg.intersectsWithAny(p)) {
+            if (Configuration.ALLOW_INTERSECTIONS || !svg.intersectsWithAny(p)) {
                 return p;
             }
         }

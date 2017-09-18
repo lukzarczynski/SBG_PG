@@ -7,10 +7,16 @@ import com.lukzar.model.Point;
 
 public class Configuration {
 
+    public static int NUMBER_OF_EVOLUTIONS = 10;
+
+    public static boolean ALLOW_INTERSECTIONS = false;
+
     public static class PieceGeneration {
         public static final int LINE_PERCENT = 10;
+        public static final int ARC_PERCENT = 70;
+        //         DOUBLE_ARC_PERCENT = 100 - line - arc;
         public static final int MIN_PARTS = 2;
-        public static final int MAX_PARTS = 4;
+        public static final int MAX_PARTS = 5;
         public static final int MAX_TRIES = 5;
     }
 

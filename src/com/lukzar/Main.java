@@ -1,5 +1,6 @@
 package com.lukzar;
 
+import com.lukzar.config.Configuration;
 import com.lukzar.config.Templates;
 import com.lukzar.model.Piece;
 import com.lukzar.services.Evolution;
@@ -21,15 +22,14 @@ public class Main {
 
         final Evolution evolution = new Evolution();
         evolution.initialize();
-        System.out.println(evolution.getPopulation().size());
-        writeToFile(evolution.getPopulation(), "out/initial_population");
-//        writeToFile(evolution.getPopulation().stream().map(Main::getConverted).collect(Collectors.toList()), "out/initial_population_conv");
+        System.out.println("Initial population size: " + evolution.getPopulation().size());
+        evolution.getPopulation().sort(Evolution.FITNESS_COMPARATOR);
+        writeToFile(evolution.getPopulation(), "out/population_0");
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 1; i <= Configuration.NUMBER_OF_EVOLUTIONS; i++) {
             evolution.evolvePopulation();
-            System.out.println(evolution.getPopulation().size());
-            writeToFile(evolution.getPopulation(), String.format("out/image_%s", i));
-//            writeToFile(evolution.getPopulation().stream().map(Main::getConverted).collect(Collectors.toList()), String.format("out/image_%s_conv", i));
+            System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
+            writeToFile(evolution.getPopulation(), String.format("out/population_%s", i));
 
         }
     }

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class Evolution {
 
-    private static final Comparator<Piece> FITNESS_COMPARATOR = (a, b) -> {
+    public static final Comparator<Piece> FITNESS_COMPARATOR = (a, b) -> {
         double d1 = FitnessUtil.calculateFitness(b);
         double d2 = FitnessUtil.calculateFitness(a);
         return Double.compare(d1, d2);
@@ -48,19 +48,20 @@ public class Evolution {
         while (i < Configuration.Evolution.CROSSOVER_SIZE) {
             Piece crossover = crossover(tournamentSelection(), tournamentSelection());
             crossover.updateStartPoints();
-            if (!crossover.intersects()) {
+            if (Configuration.ALLOW_INTERSECTIONS || !crossover.intersects()) {
                 population.add(crossover);
                 i++;
             } else {
                 j++;
             }
         }
-        System.out.println("Crossover intersects: " + j);
 
         // Mutate population
         population.forEach(this::mutate);
         population.forEach(Piece::updateStartPoints);
-        population.removeIf(Piece::intersects);
+        if (!Configuration.ALLOW_INTERSECTIONS) {
+            population.removeIf(Piece::intersects);
+        }
         population.removeIf(p -> FitnessUtil.getMinDegree(p) < Configuration.Piece.MIN_DEGREE);
         population = population.stream().distinct().collect(Collectors.toList());
         population.sort(FITNESS_COMPARATOR);

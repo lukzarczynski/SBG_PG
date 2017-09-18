@@ -4,6 +4,7 @@ import com.lukzar.config.Configuration;
 import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
 import com.lukzar.model.elements.Arc;
+import com.lukzar.model.elements.DoubleArc;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.PolygonUtils;
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 import static com.lukzar.utils.PolygonUtils.distance;
 
@@ -23,40 +25,88 @@ import static com.lukzar.utils.PolygonUtils.distance;
 public class FitnessUtil {
 
     public static double calculateFitness(Piece svg) {
-        double result = 0.0;
 
+        //util
+        double fullHeight = Configuration.Piece.HEIGHT;
+        double halfHeight = fullHeight / 2;
+        double quarterHeight = fullHeight / 4;
+
+        // attributes
         double height = figureHeight(svg);
         double width = figureWidth(svg);
+        double areaUpperHalf = area(svg, 0, halfHeight);
+        double areaLowerHalf = area(svg, halfHeight, height);
+        double lengthOfLines = linesLength(svg);
+        double lengthOfArcs = arcLength(svg);
+        double lengthOfDoubleArcs = doubleArcLength(svg);
+        double areaMiddle = area(svg, quarterHeight, halfHeight + quarterHeight);
+        double boxLength = (2 * height) + (2 * width);
 
-        result += normalize(height / width);
-        result += normalize(1 - (linesLength(svg) / ((2 * height) + (2 * width))));
-        result += normalize(arcLength(svg) / ((2 * height) + (2 * width)));
-        result += normalize(area(svg, 0, Configuration.Piece.HEIGHT / 2)
-                / area(svg, Configuration.Piece.HEIGHT / 2, Configuration.Piece.HEIGHT));
-
-        double middle = area(svg, Configuration.Piece.HEIGHT / 4,
-                (Configuration.Piece.HEIGHT / 2) + (Configuration.Piece.HEIGHT / 4));
-        result += normalize(middle / area(svg));
-
+        // fitness
+        double result = 0.0;
+        result += normalize(1 - (height / width));
+        result += normalize(1 - (lengthOfLines / boxLength));
+        result += normalize(lengthOfArcs / boxLength);
+        result += normalize(lengthOfDoubleArcs / boxLength);
+        result += normalize(areaUpperHalf / areaLowerHalf);
+        result += normalize(areaMiddle / area(svg));
         return result;
     }
 
     public static double normalize(double x) {
-        return 1 / (1 + Math.exp(-5 * (x - 1)));
+
+        double v = 1 / (1 + Math.exp(-5 * (x - 1)));
+        if (Double.isNaN(v)) {
+            return 0.0;
+        }
+        return v;
     }
 
+    public static List<String> getAttributes(Piece piece) {
+
+        double fullHeight = Configuration.Piece.HEIGHT;
+        double halfHeight = fullHeight / 2;
+        double quarterHeight = fullHeight / 4;
+
+        double height = figureHeight(piece);
+        double width = figureWidth(piece);
+
+        return Arrays.asList(
+                String.format("FITNESS: %.3f", calculateFitness(piece)),
+                String.format("Double Arc Length: %.3f", doubleArcLength(piece)),
+                String.format("Arc Length: %.3f", arcLength(piece)),
+                String.format("Line Length: %.3f", linesLength(piece)),
+                String.format("Box Length: %.3f", (2 * height) + (2 * width)),
+                String.format("Area: %.3f", area(piece)),
+                String.format("Top Area: %.3f", area(piece, 0, halfHeight)),
+                String.format("Bottom Area: %.3f", area(piece, halfHeight, fullHeight)),
+                String.format("Middle Area: %.3f", area(piece, quarterHeight, halfHeight + quarterHeight)),
+                String.format("Min Degree: %.3f", getMinDegree(piece)),
+                String.format("Height: %.3f", height),
+                String.format("Width: %.3f", width)
+        );
+    }
+
+
     public static double figureHeight(Piece svg) {
-        return svg.getParts().stream()
-                .mapToDouble(p -> p.getEndPos().getY())
-                .max().orElse(0);
+        return Configuration.Piece.HEIGHT -
+                DoubleStream.concat(
+                        svg.getConverted().stream()
+                                .mapToDouble(p -> p.getEndPos().getY()),
+                        svg.getConverted().stream()
+                                .mapToDouble(p -> p.getStartPos().getY()))
+                        .min()
+                        .orElse(Configuration.Piece.HEIGHT);
     }
 
     public static double figureWidth(Piece svg) {
-        return svg.getParts().stream()
-                .mapToDouble(p -> p.getEndPos().getX())
-                .map(d -> d - (Configuration.Piece.WIDTH / 2.0))
+        return 2.0 * (DoubleStream.concat(
+                svg.getConverted().stream()
+                        .mapToDouble(p -> p.getEndPos().getX()),
+                svg.getConverted().stream()
+                        .mapToDouble(p -> p.getStartPos().getX()))
                 .max()
-                .orElse(0);
+                .orElse(0) - (Configuration.Piece.WIDTH / 2.0));
     }
 
     /**
@@ -75,6 +125,19 @@ public class FitnessUtil {
     public static double arcLength(Piece svg) {
         return svg.getParts().stream()
                 .filter(p -> p instanceof Arc)
+                .map(Part::convertToLines)
+                .flatMap(Collection::stream)
+                .mapToDouble(p -> distance(p.getStartPos(), p.getEndPos()))
+                .sum();
+
+    }
+
+    /**
+     * calculates lenght of double arcs
+     */
+    public static double doubleArcLength(Piece svg) {
+        return svg.getParts().stream()
+                .filter(p -> p instanceof DoubleArc)
                 .map(Part::convertToLines)
                 .flatMap(Collection::stream)
                 .mapToDouble(p -> distance(p.getStartPos(), p.getEndPos()))
@@ -134,21 +197,5 @@ public class FitnessUtil {
 
         return result;
 
-    }
-
-    public static List<String> getAttributes(Piece piece) {
-        return Arrays.asList(
-                String.format("FITNESS: %.3f", calculateFitness(piece)),
-                String.format("Arc Length: %.3f", arcLength(piece)),
-                String.format("Line Length: %.3f", linesLength(piece)),
-                String.format("Area: %.3f", area(piece)),
-                String.format("Top Area: %.3f", area(piece, 0, Configuration.Piece.HEIGHT / 2)),
-                String.format("Bottom Area: %.3f", area(piece, Configuration.Piece.HEIGHT / 2, Configuration.Piece.HEIGHT)),
-                String.format("Middle Area: %.3f", area(piece, Configuration.Piece.HEIGHT / 4,
-                        (Configuration.Piece.HEIGHT / 2) + (Configuration.Piece.HEIGHT / 4))),
-                String.format("Min Degree: %.3f", getMinDegree(piece)),
-                String.format("Height: %.3f", figureHeight(piece)),
-                String.format("Width: %.3f", figureWidth(piece))
-        );
     }
 }

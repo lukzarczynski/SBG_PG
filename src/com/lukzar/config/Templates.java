@@ -19,7 +19,7 @@ public class Templates {
             try {
                 LIST_TEMPLATE = new String(Files.readAllBytes(Paths.get("resources/templates/image_list_template.html")));
             } catch (IOException e) {
-                throw new RuntimeException("Could not load template", e);
+                throw new RuntimeException("Could not load list template", e);
             }
         }
         return LIST_TEMPLATE;
