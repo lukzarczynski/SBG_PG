@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body id="body_id">
+<h2> Configuration </h2>
+<ul>
+    <li>ALLOW_INTERSECTIONS = false</li>
+    <li>MIN_DEGREE = 15</li>
+    <li>LINE_PERCENT = 20</li>
+    <li>ARC_PERCENT = 80</li>
+    <li>DOUBLE_ARC_PERCENT = 0</li>
+    <li>MIN_PARTS = 3</li>
+    <li>MAX_PARTS = 5</li>
+    <li>START_MIN = 110</li>
+    <li>START_MAX = 190</li>
+</ul>
+<h2> Fitness </h2>
+</br>double result = 0.0;
+</br>result += normalize((height / width));
+</br>result += normalize(1 - (lengthOfLines / boxLength));
+</br>result += normalize(lengthOfArcs / boxLength);
+</br>result += normalize(lengthOfDoubleArcs / boxLength);
+</br>result += normalize(areaLowerHalf / areaUpperHalf);
+</br>result += normalize(areaMiddle / area(svg));
+</br>
+</br>
+normalize(x) = 1 / (1 + Math.exp(-5 * (x - 1)))
+</body>
+</html>

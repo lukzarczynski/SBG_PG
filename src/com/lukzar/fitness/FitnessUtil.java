@@ -9,11 +9,7 @@ import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.PolygonUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -44,11 +40,11 @@ public class FitnessUtil {
 
         // fitness
         double result = 0.0;
-        result += normalize(1 - (height / width));
+        result += normalize((height / width));
         result += normalize(1 - (lengthOfLines / boxLength));
         result += normalize(lengthOfArcs / boxLength);
         result += normalize(lengthOfDoubleArcs / boxLength);
-        result += normalize(areaUpperHalf / areaLowerHalf);
+        result += normalize(areaLowerHalf / (areaUpperHalf + 0.001));
         result += normalize(areaMiddle / area(svg));
         return result;
     }
@@ -157,7 +153,7 @@ public class FitnessUtil {
     /**
      * Calculates area of piece (only right half of piece) in between lines: <ul> <li>(0, min_y) -
      * (WIDTH, min_y)</li> <li>(0, max_y) - (WIDTH, max_y)</li> </ul>
-     *
+     * <p>
      * For example: min_y = 0, max_y = HEIGHT will calculate whole piece area
      */
     public static double area(Piece piece, double min_y, double max_y) {

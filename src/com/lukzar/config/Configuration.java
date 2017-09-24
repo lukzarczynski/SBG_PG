@@ -3,8 +3,6 @@
  */
 package com.lukzar.config;
 
-import com.lukzar.model.Point;
-
 public class Configuration {
 
     public static int NUMBER_OF_EVOLUTIONS = 10;
@@ -12,12 +10,15 @@ public class Configuration {
     public static boolean ALLOW_INTERSECTIONS = false;
 
     public static class PieceGeneration {
-        public static final int LINE_PERCENT = 10;
-        public static final int ARC_PERCENT = 70;
+        public static final int LINE_PERCENT = 20;
+        public static final int ARC_PERCENT = 80;
         //         DOUBLE_ARC_PERCENT = 100 - line - arc;
-        public static final int MIN_PARTS = 2;
+        public static final int MIN_PARTS = 3;
         public static final int MAX_PARTS = 5;
         public static final int MAX_TRIES = 5;
+
+        public static final int START_MIN = 110;
+        public static final int START_MAX = 190;
     }
 
     public static class Evolution {
@@ -29,7 +30,6 @@ public class Configuration {
     }
 
     public static class Piece {
-        public static final Point START = Point.of(120, 200);
         public static final double WIDTH = 200;
         public static final double HEIGHT = 200;
         public static final double MIN_DEGREE = 15;

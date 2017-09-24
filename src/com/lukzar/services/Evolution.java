@@ -44,15 +44,12 @@ public class Evolution {
     // Evolve a population
     public void evolvePopulation() {
         int i = 0;
-        int j = 0;
         while (i < Configuration.Evolution.CROSSOVER_SIZE) {
             Piece crossover = crossover(tournamentSelection(), tournamentSelection());
             crossover.updateStartPoints();
             if (Configuration.ALLOW_INTERSECTIONS || !crossover.intersects()) {
                 population.add(crossover);
                 i++;
-            } else {
-                j++;
             }
         }
 
@@ -97,7 +94,7 @@ public class Evolution {
     }
 
     private Piece crossover(Piece piece1, Piece piece2) {
-        Piece newSol = new Piece();
+        Piece newSol = new Piece(piece1.getStart());
         for (int i = 0; i < Math.ceil(piece1.getParts().size() / 2); i++) {
             newSol.add(piece1.getParts().get(i));
         }

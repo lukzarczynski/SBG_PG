@@ -28,7 +28,11 @@ public class PieceGenerator {
                 Configuration.PieceGeneration.MIN_PARTS,
                 Configuration.PieceGeneration.MAX_PARTS);
 
-        final Piece svg = new Piece();
+        final Piece svg = new Piece(
+                Point.of(randomRange(
+                        Configuration.PieceGeneration.START_MIN,
+                        Configuration.PieceGeneration.START_MAX),
+                        Configuration.Piece.HEIGHT));
 
         while (svg.getParts().size() < numberOfParts - 1) {
             svg.add(generatePart(svg));

@@ -35,7 +35,7 @@ public class Main {
     }
 
     private static Piece getConverted(Piece piece) {
-        Piece p = new Piece();
+        Piece p = new Piece(piece.getStart());
         p.addAll(piece.getConverted());
         p.updateStartPoints();
         return p;

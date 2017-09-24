@@ -25,9 +25,9 @@ public class Piece {
         this.start = start;
     }
 
-    public Piece() {
-        this.start = Configuration.Piece.START;
-    }
+//    public Piece() {
+//        this.start = Configuration.Piece.START;
+//    }
 
     public String toSvg() {
         StringBuilder reverse = new StringBuilder("\n");
