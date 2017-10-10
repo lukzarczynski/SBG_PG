@@ -54,6 +54,11 @@ public class Evolution {
         }
 
         // Mutate population
+        population.forEach(p -> {
+            if (Math.random() <= Configuration.Evolution.ASYMMETRIC_RATE) {
+                p.convertToAsymmetric();
+            }
+        });
         population.forEach(this::mutate);
         population.forEach(Piece::updateStartPoints);
         if (!Configuration.ALLOW_INTERSECTIONS) {
@@ -70,25 +75,31 @@ public class Evolution {
     private void mutate(Piece piece) {
         for (Part part : piece.getParts()) {
             if (Math.random() <= Configuration.Evolution.MUTATION_RATE) {
-                mutate(part.getEndPos(), !part.equals(piece.getParts().peekLast()));
+                mutate(part.getEndPos(), part.equals(piece.getParts().peekLast()), piece.isAsymmetric());
                 if (part instanceof Arc) {
-                    mutate(((Arc) part).getQ(), true);
+                    mutate(((Arc) part).getQ(), false, piece.isAsymmetric());
                 }
             }
         }
         piece.updateStartPoints();
     }
 
-    private void mutate(Point point, boolean mutateX) {
-        point.setY(RandomUtils.randomRange(
-                Math.max(0, point.getY() - Configuration.Evolution.MUTATION_OFFSET),
-                Math.min(Configuration.Piece.HEIGHT, point.getY() + Configuration.Evolution.MUTATION_OFFSET)
-        ));
+    private void mutate(Point point, boolean last, boolean asymmetric) {
+        if (!(last && asymmetric)) {
+            point.setY(RandomUtils.randomRange(
+                    Math.max(0,
+                            point.getY() - Configuration.Evolution.MUTATION_OFFSET),
+                    Math.min(Configuration.Piece.HEIGHT,
+                            point.getY() + Configuration.Evolution.MUTATION_OFFSET)
+            ));
+        }
 
-        if (mutateX) {
+        if (!(last && !asymmetric)) {
+            double min = asymmetric ? 0 : Configuration.Piece.WIDTH / 2.0;
+            double max = Configuration.Piece.WIDTH;
             point.setX(RandomUtils.randomRange(
-                    Math.max(Configuration.Piece.WIDTH / 2.0, point.getX() - Configuration.Evolution.MUTATION_OFFSET),
-                    Math.min(Configuration.Piece.HEIGHT, point.getX() + Configuration.Evolution.MUTATION_OFFSET)
+                    Math.max(min, point.getX() - Configuration.Evolution.MUTATION_OFFSET),
+                    Math.min(max, point.getX() + Configuration.Evolution.MUTATION_OFFSET)
             ));
         }
     }

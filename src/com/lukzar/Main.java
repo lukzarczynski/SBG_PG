@@ -29,6 +29,7 @@ public class Main {
         for (int i = 1; i <= Configuration.NUMBER_OF_EVOLUTIONS; i++) {
             evolution.evolvePopulation();
             System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
+            System.out.println(evolution.getPopulation().stream().filter(p -> p.isAsymmetric()).count());
             writeToFile(evolution.getPopulation(), String.format("out/population_%s", i));
 
         }

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    svg {
+
+        fill: none;
+        stroke: #000;
+    }
+</style>
+<script>
+
+    window.onload = function () {
+
+        var currentElement = null;
+
+        function start(id) {
+            console.log(id);
+            var elem = document.getElementById(id);
+            elem.onmouseup = function (e) {
+                e.target.onmousemove = function () {
+                    console.log("emty")
+                };
+            };
+            elem.onmousedown = function (e) {
+                console.log("on mouse down");
+                currentElement = e.target;
+                e.target.onmousemove = function (e1) {
+                    if (currentElement === e.target) {
+                        e1.target.setAttributeNS(null, "cx", e1.offsetX);
+                        e1.target.setAttributeNS(null, "cy", e1.offsetY);
+                    }
+
+                    draw();
+                }
+            };
+        }
+
+        start("start");
+        start("A1");
+        start("A2");
+        start("B1");
+        start("B2");
+        start("C1");
+        start("C2");
+        start("D1");
+        start("D2");
+
+        draw();
+
+        function draw() {
+            var path = "M" + getXY("start") + " "
+                + getArc("A1", "A2") + " "
+                + getArc("B1", "B2") + " "
+                + getArc("C1", "C2") + " "
+                + getArc("D1", "D2");
+
+            document.getElementById("path").setAttributeNS(null, "d", path);
+        }
+
+        function getArc(b, c) {
+            return "Q" + getXY(b) + " " + getXY(c);
+        }
+
+        function getXY(el) {
+
+            var element = document.getElementById(el);
+            var x = element.getAttributeNS(null, "cx");
+            var y = element.getAttributeNS(null, "cy");
+
+            return x + "," + y;
+        }
+
+    }
+</script>
+<body>
+
+
+<svg>
+
+    <div style="display: inline-block">
+
+        <div style="float: left">
+            <svg viewBox="0 0 200 200" class="svg" height="200px" width="200px">
+
+                <rect height="200" width="200" stroke-width="1" stroke="black" fill="none"></rect>
+
+                <circle class="draggable" id="start" cx="50" cy="40" r="5" fill="grey"/>
+                <circle class="draggable" id="A1" cx="50" cy="50" r="5" fill="red"/>
+                <circle class="draggable" id="A2" cx="60" cy="50" r="5" fill="red"/>
+                <circle class="draggable" id="B1" cx="50" cy="60" r="5" fill="blue"/>
+                <circle class="draggable" id="B2" cx="60" cy="60" r="5" fill="blue"/>
+                <circle class="draggable" id="C1" cx="50" cy="70" r="5" fill="yellow"/>
+                <circle class="draggable" id="C2" cx="60" cy="70" r="5" fill="yellow"/>
+                <circle class="draggable" id="D1" cx="50" cy="80" r="5" fill="green"/>
+                <circle class="draggable" id="D2" cx="60" cy="80" r="5" fill="green"/>
+
+                <path id="path" d="M141.456169,200.000000
+
+Z"></path>
+            </svg>
+        </div>
+    </div>
+</svg>
+
+</body>
+</html>

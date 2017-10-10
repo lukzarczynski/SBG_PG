@@ -27,11 +27,12 @@ public class Configuration {
         public static final int CROSSOVER_SIZE = 200;
         public static final double MUTATION_RATE = 0.1;
         public static final double MUTATION_OFFSET = 20.0;
+        public static final double ASYMMETRIC_RATE = 0.01;
     }
 
     public static class Piece {
         public static final double WIDTH = 200;
         public static final double HEIGHT = 200;
-        public static final double MIN_DEGREE = 15;
+        public static final double MIN_DEGREE = 0;
     }
 }

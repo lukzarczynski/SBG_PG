@@ -27,7 +27,16 @@ public class Line extends Part {
 
     @Override
     public String toSvgReversed() {
-        return String.format(Locale.US, "L%f,%f", Configuration.Piece.WIDTH - startPos.getX(), startPos.getY());
+        double x = Configuration.Piece.WIDTH - startPos.getX();
+        double y = startPos.getY();
+        return String.format(Locale.US, "L%f,%f", x, y);
+    }
+
+    @Override
+    public Line reverse() {
+        double x = Configuration.Piece.WIDTH - startPos.getX();
+        double y = startPos.getY();
+        return new Line(Point.of(x, y));
     }
 
     @Override

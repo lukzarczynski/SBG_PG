@@ -9,8 +9,10 @@ import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.PolygonUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.DoubleStream;
 
 import static com.lukzar.utils.PolygonUtils.distance;
@@ -79,7 +81,9 @@ public class FitnessUtil {
                 String.format("Middle Area: %.3f", area(piece, quarterHeight, halfHeight + quarterHeight)),
                 String.format("Min Degree: %.3f", getMinDegree(piece)),
                 String.format("Height: %.3f", height),
-                String.format("Width: %.3f", width)
+                String.format("Width: %.3f", width),
+                String.format("Symmetric: %s", !piece.isAsymmetric()),
+                String.format("Average degree: %.3f", getAverageDegree(piece))
         );
     }
 
@@ -109,7 +113,8 @@ public class FitnessUtil {
      * calculates length of lines
      */
     public static double linesLength(Piece svg) {
-        return svg.getParts().stream()
+        return (svg.isAsymmetric() ? 1.0 : 2.0)
+                * svg.getParts().stream()
                 .filter(p -> p instanceof Line)
                 .mapToDouble(p -> distance(p.getStartPos(), p.getEndPos()))
                 .sum();
@@ -119,7 +124,8 @@ public class FitnessUtil {
      * calculates lenght of arcs
      */
     public static double arcLength(Piece svg) {
-        return svg.getParts().stream()
+        return (svg.isAsymmetric() ? 1.0 : 2.0)
+                * svg.getParts().stream()
                 .filter(p -> p instanceof Arc)
                 .map(Part::convertToLines)
                 .flatMap(Collection::stream)
@@ -132,7 +138,8 @@ public class FitnessUtil {
      * calculates lenght of double arcs
      */
     public static double doubleArcLength(Piece svg) {
-        return svg.getParts().stream()
+        return (svg.isAsymmetric() ? 1.0 : 2.0)
+                * svg.getParts().stream()
                 .filter(p -> p instanceof DoubleArc)
                 .map(Part::convertToLines)
                 .flatMap(Collection::stream)
@@ -142,12 +149,7 @@ public class FitnessUtil {
     }
 
     public static double area(Piece piece) {
-        List<Point> collect = piece.getConverted().stream().map(Line::getEndPos)
-                .collect(Collectors.toList());
-        collect.add(0, piece.getStart());
-        collect.add(Point.of(Configuration.Piece.WIDTH / 2, piece.getStart().getY()));
-
-        return PolygonUtils.calculateArea(collect);
+        return area(piece, 0, Configuration.Piece.HEIGHT);
     }
 
     /**
@@ -158,7 +160,8 @@ public class FitnessUtil {
      */
     public static double area(Piece piece, double min_y, double max_y) {
         List<Point> trimmed = PolygonUtils.trim(piece, min_y, max_y);
-        return PolygonUtils.calculateArea(trimmed);
+        return (piece.isAsymmetric() ? 1.0 : 2.0)
+                * PolygonUtils.calculateArea(trimmed);
     }
 
     public static double getMinDegree(Piece piece) {
@@ -169,26 +172,33 @@ public class FitnessUtil {
         return getArcs(piece).stream().mapToDouble(a -> a).max().orElse(0.0);
     }
 
+    public static double getAverageDegree(Piece piece) {
+        List<Double> arcs = getArcs(piece);
+        return arcs.stream().mapToDouble(a -> a).average().getAsDouble();
+    }
+
     /**
      * Returns list of arcs in degree for piece Note that arc are converted to lines so its very
      * likely that most of the arc will be close to 180 degrees
      */
     public static List<Double> getArcs(Piece piece) {
-        Point start = Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT);
-        Point end = Point.of(Configuration.Piece.WIDTH / 2.0, 0);
-        LinkedList<Point> points = new LinkedList<>();
-        points.addAll(piece.getConverted().stream().map(Line::getEndPos).collect(Collectors.toList()));
-        points.addFirst(piece.getStart());
-        points.addFirst(start);
-        points.addLast(end);
+
+        Point a = Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT);
+        Point b;
+        Point c;
 
         List<Double> result = new ArrayList<>();
 
-        for (int i = 0; i < points.size() - 2; i++) {
-            Point a = points.get(i);
-            Point b = points.get(i + 1);
-            Point c = points.get(i + 2);
+        for (Part part : piece.getParts()) {
+            List<Line> lines = part.convertToLines();
+            Line firstLine = lines.get(0);
+            Line lastLine = lines.get(lines.size() - 1);
+
+            b = firstLine.getStartPos();
+            c = firstLine.getEndPos();
             result.add(PolygonUtils.calculateArc(a, b, c));
+
+            a = lastLine.getStartPos();
         }
 
         return result;

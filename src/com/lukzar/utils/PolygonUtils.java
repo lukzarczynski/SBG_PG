@@ -5,11 +5,7 @@ import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
 import com.lukzar.model.elements.Line;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -28,7 +24,11 @@ public class PolygonUtils {
                 .map(p -> Point.of(p.getX(), trim(p.getY(), min, max)))
                 .collect(Collectors.toList());
         result.add(0, Point.of(piece.getStart().getX(), trim(piece.getStart().getY(), min, max)));
-        result.add(Point.of(Configuration.Piece.WIDTH / 2.0, max));
+        result.add(Point.of(
+                piece.isAsymmetric() ?
+                        piece.getParts().getLast().getEndPos().getX() :
+                        Configuration.Piece.WIDTH / 2.0,
+                max));
         return result;
 
     }

@@ -30,10 +30,31 @@ public class DoubleArc extends Part {
 
     @Override
     public String toSvgReversed() {
+        double ax = Configuration.Piece.WIDTH - q2.getX();
+        double ay = q2.getY();
+        double bx = Configuration.Piece.WIDTH - q1.getX();
+        double by = q1.getY();
+        double cx = Configuration.Piece.WIDTH - startPos.getX();
+        double cy = startPos.getY();
         return String.format(Locale.US, "C%f,%f %f,%f %f,%f",
-                Configuration.Piece.WIDTH - q2.getX(), q2.getY(),
-                Configuration.Piece.WIDTH - q1.getX(), q1.getY(),
-                Configuration.Piece.WIDTH - startPos.getX(), startPos.getY());
+                ax, ay,
+                bx, by,
+                cx, cy);
+    }
+
+    @Override
+    public DoubleArc reverse() {
+        double ax = Configuration.Piece.WIDTH - q2.getX();
+        double ay = q2.getY();
+        double bx = Configuration.Piece.WIDTH - q1.getX();
+        double by = q1.getY();
+        double cx = Configuration.Piece.WIDTH - startPos.getX();
+        double cy = startPos.getY();
+        return new DoubleArc(
+                Point.of(cx, cy),
+                Point.of(ax, ay),
+                Point.of(bx, by)
+        );
     }
 
     @Override

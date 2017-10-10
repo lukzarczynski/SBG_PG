@@ -1,17 +1,12 @@
 package com.lukzar.model;
 
-import com.lukzar.config.Configuration;
 import com.lukzar.config.Templates;
 import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.IntersectionUtil;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,16 +15,17 @@ public class Piece {
     private final Point start;
     private final LinkedList<Part> parts = new LinkedList<>();
     private final Map<Part, List<Line>> convertedToLines = new HashMap<>();
+    private boolean asymmetric;
 
     public Piece(Point start) {
         this.start = start;
     }
 
-//    public Piece() {
-//        this.start = Configuration.Piece.START;
-//    }
-
     public String toSvg() {
+        return asymmetric ? toSvgAsymmetric() : toSvgSymmetric();
+    }
+
+    private String toSvgSymmetric() {
         StringBuilder reverse = new StringBuilder("\n");
 
         updateStartPoints();
@@ -46,6 +42,34 @@ public class Piece {
                 FitnessUtil.getAttributes(this).stream()
                         .map(s -> "<li>" + s + "</li>")
                         .collect(Collectors.joining("\n")));
+    }
+
+    private String toSvgAsymmetric() {
+        updateStartPoints();
+
+        return String.format(Templates.getImageTemplate(),
+                this.start.toSvg(),
+                parts.stream()
+                        .map(Part::toSvg)
+                        .collect(Collectors.joining("\n")),
+                "  \n",
+                FitnessUtil.getAttributes(this).stream()
+                        .map(s -> "<li>" + s + "</li>")
+                        .collect(Collectors.joining("\n")));
+    }
+
+    public void convertToAsymmetric() {
+
+        if (asymmetric) {
+            return;
+        }
+
+        LinkedList<Part> reversedParts = new LinkedList<>();
+        this.parts.descendingIterator().forEachRemaining(p -> reversedParts.add(p.reverse()));
+
+        this.parts.addAll(reversedParts);
+        updateStartPoints();
+        this.asymmetric = true;
     }
 
     /**
@@ -118,6 +142,14 @@ public class Piece {
 
     public Map<Part, List<Line>> getConvertedToLines() {
         return this.convertedToLines;
+    }
+
+    public boolean isAsymmetric() {
+        return asymmetric;
+    }
+
+    public void setAsymmetric(boolean asymmetric) {
+        this.asymmetric = asymmetric;
     }
 
     @Override

@@ -25,6 +25,8 @@ public abstract class Part {
 
     public abstract String toSvgReversed();
 
+    public abstract Part reverse();
+
     public abstract List<Line> convertToLines();
 
     public Point getEndPos() {
