@@ -8,11 +8,13 @@ import com.lukzar.model.elements.DoubleArc;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.PolygonUtils;
+import com.lukzar.utils.RayCasting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.DoubleStream;
 
 import static com.lukzar.utils.PolygonUtils.distance;
@@ -28,6 +30,15 @@ public class FitnessUtil {
         double fullHeight = Configuration.Piece.HEIGHT;
         double halfHeight = fullHeight / 2;
         double quarterHeight = fullHeight / 4;
+        boolean[][] ray = RayCasting.cast(svg);
+        Predicate<Point> upperHalf = p -> p.getY() < halfHeight;
+        Predicate<Point> lowerHalf = p -> p.getY() >= halfHeight;
+        Predicate<Point> quarterHalf = p -> p.getY() > quarterHeight && p.getY() < (halfHeight + quarterHeight);
+
+        double a = area(ray, upperHalf);
+        double b = area(ray, lowerHalf);
+        double c = area(ray, quarterHalf);
+        double d = area(ray, p -> true);
 
         // attributes
         double height = figureHeight(svg);
@@ -121,6 +132,26 @@ public class FitnessUtil {
     }
 
     /**
+     * area in percent (0..1)
+     */
+    public static double area(boolean[][] ray, Predicate<Point> predicate) {
+
+        int height = ray.length;
+        int width = ray[0].length;
+        int counter = 0;
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (ray[row][col] && predicate.test(Point.of(col, row))) {
+                    counter++;
+                }
+            }
+        }
+
+        return counter;
+    }
+
+    /**
      * calculates lenght of arcs
      */
     public static double arcLength(Piece svg) {
@@ -154,9 +185,8 @@ public class FitnessUtil {
 
     /**
      * Calculates area of piece (only right half of piece) in between lines: <ul> <li>(0, min_y) -
-     * (WIDTH, min_y)</li> <li>(0, max_y) - (WIDTH, max_y)</li> </ul>
-     * <p>
-     * For example: min_y = 0, max_y = HEIGHT will calculate whole piece area
+     * (WIDTH, min_y)</li> <li>(0, max_y) - (WIDTH, max_y)</li> </ul> <p> For example: min_y = 0,
+     * max_y = HEIGHT will calculate whole piece area
      */
     public static double area(Piece piece, double min_y, double max_y) {
         List<Point> trimmed = PolygonUtils.trim(piece, min_y, max_y);

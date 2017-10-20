@@ -63,13 +63,19 @@ public class Piece {
         if (asymmetric) {
             return;
         }
+        updateStartPoints();
 
         LinkedList<Part> reversedParts = new LinkedList<>();
         this.parts.descendingIterator().forEachRemaining(p -> reversedParts.add(p.reverse()));
 
-        this.parts.addAll(reversedParts);
-        updateStartPoints();
+        for (int i = this.parts.size() - 1; i >= 0; i--) {
+            Part p = this.parts.get(i);
+            this.parts.add(p.reverse());
+        }
+
+//        this.parts.addAll(reversedParts);
         this.asymmetric = true;
+        updateStartPoints();
     }
 
     /**

@@ -10,6 +10,8 @@ import java.util.Optional;
  */
 public class IntersectionUtil {
 
+    private static final double epsilon = 0.00001;
+
     public static Optional<Point> lineToLineIntersection(Line line1, Line line2) {
         return lineToLineIntersection(line1.getStartPos(), line1.getEndPos(),
                 line2.getStartPos(), line2.getEndPos());
@@ -46,7 +48,12 @@ public class IntersectionUtil {
     }
 
     private static boolean isInRangeInclusive(double x, double a, double b) {
-        return x >= Math.min(a, b) && x <= Math.max(a, b);
+        double min = Math.min(a, b);
+        double max = Math.max(a, b);
+        return (x >= min || doubleEquals(x, min)) && (x <= max || doubleEquals(x, max));
     }
 
+    private static boolean doubleEquals(double a, double b) {
+        return Math.abs(a - b) <= epsilon;
+    }
 }
