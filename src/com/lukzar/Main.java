@@ -26,10 +26,10 @@ public class Main {
         evolution.getPopulation().sort(Evolution.FITNESS_COMPARATOR);
         writeToFile(evolution.getPopulation(), "out/population_0");
 
-        for (int i = 1; i <= Configuration.NUMBER_OF_EVOLUTIONS; i++) {
+        for (int i = 1; i <= 50; i++) {
             evolution.evolvePopulation();
             System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
-            System.out.println(evolution.getPopulation().stream().filter(p -> p.isAsymmetric()).count());
+            System.out.println(evolution.getPopulation().stream().filter(Piece::isAsymmetric).count());
             writeToFile(evolution.getPopulation(), String.format("out/population_%s", i));
 
         }
@@ -37,7 +37,7 @@ public class Main {
 
     private static Piece getConverted(Piece piece) {
         Piece p = new Piece(piece.getStart());
-        p.addAll(piece.getConverted());
+        p.addAll(piece.getAsLines());
         p.updateStartPoints();
         return p;
     }

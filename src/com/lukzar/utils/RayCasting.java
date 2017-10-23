@@ -17,7 +17,7 @@ public class RayCasting {
 
     public static boolean[][] cast(Piece svg) {
         svg.convertToAsymmetric();
-        List<Line> converted = svg.getConverted();
+        List<Line> converted = svg.getAsLines();
         LinkedList<Line> ll = new LinkedList<>(converted);
 
         ll.addLast(new Line(ll.getLast().getEndPos(), ll.getFirst().getStartPos()));

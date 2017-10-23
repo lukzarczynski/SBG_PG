@@ -1,12 +1,13 @@
 package com.lukzar.model;
 
 import com.lukzar.config.Templates;
-import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.IntersectionUtil;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,48 +15,31 @@ public class Piece {
 
     private final Point start;
     private final LinkedList<Part> parts = new LinkedList<>();
-    private final Map<Part, List<Line>> convertedToLines = new HashMap<>();
+
     private boolean asymmetric;
 
     public Piece(Point start) {
         this.start = start;
     }
 
+    public Piece(Piece piece) {
+        this.start = piece.getStart();
+        this.parts.addAll(piece.getParts());
+        this.asymmetric = piece.isAsymmetric();
+    }
+
     public String toSvg() {
-        return asymmetric ? toSvgAsymmetric() : toSvgSymmetric();
-    }
-
-    private String toSvgSymmetric() {
-        StringBuilder reverse = new StringBuilder("\n");
-
-        updateStartPoints();
-
-        parts.descendingIterator()
-                .forEachRemaining(p -> reverse.append(p.toSvgReversed()).append("\n"));
-
-        return String.format(Templates.getImageTemplate(),
-                this.start.toSvg(),
-                parts.stream()
-                        .map(Part::toSvg)
-                        .collect(Collectors.joining("\n")),
-                reverse.toString(),
-                FitnessUtil.getAttributes(this).stream()
-                        .map(s -> "<li>" + s + "</li>")
-                        .collect(Collectors.joining("\n")));
-    }
-
-    private String toSvgAsymmetric() {
         updateStartPoints();
 
         return String.format(Templates.getImageTemplate(),
                 this.start.toSvg(),
-                parts.stream()
+                getAllParts().stream()
                         .map(Part::toSvg)
-                        .collect(Collectors.joining("\n")),
-                "  \n",
-                FitnessUtil.getAttributes(this).stream()
-                        .map(s -> "<li>" + s + "</li>")
-                        .collect(Collectors.joining("\n")));
+                        .collect(Collectors.joining("\n")), ""
+//                FitnessUtil.getAttributes(this).stream()
+//                        .map(s -> "<li>" + s + "</li>")
+//                        .collect(Collectors.joining("\n"))
+        );
     }
 
     public void convertToAsymmetric() {
@@ -65,22 +49,38 @@ public class Piece {
         }
         updateStartPoints();
 
-        LinkedList<Part> reversedParts = new LinkedList<>();
-        this.parts.descendingIterator().forEachRemaining(p -> reversedParts.add(p.reverse()));
-
         for (int i = this.parts.size() - 1; i >= 0; i--) {
-            Part p = this.parts.get(i);
-            this.parts.add(p.reverse());
+            this.parts.add(this.parts.get(i).reverse());
         }
 
-//        this.parts.addAll(reversedParts);
         this.asymmetric = true;
         updateStartPoints();
     }
 
-    /**
-     * @return return true when part p intersects with any other parts
-     */
+    public LinkedList<Part> getSymmetricHalf() {
+        if (asymmetric) {
+            return new LinkedList<>();
+        }
+        updateStartPoints();
+
+        LinkedList<Part> reversedParts = new LinkedList<>();
+
+        for (int i = this.parts.size() - 1; i >= 0; i--) {
+            reversedParts.add(this.parts.get(i).reverse());
+        }
+        return reversedParts;
+    }
+
+    public LinkedList<Part> getAllParts() {
+        if (asymmetric) {
+            return this.parts;
+        }
+        LinkedList<Part> result = new LinkedList<>(this.parts);
+        result.addAll(getSymmetricHalf());
+        updateStartPoints(result);
+        return result;
+    }
+
     public boolean intersectsWithAny(Part p) {
         return intersectsWithAny(p, parts.size());
     }
@@ -105,24 +105,26 @@ public class Piece {
         return false;
     }
 
-
     public boolean intersects() {
         return IntStream.range(0, parts.size())
                 .anyMatch(i -> intersectsWithAny(parts.get(i), i));
     }
 
     public void updateStartPoints() {
+        updateStartPoints(this.parts);
+    }
+
+    public void updateStartPoints(LinkedList<Part> parts) {
         Point s = this.start;
         for (Part p : parts) {
             p.setStartPos(s);
             s = p.getEndPos();
-            convertedToLines.computeIfAbsent(p, Part::convertToLines);
         }
     }
 
-    public List<Line> getConverted() {
-        updateStartPoints();
-        return getParts().stream().map(convertedToLines::get)
+    public List<Line> getAsLines() {
+        return getAllParts().stream()
+                .map(Part::convertToLines)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
@@ -146,16 +148,8 @@ public class Piece {
         parts.forEach(this::add);
     }
 
-    public Map<Part, List<Line>> getConvertedToLines() {
-        return this.convertedToLines;
-    }
-
     public boolean isAsymmetric() {
         return asymmetric;
-    }
-
-    public void setAsymmetric(boolean asymmetric) {
-        this.asymmetric = asymmetric;
     }
 
     @Override
@@ -176,6 +170,6 @@ public class Piece {
     }
 
     public String toString() {
-        return "com.lukzar.model.Piece(parts=" + this.getParts() + ", convertedToLines=" + this.getConvertedToLines() + ")";
+        return "com.lukzar.model.Piece(parts=" + this.getParts() + ")";
     }
 }

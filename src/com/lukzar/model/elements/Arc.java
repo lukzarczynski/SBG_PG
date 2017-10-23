@@ -30,17 +30,6 @@ public class Arc extends Part {
     }
 
     @Override
-    public String toSvgReversed() {
-        double a = Configuration.Piece.WIDTH - q.getX();
-        double b = q.getY();
-        double c = Configuration.Piece.WIDTH - startPos.getX();
-        double d = startPos.getY();
-        return String.format(Locale.US, "Q%f,%f %f,%f ",
-                a, b,
-                c, d);
-    }
-
-    @Override
     public Arc reverse() {
         double qx = Configuration.Piece.WIDTH - q.getX();
         double qy = q.getY();

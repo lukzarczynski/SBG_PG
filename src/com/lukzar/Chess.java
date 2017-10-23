@@ -111,7 +111,6 @@ public class Chess {
         king.add(new Arc(Point.of(100, 5), Point.of(115, 8)));
 
         rook.updateStartPoints();
-        FitnessUtil.getArcs(rook);
 
         Main.writeToFile(Arrays.asList(pawn, rook, knight, bishop, queen, king), "out/chess");
     }
@@ -188,7 +187,7 @@ public class Chess {
         king.add(new Arc(Point.of(100, 5), Point.of(115, 8)));
         Predicate<Point> triangularity = p -> {
             queen.convertToAsymmetric();
-            List<Line> converted = queen.getConverted();
+            List<Line> converted = queen.getAsLines();
             Point startPos = converted.get(0).getStartPos();
             Point endPos = converted.get(converted.size() - 1).getEndPos();
             return isInTriangle(
@@ -226,7 +225,7 @@ public class Chess {
 
     private String getRay(Piece knight) {
         knight.convertToAsymmetric();
-        List<Line> converted = knight.getConverted();
+        List<Line> converted = knight.getAsLines();
 
         LinkedList<Line> ll = new LinkedList<>(converted);
 

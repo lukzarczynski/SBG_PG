@@ -4,17 +4,16 @@ import java.util.Locale;
 
 public class Point {
 
-    private double x;
-    private double y;
+    private final double x;
+    private final double y;
 
-    public Point() {
+    private Point(double x, double y) {
+        this.x = x;
+        this.y = y;
     }
 
     public static Point of(double x, double y) {
-        Point point = new Point();
-        point.setX(x);
-        point.setY(y);
-        return point;
+        return new Point(x, y);
     }
 
     public String toSvg() {
@@ -25,16 +24,8 @@ public class Point {
         return this.x;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
     public double getY() {
         return this.y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
     }
 
     @Override

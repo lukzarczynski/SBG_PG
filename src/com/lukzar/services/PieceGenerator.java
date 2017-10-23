@@ -98,7 +98,7 @@ public class PieceGenerator {
 
     private static Point randomPoint(Piece svg, Supplier<Point> supp) {
         Point p = supp.get();
-        List<Point> points = svg.getConverted().stream().map(Line::getEndPos)
+        List<Point> points = svg.getAsLines().stream().map(Line::getEndPos)
                 .collect(Collectors.toList());
 
         while (true) {

@@ -55,15 +55,15 @@ public class FitnessUtil {
     public static double calculateFitness(Piece svg) {
 
         //util
-        boolean[][] ray = RayCasting.cast(svg);
+//        boolean[][] ray = RayCasting.cast(svg);
 
-        double fullImageArea = area(ray, p -> true);
-        double upperHalfArea = area(ray, upperHalf);
-        double lowerHalfArea = area(ray, lowerHalf);
-        double middleHalfArea = area(ray, middleHalf);
-        double middleXHalfArea = area(ray, middleXHalf);
-        double triangleArea = area(ray, triangle);
-        double baseWidth = area(ray, p -> p.getY() == 199);
+//        double fullImageArea = area(ray, p -> true);
+//        double upperHalfArea = area(ray, upperHalf);
+//        double lowerHalfArea = area(ray, lowerHalf);
+//        double middleHalfArea = area(ray, middleHalf);
+//        double middleXHalfArea = area(ray, middleXHalf);
+//        double triangleArea = area(ray, triangle);
+//        double baseWidth = area(ray, p -> p.getY() == 199);
 
         // attributes
         double height = figureHeight(svg);
@@ -120,7 +120,7 @@ public class FitnessUtil {
         double middleXHalfArea = area(ray, middleXHalf);
         double triangleArea = area(ray, triangle);
         double triangularity = area(ray, p -> {
-            List<Line> converted = piece.getConverted();
+            List<Line> converted = piece.getAsLines();
             Point startPos = converted.get(0).getStartPos();
             Point endPos = converted.get(converted.size() - 1).getEndPos();
             return isInTriangle(
@@ -161,7 +161,7 @@ public class FitnessUtil {
     }
 
     public static Point centroid(Piece svg) {
-        List<Line> converted = svg.getConverted();
+        List<Line> converted = svg.getAsLines();
         List<Point> points = converted.stream().map(Part::getEndPos)
                 .collect(Collectors.toList());
 
@@ -196,9 +196,9 @@ public class FitnessUtil {
     public static double figureHeight(Piece svg) {
         return Configuration.Piece.HEIGHT -
                 DoubleStream.concat(
-                        svg.getConverted().stream()
+                        svg.getAsLines().stream()
                                 .mapToDouble(p -> p.getEndPos().getY()),
-                        svg.getConverted().stream()
+                        svg.getAsLines().stream()
                                 .mapToDouble(p -> p.getStartPos().getY()))
                         .min()
                         .orElse(Configuration.Piece.HEIGHT);
@@ -206,9 +206,9 @@ public class FitnessUtil {
 
     public static double figureWidth(Piece svg) {
         return 2.0 * (DoubleStream.concat(
-                svg.getConverted().stream()
+                svg.getAsLines().stream()
                         .mapToDouble(p -> p.getEndPos().getX()),
-                svg.getConverted().stream()
+                svg.getAsLines().stream()
                         .mapToDouble(p -> p.getStartPos().getX()))
                 .max()
                 .orElse(0) - (Configuration.Piece.WIDTH / 2.0));

@@ -9,7 +9,7 @@ import java.util.List;
  */
 public abstract class Part {
 
-    final Point endPos;
+    Point endPos;
     Point startPos;
 
     public Part(Point endPos) {
@@ -23,14 +23,16 @@ public abstract class Part {
 
     public abstract String toSvg();
 
-    public abstract String toSvgReversed();
-
     public abstract Part reverse();
 
     public abstract List<Line> convertToLines();
 
     public Point getEndPos() {
         return this.endPos;
+    }
+
+    public void setEndPos(Point endPos) {
+        this.endPos = endPos;
     }
 
     public Point getStartPos() {

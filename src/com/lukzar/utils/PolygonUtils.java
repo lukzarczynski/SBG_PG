@@ -15,7 +15,7 @@ public class PolygonUtils {
 
 
     public static List<Point> trim(Piece piece, double min, double max) {
-        final List<Line> lines = piece.getConverted();
+        final List<Line> lines = piece.getAsLines();
 
         List<Point> result = lines.stream()
                 .map(line -> splitIntersectingLines(min, max, line))

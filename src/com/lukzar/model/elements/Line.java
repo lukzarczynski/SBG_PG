@@ -26,13 +26,6 @@ public class Line extends Part {
     }
 
     @Override
-    public String toSvgReversed() {
-        double x = Configuration.Piece.WIDTH - startPos.getX();
-        double y = startPos.getY();
-        return String.format(Locale.US, "L%f,%f", x, y);
-    }
-
-    @Override
     public Line reverse() {
         double x = Configuration.Piece.WIDTH - startPos.getX();
         double y = startPos.getY();
