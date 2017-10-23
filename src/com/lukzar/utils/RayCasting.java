@@ -48,7 +48,7 @@ public class RayCasting {
                 .filter(l -> {
                     Optional<Point> point1 = IntersectionUtil.lineToLineIntersection(
                             l.getStartPos(), l.getEndPos(),
-                            start, Point.of(point.getX() - 0.01, point.getY() - 0.01));
+                            start, Point.of(point.getX() - 0.1, point.getY() - 0.1));
 
                     return point1.isPresent();
                 })

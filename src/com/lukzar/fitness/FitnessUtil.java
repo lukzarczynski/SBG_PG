@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import static com.lukzar.utils.PolygonUtils.distance;
@@ -24,21 +25,45 @@ import static com.lukzar.utils.PolygonUtils.distance;
  */
 public class FitnessUtil {
 
+    static double fullHeight = Configuration.Piece.HEIGHT;
+    static double halfHeight = fullHeight / 2;
+    static double quarterHeight = fullHeight / 4;
+    static Predicate<Point> upperHalf = p -> p.getY() < halfHeight;
+    static Predicate<Point> lowerHalf = p -> p.getY() >= halfHeight;
+    static Predicate<Point> middleHalf = p ->
+            p.getY() > quarterHeight && p.getY() < (halfHeight + quarterHeight);
+    static Predicate<Point> middleXHalf =
+            p -> p.getX() > quarterHeight && p.getX() < (halfHeight + quarterHeight);
+    static Predicate<Point> triangle =
+            p -> {
+                Point A = Point.of(0, Configuration.Piece.HEIGHT);
+                Point B = Point.of(Configuration.Piece.WIDTH / 2.0, 0);
+                Point C = Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT);
+                return isInTriangle(A, B, C, p);
+            };
+
+    public static boolean isInTriangle(Point A, Point B, Point C, Point p) {
+
+        double d1 = (p.getX() - A.getX()) * (B.getY() - A.getY()) -
+                (p.getY() - A.getY()) * (B.getX() - A.getX());
+        double d2 = (p.getX() - B.getX()) * (C.getY() - B.getY()) -
+                (p.getY() - B.getY()) * (C.getX() - B.getX());
+
+        return d1 <= 0 && d2 <= 0;
+    }
+
     public static double calculateFitness(Piece svg) {
 
         //util
-        double fullHeight = Configuration.Piece.HEIGHT;
-        double halfHeight = fullHeight / 2;
-        double quarterHeight = fullHeight / 4;
         boolean[][] ray = RayCasting.cast(svg);
-        Predicate<Point> upperHalf = p -> p.getY() < halfHeight;
-        Predicate<Point> lowerHalf = p -> p.getY() >= halfHeight;
-        Predicate<Point> quarterHalf = p -> p.getY() > quarterHeight && p.getY() < (halfHeight + quarterHeight);
 
-        double a = area(ray, upperHalf);
-        double b = area(ray, lowerHalf);
-        double c = area(ray, quarterHalf);
-        double d = area(ray, p -> true);
+        double fullImageArea = area(ray, p -> true);
+        double upperHalfArea = area(ray, upperHalf);
+        double lowerHalfArea = area(ray, lowerHalf);
+        double middleHalfArea = area(ray, middleHalf);
+        double middleXHalfArea = area(ray, middleXHalf);
+        double triangleArea = area(ray, triangle);
+        double baseWidth = area(ray, p -> p.getY() == 199);
 
         // attributes
         double height = figureHeight(svg);
@@ -72,6 +97,9 @@ public class FitnessUtil {
     }
 
     public static List<String> getAttributes(Piece piece) {
+        boolean asymmetric = piece.isAsymmetric();
+
+        boolean[][] ray = RayCasting.cast(piece);
 
         double fullHeight = Configuration.Piece.HEIGHT;
         double halfHeight = fullHeight / 2;
@@ -80,22 +108,88 @@ public class FitnessUtil {
         double height = figureHeight(piece);
         double width = figureWidth(piece);
 
+        double doubleArcLength = doubleArcLength(piece);
+        double arcLength = arcLength(piece);
+        double linesLength = linesLength(piece);
+        double boxLength = (2 * height) + (2 * width);
+
+        double area = area(ray, p -> true);
+        double upperHalfArea = area(ray, upperHalf);
+        double lowerHalfArea = area(ray, lowerHalf);
+        double middleHalfArea = area(ray, middleHalf);
+        double middleXHalfArea = area(ray, middleXHalf);
+        double triangleArea = area(ray, triangle);
+        double triangularity = area(ray, p -> {
+            List<Line> converted = piece.getConverted();
+            Point startPos = converted.get(0).getStartPos();
+            Point endPos = converted.get(converted.size() - 1).getEndPos();
+            return isInTriangle(
+                    endPos,
+                    Point.of(Configuration.Piece.WIDTH / 2.0, 200 - height),
+                    startPos,
+                    p
+            );
+        });
+        double baseWidth = area(ray, p -> p.getY() == 199);
+
+        double minDegree = getMinDegree(piece);
+        double averageDegree = getAverageDegree(piece);
+
+        double lengthSum = doubleArcLength + arcLength + linesLength;
         return Arrays.asList(
-                String.format("FITNESS: %.3f", calculateFitness(piece)),
-                String.format("Double Arc Length: %.3f", doubleArcLength(piece)),
-                String.format("Arc Length: %.3f", arcLength(piece)),
-                String.format("Line Length: %.3f", linesLength(piece)),
-                String.format("Box Length: %.3f", (2 * height) + (2 * width)),
-                String.format("Area: %.3f", area(piece)),
-                String.format("Top Area: %.3f", area(piece, 0, halfHeight)),
-                String.format("Bottom Area: %.3f", area(piece, halfHeight, fullHeight)),
-                String.format("Middle Area: %.3f", area(piece, quarterHeight, halfHeight + quarterHeight)),
-                String.format("Min Degree: %.3f", getMinDegree(piece)),
-                String.format("Height: %.3f", height),
-                String.format("Width: %.3f", width),
-                String.format("Symmetric: %s", !piece.isAsymmetric()),
-                String.format("Average degree: %.3f", getAverageDegree(piece))
+//                String.format("FITNESS: %.3f", calculateFitness(piece)),
+                String.format("Shape Length: %.3f ( 100 %% )", lengthSum),
+                String.format("Double Arc Length: %.3f ( %s )", doubleArcLength, percent(doubleArcLength, lengthSum)),
+                String.format("Arc Length: %.3f ( %s )", arcLength, percent(arcLength, lengthSum)),
+                String.format("Line Length: %.3f ( %s )", linesLength, percent(linesLength, lengthSum)),
+                String.format("Box Length: %.3f", boxLength),
+                String.format("Base width Length: %.3f", baseWidth),
+                String.format("Area: %.3f ( 100%%, %s of total area )", area, percent(area, 200*200)),
+                String.format("Upper Half Area: %.3f ( %s )", upperHalfArea, percent(upperHalfArea, area)),
+                String.format("Lower Half Area: %.3f ( %s )", lowerHalfArea, percent(lowerHalfArea, area)),
+                String.format("Middle Half over Y Area: %.3f ( %s )", middleHalfArea, percent(middleHalfArea, area)),
+                String.format("Middle Half over X Area: %.3f ( %s )", middleXHalfArea, percent(middleXHalfArea, area)),
+                String.format("Triangle Area (BASE): %.3f ( %s )", triangleArea, percent(triangleArea, area)),
+                String.format("Triangle Area (PIECE): %.3f ( %s )", triangularity, percent(triangularity, area)),
+                String.format("Min Degree: %.3f", minDegree),
+                String.format("Height: %.3f ( %s )", height, percent(height, 200)),
+                String.format("Width: %.3f ( %s )", width, percent(width, 200)),
+                String.format("Centroid: ( %s )", centroid(piece).toSvg()),
+                String.format("Symmetric: %s", !asymmetric),
+                String.format("Average degree: %.3f", averageDegree)
         );
+    }
+
+    public static Point centroid(Piece svg) {
+        List<Line> converted = svg.getConverted();
+        List<Point> points = converted.stream().map(Part::getEndPos)
+                .collect(Collectors.toList());
+
+        points.add(0, converted.get(0).getStartPos());
+//
+//        double vx = 0, vy = 0, A = 0;
+//        for (int i = 0; i < points.size() - 2; i++) {
+//            Point a = points.get(i);
+//            Point b = points.get(i + 1);
+//
+//            double xi = a.getX();
+//            double yi = a.getY();
+//            double xi1 = b.getX();
+//            double yi1 = b.getY();
+//            vx += (xi + xi1) * ((xi * yi1) - (xi1 * yi));
+//            vy += (yi + yi1) * ((xi * yi1) - (xi1 * yi));
+//            A += (xi * yi1) - (xi1 * yi);
+//        }
+//        A = A / 2;
+
+        return Point.of(
+                points.stream().mapToDouble(Point::getX).average().getAsDouble(),
+                points.stream().mapToDouble(Point::getY).average().getAsDouble()
+        );
+    }
+
+    public static String percent(double v, double max) {
+        return String.format("%.1f %%", (v / max * 100));
     }
 
 

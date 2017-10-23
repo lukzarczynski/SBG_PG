@@ -18,7 +18,7 @@ public class Point {
     }
 
     public String toSvg() {
-        return String.format(Locale.US, "%f,%f", x, y);
+        return String.format(Locale.US, "%.3f,%.3f", x, y);
     }
 
     public double getX() {
