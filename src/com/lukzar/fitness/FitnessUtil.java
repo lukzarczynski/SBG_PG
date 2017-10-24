@@ -75,15 +75,23 @@ public class FitnessUtil {
         double lengthOfDoubleArcs = doubleArcLength(svg);
         double areaMiddle = area(svg, quarterHeight, halfHeight + quarterHeight);
         double boxLength = (2 * height) + (2 * width);
+        double area = area(svg);
 
         // fitness
         double result = 0.0;
-        result += normalize((height / width));
-        result += normalize(1 - (lengthOfLines / boxLength));
-        result += normalize(lengthOfArcs / boxLength);
-        result += normalize(lengthOfDoubleArcs / boxLength);
-        result += normalize(areaLowerHalf / (areaUpperHalf + 0.001));
-        result += normalize(areaMiddle / area(svg));
+//        result += normalize((height / width));
+//        result += normalize(1 - (lengthOfLines / boxLength));
+//        result += normalize(lengthOfArcs / boxLength);
+//        result += normalize(lengthOfDoubleArcs / boxLength);
+//        result += normalize(areaLowerHalf / (areaUpperHalf + 0.001));
+        result += areaUpperHalf / area;
+        result += 1.5 - (areaLowerHalf / area);
+        result += 0.5 * (area / (200*200));
+//        result += normalize(areaMiddle / area);
+//        result += normalize(1 - (areaLowerHalf / area));
+//        result += normalize(1 - (lengthOfLines / boxLength));
+//        result += normalize(lengthOfArcs / boxLength);
+
         return result;
     }
 

@@ -26,7 +26,7 @@ public class Configuration {
         public static final int TOURNAMENT_SIZE = 5;
         public static final int CROSSOVER_SIZE = 200;
         public static final double MUTATION_RATE = 0.1;
-        public static final double MUTATION_OFFSET = 20.0;
+        public static final double MUTATION_OFFSET = 40;
         public static final double ASYMMETRIC_RATE = 0.01;
     }
 

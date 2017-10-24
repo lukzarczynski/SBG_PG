@@ -22,6 +22,11 @@ public class Piece {
         this.start = start;
     }
 
+    public Piece(Point start, Piece piece) {
+        this.start = start;
+        this.parts.addAll(piece.getParts());
+        this.asymmetric = piece.isAsymmetric();
+    }
     public Piece(Piece piece) {
         this.start = piece.getStart();
         this.parts.addAll(piece.getParts());
