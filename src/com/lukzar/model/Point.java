@@ -50,7 +50,8 @@ public class Point {
         return result;
     }
 
+    @Override
     public String toString() {
-        return "com.lukzar.model.Point(x=" + this.getX() + ", y=" + this.getY() + ")";
+        return toSvg();
     }
 }

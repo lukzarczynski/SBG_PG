@@ -59,14 +59,14 @@ public class Evolution {
     public void evolvePopulation() {
         List<Piece> newPopulation = new ArrayList<>();
 
-//        for (int i = 0; i < 5; i++) {
-//            final List<Piece> crossover = crossover(tournamentSelection(), tournamentSelection());
-//            crossover
-//                    .stream()
-//                    .peek(Piece::updateStartPoints)
-//                    .map(this::mutate)
-//                    .forEach(newPopulation::add);
-//        }
+        for (int i = 0; i < 5; i++) {
+            final List<Piece> crossover = crossover(tournamentSelection(), tournamentSelection());
+            crossover
+                    .stream()
+                    .peek(Piece::updateStartPoints)
+                    .map(this::mutate)
+                    .forEach(newPopulation::add);
+        }
 
         // Mutate population
         for (Piece piece : population) {
@@ -78,6 +78,7 @@ public class Evolution {
             newPopulation.removeIf(Piece::intersects);
         }
         newPopulation.removeIf(p -> FitnessUtil.getMinDegree(p) < Configuration.Piece.MIN_DEGREE);
+        newPopulation.forEach(Piece::update);
         population.addAll(newPopulation);
         population.sort(FITNESS_COMPARATOR);
 //        Collections.shuffle(population);

@@ -9,15 +9,38 @@ import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.PolygonUtils;
 import com.lukzar.utils.RayCasting;
+import com.lukzar.utils.Timer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.DoubleSummaryStatistics;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+import static com.lukzar.fitness.FitnessAttribute.ARC_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.AREA;
+import static com.lukzar.fitness.FitnessAttribute.AVERAGE_DEGREE;
+import static com.lukzar.fitness.FitnessAttribute.BASE_WIDTH;
+import static com.lukzar.fitness.FitnessAttribute.BOTTOM_HALF_AREA;
+import static com.lukzar.fitness.FitnessAttribute.BOX_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.CENTROID;
+import static com.lukzar.fitness.FitnessAttribute.DOUBLE_ARC_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.HEIGHT;
+import static com.lukzar.fitness.FitnessAttribute.LINE_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.MID_X_AREA;
+import static com.lukzar.fitness.FitnessAttribute.MID_Y_AREA;
+import static com.lukzar.fitness.FitnessAttribute.MIN_DEGREE;
+import static com.lukzar.fitness.FitnessAttribute.SHAPE_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.SYMMETRIC;
+import static com.lukzar.fitness.FitnessAttribute.TRIANGLE_BASE_AREA;
+import static com.lukzar.fitness.FitnessAttribute.TRIANGLE_PIECE_AREA;
+import static com.lukzar.fitness.FitnessAttribute.UP_HALF_AREA;
+import static com.lukzar.fitness.FitnessAttribute.WIDTH;
 import static com.lukzar.utils.PolygonUtils.distance;
 
 /**
@@ -25,22 +48,19 @@ import static com.lukzar.utils.PolygonUtils.distance;
  */
 public class FitnessUtil {
 
-    static double fullHeight = Configuration.Piece.HEIGHT;
-    static double halfHeight = fullHeight / 2;
-    static double quarterHeight = fullHeight / 4;
-    static Predicate<Point> upperHalf = p -> p.getY() < halfHeight;
-    static Predicate<Point> lowerHalf = p -> p.getY() >= halfHeight;
-    static Predicate<Point> middleHalf = p ->
-            p.getY() > quarterHeight && p.getY() < (halfHeight + quarterHeight);
-    static Predicate<Point> middleXHalf =
-            p -> p.getX() > quarterHeight && p.getX() < (halfHeight + quarterHeight);
-    static Predicate<Point> triangle =
-            p -> {
-                Point A = Point.of(0, Configuration.Piece.HEIGHT);
-                Point B = Point.of(Configuration.Piece.WIDTH / 2.0, 0);
-                Point C = Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT);
-                return isInTriangle(A, B, C, p);
-            };
+    private static double fullHeight = Configuration.Piece.HEIGHT;
+    private static double halfHeight = fullHeight / 2;
+    private static double quarterHeight = fullHeight / 4;
+    private static Predicate<Point> upperHalf = p -> p.getY() < halfHeight;
+    private static Predicate<Point> lowerHalf = p -> p.getY() >= halfHeight;
+    private static Predicate<Point> middleHalf = p -> p.getY() > quarterHeight && p.getY() < (halfHeight + quarterHeight);
+    private static Predicate<Point> middleXHalf = p -> p.getX() > quarterHeight && p.getX() < (halfHeight + quarterHeight);
+    private static Predicate<Point> triangle = p -> {
+        Point A = Point.of(0, Configuration.Piece.HEIGHT);
+        Point B = Point.of(Configuration.Piece.WIDTH / 2.0, 0);
+        Point C = Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT);
+        return isInTriangle(A, B, C, p);
+    };
 
     public static boolean isInTriangle(Point A, Point B, Point C, Point p) {
 
@@ -54,28 +74,7 @@ public class FitnessUtil {
 
     public static double calculateFitness(Piece svg) {
 
-        //util
-//        boolean[][] ray = RayCasting.cast(svg);
-
-//        double fullImageArea = area(ray, p -> true);
-//        double upperHalfArea = area(ray, upperHalf);
-//        double lowerHalfArea = area(ray, lowerHalf);
-//        double middleHalfArea = area(ray, middleHalf);
-//        double middleXHalfArea = area(ray, middleXHalf);
-//        double triangleArea = area(ray, triangle);
-//        double baseWidth = area(ray, p -> p.getY() == 199);
-
-        // attributes
-        double height = figureHeight(svg);
-        double width = figureWidth(svg);
-        double areaUpperHalf = area(svg, 0, halfHeight);
-        double areaLowerHalf = area(svg, halfHeight, height);
-        double lengthOfLines = linesLength(svg);
-        double lengthOfArcs = arcLength(svg);
-        double lengthOfDoubleArcs = doubleArcLength(svg);
-        double areaMiddle = area(svg, quarterHeight, halfHeight + quarterHeight);
-        double boxLength = (2 * height) + (2 * width);
-        double area = area(svg);
+        final Map<FitnessAttribute, Object> attributes = getAttributes(svg);
 
         // fitness
         double result = 0.0;
@@ -84,9 +83,9 @@ public class FitnessUtil {
 //        result += normalize(lengthOfArcs / boxLength);
 //        result += normalize(lengthOfDoubleArcs / boxLength);
 //        result += normalize(areaLowerHalf / (areaUpperHalf + 0.001));
-        result += areaUpperHalf / area;
-        result += 1.5 - (areaLowerHalf / area);
-        result += 0.5 * (area / (200*200));
+//        result += areaUpperHalf / area;
+//        result += 1.5 - (areaLowerHalf / area);
+//        result += 0.5 * (area / (200 * 200));
 //        result += normalize(areaMiddle / area);
 //        result += normalize(1 - (areaLowerHalf / area));
 //        result += normalize(1 - (lengthOfLines / boxLength));
@@ -104,68 +103,76 @@ public class FitnessUtil {
         return v;
     }
 
-    public static List<String> getAttributes(Piece piece) {
+    public static List<String> getAttributesDescription(Piece piece) {
+
+        final LinkedHashMap<FitnessAttribute, Object> attributes = getAttributes(piece);
+        final List<String> result = new ArrayList<>();
+        attributes.forEach((k, v) -> result.add(k.getDescription(v, attributes)));
+
+        return result;
+    }
+
+    public static LinkedHashMap<FitnessAttribute, Object> getAttributes(Piece piece) {
+        Timer t = Timer.start();
+
+        final List<Line> pieceAsLines = piece.getAsLines();
+        final LinkedList<Part> pieceAllParts = piece.getAllParts();
+
+        boolean[][] ray = RayCasting.castLines(pieceAsLines);
         boolean asymmetric = piece.isAsymmetric();
 
-        boolean[][] ray = RayCasting.cast(piece);
 
-        double fullHeight = Configuration.Piece.HEIGHT;
-        double halfHeight = fullHeight / 2;
-        double quarterHeight = fullHeight / 4;
-
-        double height = figureHeight(piece);
-        double width = figureWidth(piece);
+        double height = figureHeight(pieceAsLines);
+        double width = figureWidth(pieceAsLines);
 
         double doubleArcLength = doubleArcLength(piece);
         double arcLength = arcLength(piece);
         double linesLength = linesLength(piece);
         double boxLength = (2 * height) + (2 * width);
-
         double area = area(ray, p -> true);
         double upperHalfArea = area(ray, upperHalf);
         double lowerHalfArea = area(ray, lowerHalf);
         double middleHalfArea = area(ray, middleHalf);
         double middleXHalfArea = area(ray, middleXHalf);
+
         double triangleArea = area(ray, triangle);
-        double triangularity = area(ray, p -> {
-            List<Line> converted = piece.getAsLines();
-            Point startPos = converted.get(0).getStartPos();
-            Point endPos = converted.get(converted.size() - 1).getEndPos();
-            return isInTriangle(
-                    endPos,
-                    Point.of(Configuration.Piece.WIDTH / 2.0, 200 - height),
-                    startPos,
-                    p
-            );
-        });
+        final Point startPos = pieceAsLines.get(0).getStartPos();
+        final Point endPos = pieceAsLines.get(pieceAsLines.size() - 1).getEndPos();
+        final Point of = Point.of(Configuration.Piece.WIDTH / 2.0, 200 - height);
+        double triangularity = area(ray, p -> isInTriangle(endPos, of, startPos, p));
+
         double baseWidth = area(ray, p -> p.getY() == 199);
 
-        double minDegree = getMinDegree(piece);
-        double averageDegree = getAverageDegree(piece);
+        final List<Double> arcs = getArcs(pieceAllParts);
+        double minDegree = getMinDegree(arcs);
+        double averageDegree = getAverageDegree(arcs);
 
         double lengthSum = doubleArcLength + arcLength + linesLength;
-        return Arrays.asList(
-//                String.format("FITNESS: %.3f", calculateFitness(piece)),
-                String.format("Shape Length: %.3f ( 100 %% )", lengthSum),
-                String.format("Double Arc Length: %.3f ( %s )", doubleArcLength, percent(doubleArcLength, lengthSum)),
-                String.format("Arc Length: %.3f ( %s )", arcLength, percent(arcLength, lengthSum)),
-                String.format("Line Length: %.3f ( %s )", linesLength, percent(linesLength, lengthSum)),
-                String.format("Box Length: %.3f", boxLength),
-                String.format("Base width Length: %.3f", baseWidth),
-                String.format("Area: %.3f ( 100%%, %s of total area )", area, percent(area, 200*200)),
-                String.format("Upper Half Area: %.3f ( %s )", upperHalfArea, percent(upperHalfArea, area)),
-                String.format("Lower Half Area: %.3f ( %s )", lowerHalfArea, percent(lowerHalfArea, area)),
-                String.format("Middle Half over Y Area: %.3f ( %s )", middleHalfArea, percent(middleHalfArea, area)),
-                String.format("Middle Half over X Area: %.3f ( %s )", middleXHalfArea, percent(middleXHalfArea, area)),
-                String.format("Triangle Area (BASE): %.3f ( %s )", triangleArea, percent(triangleArea, area)),
-                String.format("Triangle Area (PIECE): %.3f ( %s )", triangularity, percent(triangularity, area)),
-                String.format("Min Degree: %.3f", minDegree),
-                String.format("Height: %.3f ( %s )", height, percent(height, 200)),
-                String.format("Width: %.3f ( %s )", width, percent(width, 200)),
-                String.format("Centroid: ( %s )", centroid(piece).toSvg()),
-                String.format("Symmetric: %s", !asymmetric),
-                String.format("Average degree: %.3f", averageDegree)
-        );
+
+        LinkedHashMap<FitnessAttribute, Object> result = new LinkedHashMap<>();
+        result.put(SHAPE_LENGTH, lengthSum);
+        result.put(DOUBLE_ARC_LENGTH, doubleArcLength);
+        result.put(ARC_LENGTH, arcLength);
+        result.put(LINE_LENGTH, linesLength);
+        result.put(BOX_LENGTH, boxLength);
+        result.put(BASE_WIDTH, baseWidth);
+        result.put(AREA, area);
+        result.put(UP_HALF_AREA, upperHalfArea);
+        result.put(BOTTOM_HALF_AREA, lowerHalfArea);
+        result.put(MID_Y_AREA, middleHalfArea);
+        result.put(MID_X_AREA, middleXHalfArea);
+        result.put(TRIANGLE_BASE_AREA, triangleArea);
+        result.put(TRIANGLE_PIECE_AREA, triangularity);
+        result.put(MIN_DEGREE, minDegree);
+        result.put(AVERAGE_DEGREE, averageDegree);
+        result.put(HEIGHT, height);
+        result.put(WIDTH, width);
+        result.put(CENTROID, centroid(piece));
+        result.put(SYMMETRIC, !asymmetric);
+
+
+        t.end("Attributes");
+        return result;
     }
 
     public static Point centroid(Piece svg) {
@@ -174,21 +181,6 @@ public class FitnessUtil {
                 .collect(Collectors.toList());
 
         points.add(0, converted.get(0).getStartPos());
-//
-//        double vx = 0, vy = 0, A = 0;
-//        for (int i = 0; i < points.size() - 2; i++) {
-//            Point a = points.get(i);
-//            Point b = points.get(i + 1);
-//
-//            double xi = a.getX();
-//            double yi = a.getY();
-//            double xi1 = b.getX();
-//            double yi1 = b.getY();
-//            vx += (xi + xi1) * ((xi * yi1) - (xi1 * yi));
-//            vy += (yi + yi1) * ((xi * yi1) - (xi1 * yi));
-//            A += (xi * yi1) - (xi1 * yi);
-//        }
-//        A = A / 2;
 
         return Point.of(
                 points.stream().mapToDouble(Point::getX).average().getAsDouble(),
@@ -196,30 +188,22 @@ public class FitnessUtil {
         );
     }
 
-    public static String percent(double v, double max) {
-        return String.format("%.1f %%", (v / max * 100));
-    }
-
-
-    public static double figureHeight(Piece svg) {
+    public static double figureHeight(List<Line> lines) {
         return Configuration.Piece.HEIGHT -
                 DoubleStream.concat(
-                        svg.getAsLines().stream()
-                                .mapToDouble(p -> p.getEndPos().getY()),
-                        svg.getAsLines().stream()
-                                .mapToDouble(p -> p.getStartPos().getY()))
+                        lines.stream().mapToDouble(p -> p.getEndPos().getY()),
+                        lines.stream().mapToDouble(p -> p.getStartPos().getY())
+                )
                         .min()
                         .orElse(Configuration.Piece.HEIGHT);
     }
 
-    public static double figureWidth(Piece svg) {
-        return 2.0 * (DoubleStream.concat(
-                svg.getAsLines().stream()
-                        .mapToDouble(p -> p.getEndPos().getX()),
-                svg.getAsLines().stream()
-                        .mapToDouble(p -> p.getStartPos().getX()))
-                .max()
-                .orElse(0) - (Configuration.Piece.WIDTH / 2.0));
+    public static double figureWidth(List<Line> lines) {
+        final DoubleSummaryStatistics stats = DoubleStream.concat(
+                lines.stream().mapToDouble(p -> p.getEndPos().getX()),
+                lines.stream().mapToDouble(p -> p.getStartPos().getX())
+        ).summaryStatistics();
+        return stats.getMax() - stats.getMin();
     }
 
     /**
@@ -237,7 +221,6 @@ public class FitnessUtil {
      * area in percent (0..1)
      */
     public static double area(boolean[][] ray, Predicate<Point> predicate) {
-
         int height = ray.length;
         int width = ray[0].length;
         int counter = 0;
@@ -281,31 +264,19 @@ public class FitnessUtil {
 
     }
 
-    public static double area(Piece piece) {
-        return area(piece, 0, Configuration.Piece.HEIGHT);
-    }
-
-    /**
-     * Calculates area of piece (only right half of piece) in between lines: <ul> <li>(0, min_y) -
-     * (WIDTH, min_y)</li> <li>(0, max_y) - (WIDTH, max_y)</li> </ul> <p> For example: min_y = 0,
-     * max_y = HEIGHT will calculate whole piece area
-     */
-    public static double area(Piece piece, double min_y, double max_y) {
-        List<Point> trimmed = PolygonUtils.trim(piece, min_y, max_y);
-        return (piece.isAsymmetric() ? 1.0 : 2.0)
-                * PolygonUtils.calculateArea(trimmed);
-    }
-
     public static double getMinDegree(Piece piece) {
-        return getArcs(piece).stream().mapToDouble(a -> a).min().orElse(0.0);
+        return getMinDegree(getArcs(piece.getAllParts()));
     }
 
-    public static double getMaxDegree(Piece piece) {
-        return getArcs(piece).stream().mapToDouble(a -> a).max().orElse(0.0);
+    public static double getMinDegree(List<Double> arcs) {
+        return arcs.stream().mapToDouble(a -> a).min().orElse(0.0);
     }
 
-    public static double getAverageDegree(Piece piece) {
-        List<Double> arcs = getArcs(piece);
+    public static double getMaxDegree(List<Double> arcs) {
+        return arcs.stream().mapToDouble(a -> a).max().orElse(0.0);
+    }
+
+    public static double getAverageDegree(List<Double> arcs) {
         return arcs.stream().mapToDouble(a -> a).average().getAsDouble();
     }
 
@@ -313,22 +284,25 @@ public class FitnessUtil {
      * Returns list of arcs in degree for piece Note that arc are converted to lines so its very
      * likely that most of the arc will be close to 180 degrees
      */
-    public static List<Double> getArcs(Piece piece) {
+    public static List<Double> getArcs(List<Part> allParts) {
 
-        Point a = Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT);
+        Point a = Point.of(Configuration.Piece.WIDTH * 2, Configuration.Piece.HEIGHT);
         Point b;
         Point c;
 
         List<Double> result = new ArrayList<>();
 
-        for (Part part : piece.getParts()) {
+        for (Part part : allParts) {
             List<Line> lines = part.convertToLines();
             Line firstLine = lines.get(0);
             Line lastLine = lines.get(lines.size() - 1);
 
             b = firstLine.getStartPos();
             c = firstLine.getEndPos();
-            result.add(PolygonUtils.calculateArc(a, b, c));
+            double e = PolygonUtils.calculateArc(a, b, c);
+            if (!Double.isNaN(e) && Double.isFinite(e)) {
+                result.add(e);
+            }
 
             a = lastLine.getStartPos();
         }

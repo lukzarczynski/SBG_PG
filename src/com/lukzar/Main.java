@@ -26,7 +26,7 @@ public class Main {
         evolution.getPopulation().sort(Evolution.FITNESS_COMPARATOR);
         writeToFile(evolution.getPopulation(), "out/population_0");
 
-        for (int i = 1; i <= 50; i++) {
+        for (int i = 1; i <= 10; i++) {
             evolution.evolvePopulation();
             System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
             System.out.println(evolution.getPopulation().stream().filter(Piece::isAsymmetric).count());

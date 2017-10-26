@@ -1,9 +1,11 @@
 package com.lukzar.model;
 
 import com.lukzar.config.Templates;
+import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.IntersectionUtil;
+import com.lukzar.utils.Timer;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -11,10 +13,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.nonNull;
+
 public class Piece {
 
     private final Point start;
     private final LinkedList<Part> parts = new LinkedList<>();
+    private LinkedList<Part> symmetricHalf;
 
     private boolean asymmetric;
 
@@ -27,6 +32,7 @@ public class Piece {
         this.parts.addAll(piece.getParts());
         this.asymmetric = piece.isAsymmetric();
     }
+
     public Piece(Piece piece) {
         this.start = piece.getStart();
         this.parts.addAll(piece.getParts());
@@ -36,15 +42,16 @@ public class Piece {
     public String toSvg() {
         updateStartPoints();
 
-        return String.format(Templates.getImageTemplate(),
+        String format = String.format(Templates.getImageTemplate(),
                 this.start.toSvg(),
                 getAllParts().stream()
                         .map(Part::toSvg)
-                        .collect(Collectors.joining("\n")), ""
-//                FitnessUtil.getAttributes(this).stream()
-//                        .map(s -> "<li>" + s + "</li>")
-//                        .collect(Collectors.joining("\n"))
+                        .collect(Collectors.joining("\n")),
+                FitnessUtil.getAttributesDescription(this).stream()
+                        .map(s -> "<li>" + s + "</li>")
+                        .collect(Collectors.joining("\n"))
         );
+        return format;
     }
 
     public void convertToAsymmetric() {
@@ -65,6 +72,9 @@ public class Piece {
     public LinkedList<Part> getSymmetricHalf() {
         if (asymmetric) {
             return new LinkedList<>();
+        }
+        if (nonNull(this.symmetricHalf)) {
+            return this.symmetricHalf;
         }
         updateStartPoints();
 
@@ -119,7 +129,7 @@ public class Piece {
         updateStartPoints(this.parts);
     }
 
-    public void updateStartPoints(LinkedList<Part> parts) {
+    private void updateStartPoints(LinkedList<Part> parts) {
         Point s = this.start;
         for (Part p : parts) {
             p.setStartPos(s);
@@ -174,7 +184,14 @@ public class Piece {
         return result;
     }
 
+    @Override
     public String toString() {
         return "com.lukzar.model.Piece(parts=" + this.getParts() + ")";
+    }
+
+    public void update() {
+        updateStartPoints();
+        this.symmetricHalf = null;
+        this.symmetricHalf = getSymmetricHalf();
     }
 }
