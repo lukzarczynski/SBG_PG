@@ -4,7 +4,7 @@ import com.lukzar.config.Templates;
 import com.lukzar.exceptions.IntersectsException;
 import com.lukzar.model.Piece;
 import com.lukzar.services.PieceGenerator;
-import org.junit.Test;
+//import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class test {
 
-    @Test
+    //@Test
     public void test() throws IntersectsException {
 
         Piece piece = null;

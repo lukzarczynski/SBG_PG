@@ -6,7 +6,7 @@ import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
 import com.lukzar.model.elements.Line;
 
-import org.junit.Test;
+//import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;

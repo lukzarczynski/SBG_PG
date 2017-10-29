@@ -1,5 +1,6 @@
 package com.lukzar;
 
+import com.lukzar.config.Configuration;
 import com.lukzar.config.Templates;
 import com.lukzar.model.Piece;
 import com.lukzar.services.Evolution;
@@ -24,11 +25,11 @@ public class Main {
         System.out.println("Initial population size: " + evolution.getPopulation().size());
         writeToFile(evolution.getPopulation(), "out/population_0");
 
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= Configuration.NUMBER_OF_EVOLUTIONS; i++) {
             evolution.evolvePopulation();
             System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
 //            System.out.println(evolution.getPopulation().stream().filter(Piece::isAsymmetric).count());
-            writeToFile(evolution.getPopulation(), String.format("out/population_%s", i));
+            writeToFile(evolution.getPopulation(), String.format("out/targetRook_%s", i));
 
         }
     }

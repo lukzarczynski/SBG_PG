@@ -1,6 +1,7 @@
 package com.lukzar.services;
 
 import com.lukzar.config.Configuration;
+import com.lukzar.exceptions.IntersectsException;
 import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
@@ -38,9 +39,17 @@ public class Evolution {
     }
 
     public void initialize() {
+        /*
+        while (population.size() < Configuration.Evolution.INITIAL_SIZE) {
+            try {
+                population.add(PieceGenerator.generate());
+            } catch (IntersectsException ignored) {
+            }
+        }
+        */
         while (population.size() < initial_population_size) {
-            Piece triangle = new Piece(Point.of(200, 200));
-            triangle.add(new Line(Point.of(100, 0)));
+            Piece triangle = new Piece(Point.of(150, 200));
+            triangle.add(new Line(Point.of(100, 50)));
             population.add(triangle);
         }
 

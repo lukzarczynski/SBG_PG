@@ -24,6 +24,8 @@ import static com.lukzar.utils.PolygonUtils.distance;
  */
 public class FitnessUtil {
 
+    private static double fullArea = Configuration.Piece.WIDTH*Configuration.Piece.HEIGHT;
+
     private static double fullHeight = Configuration.Piece.HEIGHT;
     private static double halfHeight = fullHeight / 2;
     private static double quarterHeight = fullHeight / 4;
@@ -68,6 +70,9 @@ public class FitnessUtil {
         double averageDegree = (Double) attributes.get(AVERAGE_DEGREE);
         double minDegree = (Double) attributes.get(MIN_DEGREE);
 
+        double middleXArea = (Double) attributes.get(MID_X_AREA);
+
+
         double topRatio = topArea / area;
         double bottomRatio = bottomArea / area;
         double midRatio = middleArea / area;
@@ -79,23 +84,87 @@ public class FitnessUtil {
         double arcRatio = arcLength / perimeter;
         double areaRatio = area / (width * height);
 
+        double heightRatio = height / fullHeight;
+        double widthRatio = width / Configuration.Piece.WIDTH;
+        double areaFullRatio = area / fullArea;
+        double midXRatio = middleXArea / area;
+        double triangleBaseRatio = (Double) attributes.get(TRIANGLE_BASE_AREA) / area;
+        double trianglePieceRatio = (Double) attributes.get(TRIANGLE_PIECE_AREA) / area;
 
         // fitness
+        //double[] weights = Configuration.getFitnessWeights().get("pawn");
+        //double[] weights = Configuration.getFitnessWeights().get("queen");
+        //double[] weights = Configuration.getFitnessWeights().get("king");
+        //double[] weights = Configuration.getFitnessWeights().get("bishop");
+        //double[] weights = Configuration.getFitnessWeights().get("rook");
+        double[] weights = Configuration.getFitnessWeights().get("knight");
+
         double result = 0.0;
 
-        result += 0.54 * arcRatio;
-//        result += -0.54 * area;
-        result += -0.063 * areaRatio;
-        result += -0.054 * averageDegree;
-        result += 0.119 * bottomRatio;
-        result += 0.0 * doubleArcRatio;
-//        result += -0.110 * height;
-        result += -0.054 * lineRatio;
-        result += 0.110 * midRatio;
-        result += -0.009 * minDegree;
-        result += -0.110 * narrowness;
-        result += -0.119 * perimeter;
-        result += -0.145 * perimeterRatio;
+        result += arcRatio * weights[0];
+        //result += area * weights[1];
+        result += areaRatio * weights[2];
+        result += averageDegree * weights[3];
+        result += bottomRatio * weights[4];
+        result += doubleArcRatio * weights[5];
+        //result += height * weights[6];
+        result += heightRatio * weights[6];
+        result += lineRatio * weights[7];
+        result += midRatio * weights[8];
+        result += minDegree * weights[9];
+        result += narrowness * weights[10];
+        result += perimeter * weights[11];
+        result += perimeterRatio * weights[12];
+
+
+
+        // we try to target pawn
+        /*
+        double targetArcRatio = 1.00;
+        double targetLineRatio = 0.00;
+        double targetAreaFullRatio = 0.119;
+        double targetTopRatio = 0.019;// ??????????????????????????????????????
+        double targetMidYRatio = 0.468;
+        double targetMidXRatio = 0.987;
+        double targetTriangleBaseRatio = 0.920;
+        double targetTrianglePieceRatio = 0.496;
+        double targetHeightRatio = 0.625;
+        double targetWidthRatio = 0.539;
+        double targetMinDegree = 28.504;
+        double targetAvgDegree = 97.625;
+        //*/
+        // we try to target rook
+        ///*
+        double targetArcRatio = 0.7127131608;
+        double targetLineRatio = 0.287;
+        double targetAreaFullRatio = 0.19;
+        double targetTopRatio = 0.373;
+        double targetMidYRatio = 0.468;
+        double targetMidXRatio = 0.987;
+        double targetTriangleBaseRatio = 0.920;
+        double targetTrianglePieceRatio = 0.496;
+        double targetHeightRatio = 0.625;
+        double targetWidthRatio = 0.539;
+        double targetMinDegree = 28.504;
+        double targetAvgDegree = 97.625;
+        //*/
+
+        result = 0;
+        result += 1 - Math.abs(arcRatio - targetArcRatio);
+        result += 1 - Math.abs(lineRatio - targetLineRatio);
+        // double arc is 1-arcRatio-lineRatio
+        result += 1 - Math.abs(areaFullRatio - targetAreaFullRatio);
+        result += 1 - Math.abs(topRatio - targetTopRatio);
+        // Lower half is 1-topRatio
+        result += 1 - Math.abs(midRatio - targetMidYRatio);
+        result += 1 - Math.abs(midXRatio - targetMidXRatio);
+        result += 1 - Math.abs(triangleBaseRatio - targetTriangleBaseRatio);
+        result += 1 - Math.abs(trianglePieceRatio - targetTrianglePieceRatio);
+        result += 1 - Math.abs(heightRatio - targetHeightRatio);
+        result += 1 - Math.abs(widthRatio - targetWidthRatio);
+        //result += 1 - Math.abs(minDegree - targetMinDegree)/180;
+        //result += 1 - Math.abs(averageDegree - targetAvgDegree)/180;
+
 
         return result;
     }
