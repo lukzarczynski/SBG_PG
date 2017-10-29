@@ -11,36 +11,12 @@ import com.lukzar.utils.PolygonUtils;
 import com.lukzar.utils.RayCasting;
 import com.lukzar.utils.Timer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.DoubleSummaryStatistics;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
-import static com.lukzar.fitness.FitnessAttribute.ARC_LENGTH;
-import static com.lukzar.fitness.FitnessAttribute.AREA;
-import static com.lukzar.fitness.FitnessAttribute.AVERAGE_DEGREE;
-import static com.lukzar.fitness.FitnessAttribute.BASE_WIDTH;
-import static com.lukzar.fitness.FitnessAttribute.BOTTOM_HALF_AREA;
-import static com.lukzar.fitness.FitnessAttribute.BOX_LENGTH;
-import static com.lukzar.fitness.FitnessAttribute.CENTROID;
-import static com.lukzar.fitness.FitnessAttribute.DOUBLE_ARC_LENGTH;
-import static com.lukzar.fitness.FitnessAttribute.HEIGHT;
-import static com.lukzar.fitness.FitnessAttribute.LINE_LENGTH;
-import static com.lukzar.fitness.FitnessAttribute.MID_X_AREA;
-import static com.lukzar.fitness.FitnessAttribute.MID_Y_AREA;
-import static com.lukzar.fitness.FitnessAttribute.MIN_DEGREE;
-import static com.lukzar.fitness.FitnessAttribute.SHAPE_LENGTH;
-import static com.lukzar.fitness.FitnessAttribute.SYMMETRIC;
-import static com.lukzar.fitness.FitnessAttribute.TRIANGLE_BASE_AREA;
-import static com.lukzar.fitness.FitnessAttribute.TRIANGLE_PIECE_AREA;
-import static com.lukzar.fitness.FitnessAttribute.UP_HALF_AREA;
-import static com.lukzar.fitness.FitnessAttribute.WIDTH;
+import static com.lukzar.fitness.FitnessAttribute.*;
 import static com.lukzar.utils.PolygonUtils.distance;
 
 /**
@@ -76,20 +52,50 @@ public class FitnessUtil {
 
         final Map<FitnessAttribute, Object> attributes = getAttributes(svg);
 
+
+        double doubleArcLength = (Double) attributes.get(DOUBLE_ARC_LENGTH);
+        double arcLength = (Double) attributes.get(ARC_LENGTH);
+        double lineLength = (Double) attributes.get(LINE_LENGTH);
+        double boxLength = (Double) attributes.get(BOX_LENGTH);
+        double area = (Double) attributes.get(AREA);
+        double topArea = (Double) attributes.get(TOP_HALF_AREA);
+        double bottomArea = (Double) attributes.get(BOTTOM_HALF_AREA);
+        double middleArea = (Double) attributes.get(MID_Y_AREA);
+        double MinDegree = (Double) attributes.get(MIN_DEGREE);
+        double height = (Double) attributes.get(HEIGHT);
+        double width = (Double) attributes.get(WIDTH);
+        boolean symmetric = (Boolean) attributes.get(SYMMETRIC);
+        double averageDegree = (Double) attributes.get(AVERAGE_DEGREE);
+        double minDegree = (Double) attributes.get(MIN_DEGREE);
+
+        double topRatio = topArea / area;
+        double bottomRatio = bottomArea / area;
+        double midRatio = middleArea / area;
+        double perimeter = doubleArcLength + arcLength + lineLength;
+        double perimeterRatio = perimeter / boxLength;
+        double narrowness = height / width;
+        double lineRatio = lineLength / perimeter;
+        double doubleArcRatio = doubleArcLength / perimeter;
+        double arcRatio = arcLength / perimeter;
+        double areaRatio = area / (width * height);
+
+
         // fitness
         double result = 0.0;
-//        result += normalize((height / width));
-//        result += normalize(1 - (lengthOfLines / boxLength));
-//        result += normalize(lengthOfArcs / boxLength);
-//        result += normalize(lengthOfDoubleArcs / boxLength);
-//        result += normalize(areaLowerHalf / (areaUpperHalf + 0.001));
-//        result += areaUpperHalf / area;
-//        result += 1.5 - (areaLowerHalf / area);
-//        result += 0.5 * (area / (200 * 200));
-//        result += normalize(areaMiddle / area);
-//        result += normalize(1 - (areaLowerHalf / area));
-//        result += normalize(1 - (lengthOfLines / boxLength));
-//        result += normalize(lengthOfArcs / boxLength);
+
+        result += 0.54 * arcRatio;
+//        result += -0.54 * area;
+        result += -0.063 * areaRatio;
+        result += -0.054 * averageDegree;
+        result += 0.119 * bottomRatio;
+        result += 0.0 * doubleArcRatio;
+//        result += -0.110 * height;
+        result += -0.054 * lineRatio;
+        result += 0.110 * midRatio;
+        result += -0.009 * minDegree;
+        result += -0.110 * narrowness;
+        result += -0.119 * perimeter;
+        result += -0.145 * perimeterRatio;
 
         return result;
     }
@@ -157,7 +163,7 @@ public class FitnessUtil {
         result.put(BOX_LENGTH, boxLength);
         result.put(BASE_WIDTH, baseWidth);
         result.put(AREA, area);
-        result.put(UP_HALF_AREA, upperHalfArea);
+        result.put(TOP_HALF_AREA, upperHalfArea);
         result.put(BOTTOM_HALF_AREA, lowerHalfArea);
         result.put(MID_Y_AREA, middleHalfArea);
         result.put(MID_X_AREA, middleXHalfArea);

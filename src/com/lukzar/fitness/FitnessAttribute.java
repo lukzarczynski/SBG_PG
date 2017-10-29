@@ -15,7 +15,7 @@ public enum FitnessAttribute {
     BOX_LENGTH("Box Length: %.3f"),
     BASE_WIDTH("Base width Length: %.3f"),
     AREA("Area: %.3f ( 100%%, %s of total area )", Configuration.Piece.WIDTH * Configuration.Piece.HEIGHT),
-    UP_HALF_AREA("Upper Half Area: %.3f ( %s )", AREA),
+    TOP_HALF_AREA("Upper Half Area: %.3f ( %s )", AREA),
     BOTTOM_HALF_AREA("Lower Half Area: %.3f ( %s )", AREA),
     MID_Y_AREA("Middle Half over Y Area: %.3f ( %s )", AREA),
     MID_X_AREA("Middle Half over X Area: %.3f ( %s )", AREA),

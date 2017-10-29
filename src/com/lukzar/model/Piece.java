@@ -23,6 +23,8 @@ public class Piece {
 
     private boolean asymmetric;
 
+    private double fitness = 0.0;
+
     public Piece(Point start) {
         this.start = start;
     }
@@ -42,12 +44,14 @@ public class Piece {
     public String toSvg() {
         updateStartPoints();
 
+        List<String> attributesDescription = FitnessUtil.getAttributesDescription(this);
+        attributesDescription.add(0, "Fitness: " + FitnessUtil.calculateFitness(this));
         String format = String.format(Templates.getImageTemplate(),
                 this.start.toSvg(),
                 getAllParts().stream()
                         .map(Part::toSvg)
                         .collect(Collectors.joining("\n")),
-                FitnessUtil.getAttributesDescription(this).stream()
+                attributesDescription.stream()
                         .map(s -> "<li>" + s + "</li>")
                         .collect(Collectors.joining("\n"))
         );
@@ -94,6 +98,14 @@ public class Piece {
         result.addAll(getSymmetricHalf());
         updateStartPoints(result);
         return result;
+    }
+
+    public double getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(double fitness) {
+        this.fitness = fitness;
     }
 
     public boolean intersectsWithAny(Part p) {
