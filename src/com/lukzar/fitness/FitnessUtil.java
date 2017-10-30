@@ -352,7 +352,7 @@ public class FitnessUtil {
     }
 
     public static double getAverageDegree(List<Double> arcs) {
-        return arcs.stream().mapToDouble(a -> a).average().getAsDouble();
+        return arcs.stream().mapToDouble(a -> a).average().orElse(0);
     }
 
     /**

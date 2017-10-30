@@ -186,19 +186,17 @@ public class Piece {
 
         Piece piece = (Piece) o;
 
-        return start.equals(piece.start) && parts.equals(piece.parts);
+        return asymmetric == piece.asymmetric
+                && start.equals(piece.start)
+                && parts.equals(piece.parts);
     }
 
     @Override
     public int hashCode() {
         int result = start.hashCode();
         result = 31 * result + parts.hashCode();
+        result = 31 * result + (asymmetric ? 1 : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "com.lukzar.model.Piece(parts=" + this.getParts() + ")";
     }
 
     public void update() {

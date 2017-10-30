@@ -1,7 +1,6 @@
 package com.lukzar.services;
 
 import com.lukzar.config.Configuration;
-import com.lukzar.exceptions.IntersectsException;
 import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
@@ -11,30 +10,36 @@ import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.RandomUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by lukasz on 16.07.17.
  */
 public class Evolution {
 
-    private static final double change_starting_point = 0.2;
+    private static final double change_starting_point = 0.1;
 
     private static final double change_point = 0.6;
-    private static final double change_part = 0.4;
+    private static final double change_part = 0.38;
 //    change to assymetric = 1.0 - change_point - change_part;
 
     private static final int crossover_size = 20;
-    private static final int maximum_population_size = 100;
+    private static final int maximum_population_size = 200;
     private static final int initial_population_size = 10;
 
 
     private static final Comparator<Piece> FITNESS_COMPARATOR = (a, b) -> Double.compare(b.getFitness(), a.getFitness());
 
-    private List<Piece> population = new ArrayList<>();
+    private TreeSet<Piece> population = new TreeSet<>(FITNESS_COMPARATOR);
 
-
-    public List<Piece> getPopulation() {
+    public TreeSet<Piece> getPopulation() {
         return population;
     }
 
@@ -47,18 +52,18 @@ public class Evolution {
             }
         }
         */
-        while (population.size() < initial_population_size) {
+        for (int i = 0; i < initial_population_size; i++) {
             Piece triangle = new Piece(Point.of(150, 200));
-            triangle.add(new Line(Point.of(100, 50)));
+            triangle.add(new Line(Point.of(100, 50 - Math.random())));
+            triangle.setFitness(FitnessUtil.calculateFitness(triangle));
             population.add(triangle);
         }
 
-        population.forEach(p -> p.setFitness(FitnessUtil.calculateFitness(p)));
     }
 
     // Evolve a population
     public void evolvePopulation() {
-        List<Piece> newPopulation = new ArrayList<>();
+        Set<Piece> newPopulation = new HashSet<>();
 
         for (int i = 0; i < Math.min(crossover_size, population.size() / 2); i++) {
             final List<Piece> crossover = crossover(tournamentSelection(), tournamentSelection());
@@ -82,10 +87,12 @@ public class Evolution {
         newPopulation.forEach(Piece::update);
         newPopulation.forEach(p -> p.setFitness(FitnessUtil.calculateFitness(p)));
 
+        newPopulation.removeIf(p -> Double.isNaN(p.getFitness()));
+        newPopulation.removeIf(p -> Double.isInfinite(p.getFitness()));
+
         population.addAll(newPopulation);
-        population.sort(FITNESS_COMPARATOR);
-        if (population.size() > maximum_population_size) {
-            population.subList(maximum_population_size, population.size()).clear();
+        while (population.size() > maximum_population_size) {
+            population.remove(population.last());
         }
     }
 
@@ -172,16 +179,29 @@ public class Evolution {
     private Piece produceChild(Piece piece1, Piece piece2) {
         final Piece child = new Piece(piece1.getStart());
 
-        for (int i = 0; i < Math.ceil(piece1.getParts().size() / 2); i++) {
-            child.add(piece1.getParts().get(i));
+        List<Part> left;
+        List<Part> right;
+
+        if (piece1.isAsymmetric() || piece2.isAsymmetric()) {
+            left = piece1.getAllParts();
+            right = piece2.getAllParts();
+            child.convertToAsymmetric();
+        } else {
+            left = piece1.getParts();
+            right = piece2.getParts();
         }
-        for (int i = piece2.getParts().size() / 2; i < piece2.getParts().size(); i++) {
-            child.add(piece2.getParts().get(i));
+
+        for (int i = 0; i < Math.ceil(left.size() / 2); i++) {
+            child.add(left.get(i));
         }
+
+        for (int i = right.size() / 2; i < right.size(); i++) {
+            child.add(right.get(i));
+        }
+
         child.updateStartPoints();
         return child;
     }
-
 
     // Select individuals for crossover
     // BEST out of 5 random
@@ -189,7 +209,14 @@ public class Evolution {
         final TreeSet<Piece> tournament = new TreeSet<>(FITNESS_COMPARATOR);
         for (int i = 0; i < Configuration.Evolution.TOURNAMENT_SIZE; i++) {
             int randomId = (int) (Math.random() * population.size());
-            tournament.add(population.get(randomId));
+            Iterator<Piece> it = population.iterator();
+            Piece p = null;
+            for (int j = 0; j <= randomId; j++) {
+                if (it.hasNext()) {
+                    p = it.next();
+                }
+            }
+            tournament.add(p);
         }
         return tournament.first();
     }
