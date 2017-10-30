@@ -30,6 +30,7 @@ public enum FitnessAttribute {
     AVERAGE_DEGREE("Average degree: %.3f"),
     NUMBER_OF_ANGLES("Number of angles: %.0f"),
     NUMBER_OF_SHARP_ANGLES("Number of sharp angles: %.0f ( %s )", NUMBER_OF_ANGLES),
+    NUMBER_OF_MEDIUM_ANGLES("Number of medium angles: %.0f ( %s )", NUMBER_OF_ANGLES),
     NUMBER_OF_GENTLE_ANGLES("Number of gentle angles: %.0f ( %s )", NUMBER_OF_ANGLES);
 
     private final String description;

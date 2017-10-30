@@ -18,6 +18,7 @@ import java.util.stream.DoubleStream;
 
 import static com.lukzar.fitness.FitnessAttribute.*;
 import static com.lukzar.utils.PolygonUtils.distance;
+import static java.util.Objects.nonNull;
 
 /**
  * Created by lukasz on 16.07.17.
@@ -222,13 +223,20 @@ public class FitnessUtil {
 
         double symmetryArea = getSymmetryArea(ray, piece);
 
-        double numberOfArcs = arcs.size();
-        double numberOfGentleArcs = arcs.stream()
-                .filter(d -> d > 90)
-                .filter(d -> d < 180 + 90)
+        List<Double> arcsMapped = arcs.stream()
+                .map(d -> d > 180 ? 360 - d : d)
+                .collect(Collectors.toList());
+
+        double numberOfArcs = arcsMapped.size();
+        double numberOfGentleArcs = arcsMapped.stream()
+                .filter(d -> d >= 120)
                 .count();
 
-        double numberOfSharpArcs = numberOfArcs - numberOfGentleArcs;
+        double numberOfSharpArcs = arcsMapped.stream()
+                .filter(d -> d <= 60)
+                .count();
+
+        double numberOfMediumArcs = numberOfArcs - numberOfSharpArcs - numberOfGentleArcs;
 
 
         LinkedHashMap<FitnessAttribute, Object> result = new LinkedHashMap<>();
@@ -254,6 +262,7 @@ public class FitnessUtil {
         result.put(SYMMETRY, symmetryArea);
         result.put(NUMBER_OF_ANGLES, numberOfArcs);
         result.put(NUMBER_OF_GENTLE_ANGLES, numberOfGentleArcs);
+        result.put(NUMBER_OF_MEDIUM_ANGLES, numberOfMediumArcs);
         result.put(NUMBER_OF_SHARP_ANGLES, numberOfSharpArcs);
 
 
@@ -395,8 +404,8 @@ public class FitnessUtil {
      */
     public static List<Double> getArcs(List<Part> allParts) {
 
-        Point a = Point.of(Configuration.Piece.WIDTH * 2, Configuration.Piece.HEIGHT);
-        Point b;
+        Point a = Point.of(0, Configuration.Piece.HEIGHT);
+        Point b = null;
         Point c;
 
         List<Double> result = new ArrayList<>();
@@ -414,6 +423,14 @@ public class FitnessUtil {
             }
 
             a = lastLine.getStartPos();
+            b = lastLine.getEndPos();
+        }
+
+        if (nonNull(b)) {
+            double e = PolygonUtils.calculateArc(a, b, Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT));
+            if (!Double.isNaN(e) && Double.isFinite(e)) {
+                result.add(e);
+            }
         }
 
         return result;
