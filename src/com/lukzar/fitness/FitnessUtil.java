@@ -25,12 +25,13 @@ import static java.util.Objects.nonNull;
  */
 public class FitnessUtil {
 
-    private static double fullArea = Configuration.Piece.WIDTH * Configuration.Piece.HEIGHT;
-
     private static double fullHeight = Configuration.Piece.HEIGHT;
+    private static double fullWidth = Configuration.Piece.HEIGHT;
+    private static double fullArea = fullWidth * fullHeight;
+
     private static double halfHeight = fullHeight / 2;
     private static double quarterHeight = fullHeight / 4;
-    private static Predicate<Point> middleXHalf = p -> p.getX() > quarterHeight && p.getX() < (halfHeight + quarterHeight);
+    private static Predicate<Point> middleXHalf = p -> p.getX() > quarterHeight && p.getX() < (halfHeight + quarterHeight); // todo - tu nie zależy od width?
     private static Predicate<Point> triangle = p -> {
         Point A = Point.of(0, Configuration.Piece.HEIGHT);
         Point B = Point.of(Configuration.Piece.WIDTH / 2.0, 0);
@@ -52,132 +53,67 @@ public class FitnessUtil {
 
         final Map<FitnessAttribute, Object> attributes = getAttributes(svg);
 
-
-        double doubleArcLength = (Double) attributes.get(DOUBLE_ARC_LENGTH);
-        double arcLength = (Double) attributes.get(ARC_LENGTH);
-        double lineLength = (Double) attributes.get(LINE_LENGTH);
-        double boxLength = (Double) attributes.get(BOX_LENGTH);
-        double area = (Double) attributes.get(AREA);
-        double topArea = (Double) attributes.get(TOP_HALF_AREA);
-        double bottomArea = (Double) attributes.get(BOTTOM_HALF_AREA);
-        double middleArea = (Double) attributes.get(MID_Y_AREA);
-        double MinDegree = (Double) attributes.get(MIN_DEGREE);
-        double height = (Double) attributes.get(HEIGHT);
-        double width = (Double) attributes.get(WIDTH);
-        boolean symmetric = (Boolean) attributes.get(SYMMETRIC);
+        double pieceHeight = (Double) attributes.get(HEIGHT);
+        double pieceWidth = (Double) attributes.get(WIDTH);
+        double pieceArea = (Double) attributes.get(AREA);
+        double boxArea = pieceWidth * pieceHeight;
+        double boxPerimeter = (Double) attributes.get(BOX_LENGTH);
+        double topPieceArea = (Double) attributes.get(TOP_HALF_AREA);
+        double bottomPieceArea = (Double) attributes.get(BOTTOM_HALF_AREA);
+        double middlePieceArea = (Double) attributes.get(MID_Y_AREA);
+        double innerhalfXArea = (Double) attributes.get(MID_Y_AREA);
+        double piecePerimeter = (Double) attributes.get(SHAPE_LENGTH);
+        double baseTriangleArea = (Double) attributes.get(TRIANGLE_BASE_AREA);
+        double piecelikeTriangleArea = (Double) attributes.get(TRIANGLE_PIECE_AREA);
+        double symmetry = (Double) attributes.get(SYMMETRY);
+        double straightLineLength = (Double) attributes.get(LINE_LENGTH);
+        double doublearcLineLength = (Double) attributes.get(DOUBLE_ARC_LENGTH);
+        double arcLineLength = (Double) attributes.get(ARC_LENGTH);
+        double numberofAngles = (Double) attributes.get(NUMBER_OF_ANGLES);
+        double sharpAngles = (Double) attributes.get(NUMBER_OF_SHARP_ANGLES);
+        double gentleAngles = (Double) attributes.get(NUMBER_OF_GENTLE_ANGLES);
         double averageDegree = (Double) attributes.get(AVERAGE_DEGREE);
         double minDegree = (Double) attributes.get(MIN_DEGREE);
 
-        double middleXArea = (Double) attributes.get(MID_X_AREA);
+        // Measures
+        double widthRatio = pieceWidth / fullWidth;
+        double heightRatio = pieceHeight / fullHeight;
+        double areaRatio = pieceArea / fullArea;
+        double topRatio = topPieceArea / pieceArea;
+        double middleRatio = middlePieceArea / pieceArea;
+        double symmetryRatio = symmetry / pieceArea;
+        double innerhalfXRatio = innerhalfXArea / pieceArea;
+        double baseTriangleAreaRatio = baseTriangleArea / pieceArea;
+        double piecelikeTriangleAreaRatio = piecelikeTriangleArea / pieceArea;
+        double perimeterRatio = piecePerimeter / boxPerimeter;
+        double straightLineRatio = straightLineLength / piecePerimeter;
+        double curveLineRatio = 1 - straightLineRatio;
+        double sharpAnglesRatio = sharpAngles / numberofAngles;
+        double gentleAnglesRatio = gentleAngles / numberofAngles;
+        HashMap<String, Double> measures = new HashMap<>();
+        // comment this 'puts' to remove measure from fitness function
+        measures.put("widthRatio",                 widthRatio);
+        measures.put("heightRatio",                heightRatio);
+        measures.put("areaRatio",                  areaRatio);
+        measures.put("topRatio",                   topRatio);
+        measures.put("middleRatio",                middleRatio);
+        measures.put("symmetryRatio",              symmetryRatio);
+        //measures.put("innerhalfXRatio",            innerhalfXRatio);
+        measures.put("baseTriangleAreaRatio",      baseTriangleAreaRatio);
+        measures.put("piecelikeTriangleAreaRatio", piecelikeTriangleAreaRatio);
+        //measures.put("perimeterRatio",             perimeterRatio);
+        measures.put("straightLineRatio",          straightLineRatio);
+        //measures.put("curveLineRatio",             curveLineRatio);
+        measures.put("sharpAnglesRatio",           sharpAnglesRatio);
+        measures.put("gentleAnglesRatio",          gentleAnglesRatio);
 
-
-        double topRatio = topArea / area;
-        double bottomRatio = bottomArea / area;
-        double midRatio = middleArea / area;
-        double perimeter = doubleArcLength + arcLength + lineLength;
-        double perimeterRatio = perimeter / boxLength;
-        double narrowness = height / width;
-        double lineRatio = lineLength / perimeter;
-        double doubleArcRatio = doubleArcLength / perimeter;
-        double arcRatio = arcLength / perimeter;
-        double areaRatio = area / (width * height);
-
-        double heightRatio = height / fullHeight;
-        double widthRatio = width / Configuration.Piece.WIDTH;
-        double areaFullRatio = area / fullArea;
-        double midXRatio = middleXArea / area;
-        double triangleBaseRatio = (Double) attributes.get(TRIANGLE_BASE_AREA) / area;
-        double trianglePieceRatio = (Double) attributes.get(TRIANGLE_PIECE_AREA) / area;
-
-        // fitness
-        //double[] weights = Configuration.getFitnessWeights().get("pawn");
-        double[] weights = Configuration.getFitnessWeights().get("queen");
-        //double[] weights = Configuration.getFitnessWeights().get("king");
-        //double[] weights = Configuration.getFitnessWeights().get("bishop");
-        //double[] weights = Configuration.getFitnessWeights().get("rook");
-        //double[] weights = Configuration.getFitnessWeights().get("knight");
-
-        double result = 0.0;
-
-        result += arcRatio * weights[0];
-        //result += area * weights[1];
-        result += areaRatio * weights[2];
-        result += averageDegree * weights[3];
-        result += bottomRatio * weights[4];
-        result += doubleArcRatio * weights[5];
-        //result += height * weights[6];
-        result += heightRatio * weights[6];
-        result += lineRatio * weights[7];
-        result += midRatio * weights[8];
-        result += minDegree * weights[9];
-        result += narrowness * weights[10];
-        result += perimeter * weights[11];
-        result += perimeterRatio * weights[12];
-
-
-        // we try to target pawn
-        /*
-        double targetArcRatio = 1.00;
-        double targetLineRatio = 0.00;
-        double targetAreaFullRatio = 0.119;
-        double targetTopRatio = 0.019;// ??????????????????????????????????????
-        double targetMidYRatio = 0.469;
-        double targetMidXRatio = 0.999;
-        double targetTriangleBaseRatio = 1.00;
-        double targetTrianglePieceRatio = 0.732;
-        double targetHeightRatio = 0.525;
-        double targetWidthRatio = 0.45;
-        //double targetMinDegree = xx;
-        //double targetAvgDegree = xx;
-        //*/
-        // we try to target rook
-        /*
-        double targetArcRatio = 0.7127131608;
-        double targetLineRatio = 0.287;
-        double targetAreaFullRatio = 0.19;
-        double targetTopRatio = 0.373;
-        double targetMidYRatio = 0.468;
-        double targetMidXRatio = 0.987;
-        double targetTriangleBaseRatio = 0.920;
-        double targetTrianglePieceRatio = 0.496;
-        double targetHeightRatio = 0.625;
-        double targetWidthRatio = 0.539;
-        double targetMinDegree = 28.504;
-        double targetAvgDegree = 97.625;
-        //*/
-        // we try to target queen
-        /*
-        double targetArcRatio = 1.00;
-        double targetLineRatio = 0.00;
-        double targetAreaFullRatio = 0.204;
-        double targetTopRatio = 0.335;
-        double targetMidYRatio = 0.443;
-        double targetMidXRatio = 0.994;
-        double targetTriangleBaseRatio = 0.981;
-        double targetTrianglePieceRatio = 0.809;
-        double targetHeightRatio = 0.900;
-        double targetWidthRatio = 0.523;
-        //double targetMinDegree = xx;
-        //double targetAvgDegree = xx;
-        //*/
-
-        /*
-        result = 0;
-        result += 1 - Math.abs(arcRatio - targetArcRatio);
-        result += 1 - Math.abs(lineRatio - targetLineRatio);
-        // double arc is 1-arcRatio-lineRatio
-        result += 1 - Math.abs(areaFullRatio - targetAreaFullRatio);
-        result += 1 - Math.abs(topRatio - targetTopRatio);
-        // Lower half is 1-topRatio
-        result += 1 - Math.abs(midRatio - targetMidYRatio);
-        result += 1 - Math.abs(midXRatio - targetMidXRatio);
-        result += 1 - Math.abs(triangleBaseRatio - targetTriangleBaseRatio);
-        result += 1 - Math.abs(trianglePieceRatio - targetTrianglePieceRatio);
-        result += 1 - Math.abs(heightRatio - targetHeightRatio);
-        result += 1 - Math.abs(widthRatio - targetWidthRatio);
-        //result += 1 - Math.abs(minDegree - targetMinDegree)/180;
-        //result += 1 - Math.abs(averageDegree - targetAvgDegree)/180;
-        */
+        // Calculating fitness
+        HashMap<String, Double> target = Configuration.getTargetFeatureValues().get(Configuration.TARGET_PIECE);
+        double result = 0;
+        for (String key:measures.keySet())
+        {
+            result += 1 - Math.abs(measures.get(key) - target.get(key)); // todo - some better function here?
+        }
 
         return result;
     }

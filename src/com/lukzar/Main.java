@@ -29,7 +29,8 @@ public class Main {
             evolution.evolvePopulation();
             System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
 //            System.out.println(evolution.getPopulation().stream().filter(Piece::isAsymmetric).count());
-            writeToFile(evolution.getPopulation(), String.format("out/populationTRI_%s", i));
+            writeToFile(evolution.getPopulation(),
+                    String.format("out/%s-%s_%s", Configuration.TARGET_PIECE==null?"population":Configuration.TARGET_PIECE, Configuration.INIT_POP_TRIANGLE?"TRI":"RND", i));
 
         }
     }
