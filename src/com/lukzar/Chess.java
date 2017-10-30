@@ -9,7 +9,7 @@ import com.lukzar.model.elements.Arc;
 import com.lukzar.model.elements.DoubleArc;
 import com.lukzar.model.elements.Line;
 import com.lukzar.utils.RayCasting;
-import org.junit.Test;
+//import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,7 +51,7 @@ public class Chess {
         }
     }
 
-    @Test
+    //@Test
     public void test() throws IOException {
 
         Piece pawn = new Piece(Point.of(140, 200));
@@ -115,7 +115,7 @@ public class Chess {
         Main.writeToFile(Arrays.asList(pawn, rook, knight, bishop, queen, king), "out/chess");
     }
 
-    @Test
+    //@Test
     public void ray() throws IOException {
 
         Piece knight = new Piece(Point.of(145, 200));
