@@ -39,19 +39,27 @@ public class Evolution {
     }
 
     public void initialize() {
-        /*
-        while (population.size() < Configuration.Evolution.INITIAL_SIZE) {
-            try {
-                population.add(PieceGenerator.generate());
-            } catch (IntersectsException ignored) {
+        if (Configuration.INIT_POP_TRIANGLE)
+        {
+            while (population.size() < initial_population_size) {
+                Piece triangle = new Piece(Point.of(150, 200));
+                triangle.add(new Line(Point.of(100, 50)));
+                population.add(triangle);
             }
         }
-        */
-        while (population.size() < initial_population_size) {
-            Piece triangle = new Piece(Point.of(150, 200));
-            triangle.add(new Line(Point.of(100, 50)));
-            population.add(triangle);
+        else
+        {
+            while (population.size() < Configuration.Evolution.INITIAL_SIZE)
+            {
+                try
+                {
+                    population.add(PieceGenerator.generate());
+                } catch (IntersectsException ignored)
+                {
+                }
+            }
         }
+
 
         population.forEach(p -> p.setFitness(FitnessUtil.calculateFitness(p)));
     }

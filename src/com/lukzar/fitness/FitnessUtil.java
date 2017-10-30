@@ -93,11 +93,11 @@ public class FitnessUtil {
 
         // fitness
         //double[] weights = Configuration.getFitnessWeights().get("pawn");
-        //double[] weights = Configuration.getFitnessWeights().get("queen");
+        double[] weights = Configuration.getFitnessWeights().get("queen");
         //double[] weights = Configuration.getFitnessWeights().get("king");
         //double[] weights = Configuration.getFitnessWeights().get("bishop");
         //double[] weights = Configuration.getFitnessWeights().get("rook");
-        double[] weights = Configuration.getFitnessWeights().get("knight");
+        //double[] weights = Configuration.getFitnessWeights().get("knight");
 
         double result = 0.0;
 
@@ -124,17 +124,17 @@ public class FitnessUtil {
         double targetLineRatio = 0.00;
         double targetAreaFullRatio = 0.119;
         double targetTopRatio = 0.019;// ??????????????????????????????????????
-        double targetMidYRatio = 0.468;
-        double targetMidXRatio = 0.987;
-        double targetTriangleBaseRatio = 0.920;
-        double targetTrianglePieceRatio = 0.496;
-        double targetHeightRatio = 0.625;
-        double targetWidthRatio = 0.539;
-        double targetMinDegree = 28.504;
-        double targetAvgDegree = 97.625;
+        double targetMidYRatio = 0.469;
+        double targetMidXRatio = 0.999;
+        double targetTriangleBaseRatio = 1.00;
+        double targetTrianglePieceRatio = 0.732;
+        double targetHeightRatio = 0.525;
+        double targetWidthRatio = 0.45;
+        //double targetMinDegree = xx;
+        //double targetAvgDegree = xx;
         //*/
         // we try to target rook
-        ///*
+        /*
         double targetArcRatio = 0.7127131608;
         double targetLineRatio = 0.287;
         double targetAreaFullRatio = 0.19;
@@ -148,7 +148,23 @@ public class FitnessUtil {
         double targetMinDegree = 28.504;
         double targetAvgDegree = 97.625;
         //*/
+        // we try to target queen
+        /*
+        double targetArcRatio = 1.00;
+        double targetLineRatio = 0.00;
+        double targetAreaFullRatio = 0.204;
+        double targetTopRatio = 0.335;
+        double targetMidYRatio = 0.443;
+        double targetMidXRatio = 0.994;
+        double targetTriangleBaseRatio = 0.981;
+        double targetTrianglePieceRatio = 0.809;
+        double targetHeightRatio = 0.900;
+        double targetWidthRatio = 0.523;
+        //double targetMinDegree = xx;
+        //double targetAvgDegree = xx;
+        //*/
 
+        /*
         result = 0;
         result += 1 - Math.abs(arcRatio - targetArcRatio);
         result += 1 - Math.abs(lineRatio - targetLineRatio);
@@ -164,7 +180,7 @@ public class FitnessUtil {
         result += 1 - Math.abs(widthRatio - targetWidthRatio);
         //result += 1 - Math.abs(minDegree - targetMinDegree)/180;
         //result += 1 - Math.abs(averageDegree - targetAvgDegree)/180;
-
+        */
 
         return result;
     }

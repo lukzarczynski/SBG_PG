@@ -22,6 +22,7 @@ public class Configuration {
         return hm;
     }
 
+    public static boolean INIT_POP_TRIANGLE = true;
 
     public static int NUMBER_OF_EVOLUTIONS = 20;
 

@@ -29,7 +29,7 @@ public class Main {
             evolution.evolvePopulation();
             System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
 //            System.out.println(evolution.getPopulation().stream().filter(Piece::isAsymmetric).count());
-            writeToFile(evolution.getPopulation(), String.format("out/targetRook_%s", i));
+            writeToFile(evolution.getPopulation(), String.format("out/populationTRI_%s", i));
 
         }
     }
