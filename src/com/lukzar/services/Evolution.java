@@ -41,9 +41,10 @@ public class Evolution {
     public void initialize() {
         if (Configuration.INIT_POP_TRIANGLE)
         {
-            while (population.size() < initial_population_size) {
+            for (int i = 0; i < initial_population_size; i++) {
                 Piece triangle = new Piece(Point.of(150, 200));
-                triangle.add(new Line(Point.of(100, 50)));
+                triangle.add(new Line(Point.of(100, 50 - Math.random())));
+                triangle.setFitness(FitnessUtil.calculateFitness(triangle));
                 population.add(triangle);
             }
         }
@@ -58,10 +59,8 @@ public class Evolution {
                 {
                 }
             }
+            population.forEach(p -> p.setFitness(FitnessUtil.calculateFitness(p)));
         }
-
-
-        population.forEach(p -> p.setFitness(FitnessUtil.calculateFitness(p)));
     }
 
     // Evolve a population
