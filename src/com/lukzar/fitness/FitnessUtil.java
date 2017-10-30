@@ -24,14 +24,11 @@ import static com.lukzar.utils.PolygonUtils.distance;
  */
 public class FitnessUtil {
 
-    private static double fullArea = Configuration.Piece.WIDTH*Configuration.Piece.HEIGHT;
+    private static double fullArea = Configuration.Piece.WIDTH * Configuration.Piece.HEIGHT;
 
     private static double fullHeight = Configuration.Piece.HEIGHT;
     private static double halfHeight = fullHeight / 2;
     private static double quarterHeight = fullHeight / 4;
-    private static Predicate<Point> upperHalf = p -> p.getY() < halfHeight;
-    private static Predicate<Point> lowerHalf = p -> p.getY() >= halfHeight;
-    private static Predicate<Point> middleHalf = p -> p.getY() > quarterHeight && p.getY() < (halfHeight + quarterHeight);
     private static Predicate<Point> middleXHalf = p -> p.getX() > quarterHeight && p.getX() < (halfHeight + quarterHeight);
     private static Predicate<Point> triangle = p -> {
         Point A = Point.of(0, Configuration.Piece.HEIGHT);
@@ -115,7 +112,6 @@ public class FitnessUtil {
         result += narrowness * weights[10];
         result += perimeter * weights[11];
         result += perimeterRatio * weights[12];
-
 
 
         // we try to target pawn
@@ -221,9 +217,9 @@ public class FitnessUtil {
         double linesLength = linesLength(piece);
         double boxLength = (2 * height) + (2 * width);
         double area = area(ray, p -> true);
-        double upperHalfArea = area(ray, upperHalf);
-        double lowerHalfArea = area(ray, lowerHalf);
-        double middleHalfArea = area(ray, middleHalf);
+        double upperHalfArea = area(ray, p -> p.getY() < Configuration.Piece.HEIGHT - height + 0.33 * height);
+        double lowerHalfArea = area(ray, p -> p.getY() > Configuration.Piece.HEIGHT - 0.33 * height);
+        double middleHalfArea = area - upperHalfArea - lowerHalfArea;
         double middleXHalfArea = area(ray, middleXHalf);
 
         double triangleArea = area(ray, triangle);
@@ -240,6 +236,17 @@ public class FitnessUtil {
 
         double lengthSum = doubleArcLength + arcLength + linesLength;
 
+        double symmetryArea = getSymmetryArea(ray, piece);
+
+        double numberOfArcs = arcs.size();
+        double numberOfGentleArcs = arcs.stream()
+                .filter(d -> d > 90)
+                .filter(d -> d < 180 + 90)
+                .count();
+
+        double numberOfSharpArcs = numberOfArcs - numberOfGentleArcs;
+
+
         LinkedHashMap<FitnessAttribute, Object> result = new LinkedHashMap<>();
         result.put(SHAPE_LENGTH, lengthSum);
         result.put(DOUBLE_ARC_LENGTH, doubleArcLength);
@@ -249,8 +256,8 @@ public class FitnessUtil {
         result.put(BASE_WIDTH, baseWidth);
         result.put(AREA, area);
         result.put(TOP_HALF_AREA, upperHalfArea);
-        result.put(BOTTOM_HALF_AREA, lowerHalfArea);
         result.put(MID_Y_AREA, middleHalfArea);
+        result.put(BOTTOM_HALF_AREA, lowerHalfArea);
         result.put(MID_X_AREA, middleXHalfArea);
         result.put(TRIANGLE_BASE_AREA, triangleArea);
         result.put(TRIANGLE_PIECE_AREA, triangularity);
@@ -260,10 +267,37 @@ public class FitnessUtil {
         result.put(WIDTH, width);
         result.put(CENTROID, centroid(piece));
         result.put(SYMMETRIC, !asymmetric);
+        result.put(SYMMETRY, symmetryArea);
+        result.put(NUMBER_OF_ANGLES, numberOfArcs);
+        result.put(NUMBER_OF_GENTLE_ANGLES, numberOfGentleArcs);
+        result.put(NUMBER_OF_SHARP_ANGLES, numberOfSharpArcs);
 
 
         t.end("Attributes");
         return result;
+    }
+
+    public static double getSymmetryArea(boolean[][] ray, Piece svg) {
+        double area = area(ray, p -> true);
+
+        if (!svg.isAsymmetric()) {
+            return area;
+        }
+
+        int counter = 0;
+
+        for (boolean[] row : ray) {
+            int left = 0;
+            int right = ray.length - 1;
+            while (left <= right) {
+                if (row[left] && row[right]) {
+                    counter += 2;
+                }
+                left++;
+                right--;
+            }
+        }
+        return counter;
     }
 
     public static Point centroid(Piece svg) {
@@ -368,7 +402,7 @@ public class FitnessUtil {
     }
 
     public static double getAverageDegree(List<Double> arcs) {
-        return arcs.stream().mapToDouble(a -> a).average().getAsDouble();
+        return arcs.stream().mapToDouble(a -> a).average().orElse(0);
     }
 
     /**
