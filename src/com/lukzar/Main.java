@@ -20,6 +20,30 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Locale.setDefault(Locale.US);
 
+
+        //runEvolution();
+
+        String[] pieces = {
+                "pawn",
+                "rook",
+                "knight",
+                "bishop",
+                "queen",
+                "king",
+                //"AVG";
+        };
+
+        for (String piece:pieces)
+        {
+            Configuration.TARGET_PIECE=piece;
+            System.out.println("GENERATING "+piece);
+            runEvolution();
+        }
+
+    }
+
+    public static void runEvolution() throws IOException
+    {
         final Evolution evolution = new Evolution();
         evolution.initialize();
         System.out.println("Initial population size: " + evolution.getPopulation().size());
