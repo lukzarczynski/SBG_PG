@@ -5,7 +5,6 @@ import com.lukzar.model.Point;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by lukasz on 28.05.17.
@@ -36,6 +35,5 @@ public class Line extends Part {
     public List<Line> convertToLines() {
         return Collections.singletonList(this);
     }
-
 
 }

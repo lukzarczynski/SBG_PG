@@ -25,18 +25,13 @@ import java.util.TreeSet;
  */
 public class Evolution {
 
-    private static final double change_starting_point = 0.1;
-
-    private static final double change_point = 0.6;
-    private static final double change_part = 0.38;
-//    change to assymetric = 1.0 - change_point - change_part;
-
-    private static final int crossover_size = 20;
-    private static final int maximum_population_size = 200;
-    private static final int initial_population_size = 10;
-
-
-    private static final Comparator<Piece> FITNESS_COMPARATOR = (a, b) -> Double.compare(b.getFitness(), a.getFitness());
+    private static final Comparator<Piece> FITNESS_COMPARATOR = (a, b) ->
+    {
+        if (a.equals(b)) {
+            return 0;
+        }
+        return Double.compare(b.getFitness(), a.getFitness());
+    };
 
     private TreeSet<Piece> population = new TreeSet<>(FITNESS_COMPARATOR);
 
@@ -45,44 +40,26 @@ public class Evolution {
     }
 
     public void initialize() {
-        if (Configuration.INIT_POP_TRIANGLE)
-        {
-            for (int i = 0; i < initial_population_size; i++) {
-                Piece triangle = new Piece(Point.of(150, 200));
-                triangle.add(new Line(Point.of(100, 50 - Math.random())));
-                triangle.setFitness(FitnessUtil.calculateFitness(triangle));
-                population.add(triangle);
+        if (Configuration.INIT_POP_TRIANGLE) {
+            for (int i = 0; i < Configuration.Evolution.INITIAL_SIZE; i++) {
+                population.add(PieceGenerator.triangle());
             }
-        }
-        else
-        {
-            while (population.size() < Configuration.Evolution.INITIAL_SIZE)
-            {
-                try
-                {
-                    population.add(PieceGenerator.generate());
-                } catch (IntersectsException ignored)
-                {
+        } else {
+            while (population.size() < Configuration.Evolution.INITIAL_SIZE) {
+                try {
+                    population.add(PieceGenerator.random());
+                } catch (IntersectsException ignored) {
                 }
             }
-            population.forEach(p -> p.setFitness(FitnessUtil.calculateFitness(p)));
         }
 
-        /*
-        while (population.size() < Configuration.Evolution.INITIAL_SIZE) {
-            try {
-                population.add(PieceGenerator.generate());
-            } catch (IntersectsException ignored) {
-            }
-        }
-        */
     }
 
     // Evolve a population
     public void evolvePopulation() {
         Set<Piece> newPopulation = new HashSet<>();
 
-        for (int i = 0; i < Math.min(crossover_size, population.size() / 2); i++) {
+        for (int i = 0; i < Math.min(Configuration.Evolution.CROSSOVER_SIZE, population.size() / 2); i++) {
             final List<Piece> crossover = crossover(tournamentSelection(), tournamentSelection());
             crossover
                     .stream()
@@ -108,7 +85,7 @@ public class Evolution {
         newPopulation.removeIf(p -> Double.isInfinite(p.getFitness()));
 
         population.addAll(newPopulation);
-        while (population.size() > maximum_population_size) {
+        while (population.size() > Configuration.Evolution.MAXIMUM_POPULATION_SIZE) {
             population.remove(population.last());
         }
     }
@@ -117,11 +94,11 @@ public class Evolution {
         double random = Math.random();
 
         Point startPoint;
-        if (random < change_starting_point) {
+        if (random < Configuration.Evolution.Mutation.STARTING_POINT_CHANCE) {
             startPoint = Point.of(
                     RandomUtils.ensureRange(RandomUtils.randomRange(
-                            piece.getStart().getX() - Configuration.Evolution.MUTATION_OFFSET,
-                            piece.getStart().getX() + Configuration.Evolution.MUTATION_OFFSET),
+                            piece.getStart().getX() - Configuration.Evolution.Mutation.OFFSET,
+                            piece.getStart().getX() + Configuration.Evolution.Mutation.OFFSET),
                             110, 190),
                     Configuration.Piece.HEIGHT
             );
@@ -141,7 +118,7 @@ public class Evolution {
 
         final Part newPart;
 
-        if (random <= change_point) {
+        if (random <= Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_POINT) {
             // change points
 
 
@@ -149,7 +126,7 @@ public class Evolution {
             newPart.setStartPos(part.getStartPos());
             result.getParts().set(partToChange, newPart);
 
-        } else if (random <= change_point + change_part) {
+        } else if (random <= Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_POINT + Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_PART) {
             // change part
             List<Part> mutate = PartMutation.mutate(part);
             result.getParts().remove(partToChange);
@@ -321,11 +298,11 @@ public class Evolution {
 
         static Point mutate(Point point, Point min, Point max) {
             double newX = RandomUtils.randomRange(
-                    point.getX() - Configuration.Evolution.MUTATION_OFFSET,
-                    point.getX() + Configuration.Evolution.MUTATION_OFFSET);
+                    point.getX() - Configuration.Evolution.Mutation.OFFSET,
+                    point.getX() + Configuration.Evolution.Mutation.OFFSET);
             double newY = RandomUtils.randomRange(
-                    point.getY() - Configuration.Evolution.MUTATION_OFFSET,
-                    point.getY() + Configuration.Evolution.MUTATION_OFFSET);
+                    point.getY() - Configuration.Evolution.Mutation.OFFSET,
+                    point.getY() + Configuration.Evolution.Mutation.OFFSET);
 
             return Point.of(
                     RandomUtils.ensureRange(newX, min.getX(), max.getX()),

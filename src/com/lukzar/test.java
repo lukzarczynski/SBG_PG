@@ -22,7 +22,7 @@ public class test {
 
         while (piece == null) {
             try {
-                piece = PieceGenerator.generate();
+                piece = PieceGenerator.random();
             } catch (Exception e) {
                 piece = null;
             }

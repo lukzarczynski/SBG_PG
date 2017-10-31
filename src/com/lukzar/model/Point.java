@@ -3,7 +3,7 @@ package com.lukzar.model;
 import java.util.Locale;
 
 public class Point {
-
+    private static final int PRECISION = 10;
     private final double x;
     private final double y;
 
@@ -35,18 +35,23 @@ public class Point {
 
         Point point = (Point) o;
 
-        if (Double.compare(point.x, x) != 0) return false;
-        return Double.compare(point.y, y) == 0;
+        int ix = (int) (this.x * PRECISION);
+        int iy = (int) (this.x * PRECISION);
+        int ix1 = (int) (point.x * PRECISION);
+        int iy1 = (int) (point.x * PRECISION);
+
+        return Integer.compare(ix, ix1) == 0
+                && Integer.compare(iy, iy1) == 0;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        temp = Double.doubleToLongBits(x);
-        result = (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(y);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+
+        int ix = (int) (this.x * PRECISION);
+        int iy = (int) (this.x * PRECISION);
+
+        int result = ix;
+        result = 31 * result + iy;
         return result;
     }
 

@@ -64,8 +64,7 @@ public class DoubleArc extends Part {
 
         DoubleArc doubleArc = (DoubleArc) o;
 
-        if (!q1.equals(doubleArc.q1)) return false;
-        return q2.equals(doubleArc.q2);
+        return q1.equals(doubleArc.q1) && q2.equals(doubleArc.q2);
     }
 
     @Override
