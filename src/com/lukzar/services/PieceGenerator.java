@@ -23,8 +23,15 @@ import static com.lukzar.utils.RandomUtils.randomRange;
 public class PieceGenerator {
 
 
-    public static Piece generate() throws IntersectsException {
-        int numberOfParts = (int) randomRange(
+    public static Piece triangle() {
+        Piece triangle = new Piece(Point.of(150, 200));
+        triangle.add(new Line(Point.of(100, 50 - Math.random())));
+        triangle.setFitness(FitnessUtil.calculateFitness(triangle));
+        return triangle;
+    }
+
+    public static Piece random() throws IntersectsException {
+        int numberOfParts = randomRange(
                 Configuration.PieceGeneration.MIN_PARTS,
                 Configuration.PieceGeneration.MAX_PARTS);
 
@@ -42,6 +49,8 @@ public class PieceGenerator {
         if (FitnessUtil.getMinDegree(svg) < Configuration.Piece.MIN_DEGREE) {
             throw new IntersectsException("Degree to small");
         }
+
+        svg.setFitness(FitnessUtil.calculateFitness(svg));
 
         return svg;
     }

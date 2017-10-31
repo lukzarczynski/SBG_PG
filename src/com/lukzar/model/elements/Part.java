@@ -50,14 +50,11 @@ public abstract class Part {
 
         Part part = (Part) o;
 
-        if (!endPos.equals(part.endPos)) return false;
-        return startPos != null ? startPos.equals(part.startPos) : part.startPos == null;
+        return endPos.equals(part.endPos);
     }
 
     @Override
     public int hashCode() {
-        int result = endPos.hashCode();
-        result = 31 * result + (startPos != null ? startPos.hashCode() : 0);
-        return result;
+        return endPos.hashCode();
     }
 }

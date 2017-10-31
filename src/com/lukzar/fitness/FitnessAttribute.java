@@ -18,6 +18,7 @@ public enum FitnessAttribute {
     TOP_HALF_AREA("Top 33%% area: %.3f ( %s )", AREA),
     BOTTOM_HALF_AREA("Bottom 33%% Area: %.3f ( %s )", AREA),
     MID_Y_AREA("Middle 33%% over Y Area: %.3f ( %s )", AREA),
+    INNER_HALF_X_AREA("Middle Half of piece over X Area: %.3f ( %s )", AREA),
     MID_X_AREA("Middle Half over X Area: %.3f ( %s )", AREA),
     TRIANGLE_BASE_AREA("Triangle Area (BASE): %.3f ( %s )", AREA),
     TRIANGLE_PIECE_AREA("Triangle Area (PIECE): %.3f ( %s )", AREA),

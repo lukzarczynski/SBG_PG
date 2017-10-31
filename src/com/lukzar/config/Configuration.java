@@ -3,31 +3,17 @@
  */
 package com.lukzar.config;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
+
+import static com.lukzar.config.Feature.*;
 
 public class Configuration {
 
-    public static boolean INIT_POP_TRIANGLE = false;
     public static String TARGET_PIECE = "queen";
-
-    public static HashMap<String, double[]> getFitnessWeights()
-    {
-        HashMap<String, double[]> hm = new HashMap<>();
-        hm.put("pawn", new double[] {0.054,	-0.054,	-0.063,	-0.054,	0.119,	0.000,	-0.110,	-0.054,	0.110,	-0.009,	-0.110,	-0.119,	-0.145});
-        hm.put("rook", new double[] {-0.116,	0.116,	0.057,	0.116,	0.087,	0.000,	-0.028,	0.116,	0.028,	-0.059,	-0.028,	-0.087,	0.161});
-        hm.put("knight", new double[] {-0.122,	0.122,	0.087,	0.122,	0.065,	0.000,	-0.030,	0.122,	0.030,	-0.035,	-0.030,	-0.065,	0.170});
-        hm.put("bishop", new double[] {0.106,	-0.106,	-0.187,	-0.106,	0.092,	0.000,	-0.012,	-0.106,	0.012,	-0.080,	-0.012,	-0.092,	-0.087});
-        hm.put("queen", new double[] {-0.071,	0.071,	0.167,	0.071,	-0.120,	0.000,	0.024,	0.071,	-0.024,	0.096,	0.024,	0.120,	0.140});
-        hm.put("king", new double[] {-0.030,	0.030,	0.072,	0.030,	-0.166,	0.000,	0.125,	0.030,	-0.125,	0.042,	0.125,	0.166,	0.059});
-
-        return hm;
-    }
-
-
-
-
-
+    public static final double PERIMETER_RATIO_MULTIPLIER = 2;
+    public static boolean INIT_POP_TRIANGLE = true;
 
     public static int NUMBER_OF_EVOLUTIONS = 20;
 
@@ -46,12 +32,19 @@ public class Configuration {
     }
 
     public static class Evolution {
-        public static final int INITIAL_SIZE = 500;
+        public static final int INITIAL_SIZE = 20;
+        public static final int MAXIMUM_POPULATION_SIZE = 200;
         public static final int TOURNAMENT_SIZE = 5;
-        public static final int CROSSOVER_SIZE = 200;
-        public static final double MUTATION_RATE = 0.1;
-        public static final double MUTATION_OFFSET = 40;
-        public static final double ASYMMETRIC_RATE = 0.01;
+        public static final int CROSSOVER_SIZE = 20;
+
+        public static class Mutation {
+
+            public static final double STARTING_POINT_CHANCE = 0.1;
+            public static final double CHANCE_TO_CHANGE_POINT = 0.6;
+            public static final double CHANCE_TO_CHANGE_PART = 0.38;
+            // CHANCE_TO_CONVERT_TO_ASYM = 1 - CHANCE_TO_CHANGE_POINT - CHANCE_TO_CHANGE_PART
+            public static final double OFFSET = 40;
+        }
     }
 
     public static class Piece {
@@ -61,128 +54,120 @@ public class Configuration {
     }
 
 
-    public static HashMap<String, HashMap<String, Double>> getTargetFeatureValues()
+    public static Map<String, Map<Feature, Double>> getTargetFeatureValues()
     {
-        HashMap<String, HashMap<String, Double>> hm = new HashMap<>();
+        Map<String, Map<Feature, Double>> hm = new HashMap<>();
 
-        HashMap<String, Double> pawn = new HashMap<>();
+        Map<Feature, Double> pawn = new HashMap<>();
         hm.put("pawn", pawn);
-        pawn.put("widthRatio",                 .450);
-        pawn.put("heightRatio",                .525);
-        pawn.put("areaRatio",                  .119);
-        pawn.put("topRatio",                   .293);
-        pawn.put("middleRatio",                .286);
-        pawn.put("symmetryRatio",             1.0);
-        pawn.put("innerhalfXRatio",            .0); // todo
-        pawn.put("baseTriangleAreaRatio",     1.0);
-        pawn.put("piecelikeTriangleAreaRatio", .732);
-        pawn.put("perimeterRatio",             .0); // todo
-        pawn.put("straightLineRatio",          .0);
-        pawn.put("curveLineRatio",            1.0);
-        pawn.put("sharpAnglesRatio",           .222);
-        pawn.put("gentleAnglesRatio",          .333);
+        pawn.put(widthRatio,                 .450);
+        pawn.put(heightRatio,                .525);
+        pawn.put(areaRatio,                  .119);
+        pawn.put(topRatio,                   .293);
+        pawn.put(middleRatio,                .286);
+        pawn.put(symmetryRatio,             1.0);
+        pawn.put(innerhalfXRatio,            .0); // todo
+        pawn.put(baseTriangleAreaRatio,     1.0);
+        pawn.put(piecelikeTriangleAreaRatio, .732);
+        pawn.put(perimeterRatio,             .0); // todo
+        pawn.put(straightLineRatio,          .0);
+        pawn.put(curveLineRatio,            1.0);
+        pawn.put(sharpAnglesRatio,           .222);
+        pawn.put(gentleAnglesRatio,          .333);
 
-        HashMap<String, Double> rook = new HashMap<>();
+        Map<Feature, Double> rook = new HashMap<>();
         hm.put("rook", rook);
-        rook.put("widthRatio",                 .539);
-        rook.put("heightRatio",                .625);
-        rook.put("areaRatio",                  .190);
-        rook.put("topRatio",                   .461);
-        rook.put("middleRatio",                .178);
-        rook.put("symmetryRatio",             1.0);
-        rook.put("innerhalfXRatio",            .0); // todo
-        rook.put("baseTriangleAreaRatio",      .920);
-        rook.put("piecelikeTriangleAreaRatio", .496);
-        rook.put("perimeterRatio",             .0); // todo
-        rook.put("straightLineRatio",          .287);
-        rook.put("curveLineRatio",             .713);
-        rook.put("sharpAnglesRatio",           .0);
-        rook.put("gentleAnglesRatio",          .294);
+        rook.put(widthRatio,                 .539);
+        rook.put(heightRatio,                .625);
+        rook.put(areaRatio,                  .190);
+        rook.put(topRatio,                   .461);
+        rook.put(middleRatio,                .178);
+        rook.put(symmetryRatio,             1.0);
+        rook.put(innerhalfXRatio,            .0); // todo
+        rook.put(baseTriangleAreaRatio,      .920);
+        rook.put(piecelikeTriangleAreaRatio, .496);
+        rook.put(perimeterRatio,             .0); // todo
+        rook.put(straightLineRatio,          .287);
+        rook.put(curveLineRatio,             .713);
+        rook.put(sharpAnglesRatio,           .0);
+        rook.put(gentleAnglesRatio,          .294);
 
-        HashMap<String, Double> knight = new HashMap<>();
+        Map<Feature, Double> knight = new HashMap<>();
         hm.put("knight", knight);
-        knight.put("widthRatio",                 .598);
-        knight.put("heightRatio",                .800);
-        knight.put("areaRatio",                  .293);
-        knight.put("topRatio",                   .312);
-        knight.put("middleRatio",                .309);
-        knight.put("symmetryRatio",              .776);
-        knight.put("innerhalfXRatio",            .0); // todo
-        knight.put("baseTriangleAreaRatio",      .922);
-        knight.put("piecelikeTriangleAreaRatio", .58);
-        knight.put("perimeterRatio",             .0); // todo
-        knight.put("straightLineRatio",          .037);
-        knight.put("curveLineRatio",             1-.037);
-        knight.put("sharpAnglesRatio",           .0);
-        knight.put("gentleAnglesRatio",          .667);
+        knight.put(widthRatio,                 .598);
+        knight.put(heightRatio,                .800);
+        knight.put(areaRatio,                  .293);
+        knight.put(topRatio,                   .312);
+        knight.put(middleRatio,                .309);
+        knight.put(symmetryRatio,              .776);
+        knight.put(innerhalfXRatio,            .0); // todo
+        knight.put(baseTriangleAreaRatio,      .922);
+        knight.put(piecelikeTriangleAreaRatio, .58);
+        knight.put(perimeterRatio,             .0); // todo
+        knight.put(straightLineRatio,          .037);
+        knight.put(curveLineRatio,             1-.037);
+        knight.put(sharpAnglesRatio,           .0);
+        knight.put(gentleAnglesRatio,          .667);
 
-        HashMap<String, Double> bishop = new HashMap<>();
+        Map<Feature, Double> bishop = new HashMap<>();
         hm.put("bishop", bishop);
-        bishop.put("widthRatio",                 .523);
-        bishop.put("heightRatio",                .825);
-        bishop.put("areaRatio",                  .186);
-        bishop.put("topRatio",                   .261);
-        bishop.put("middleRatio",                .296);
-        bishop.put("symmetryRatio",             1.0);
-        bishop.put("innerhalfXRatio",            .0); // todo
-        bishop.put("baseTriangleAreaRatio",     1.0);
-        bishop.put("piecelikeTriangleAreaRatio", .792);
-        bishop.put("perimeterRatio",             .0); // todo
-        bishop.put("straightLineRatio",          .0);
-        bishop.put("curveLineRatio",            1.0);
-        bishop.put("sharpAnglesRatio",           .154);
-        bishop.put("gentleAnglesRatio",          .385);
+        bishop.put(widthRatio,                 .523);
+        bishop.put(heightRatio,                .825);
+        bishop.put(areaRatio,                  .186);
+        bishop.put(topRatio,                   .261);
+        bishop.put(middleRatio,                .296);
+        bishop.put(symmetryRatio,             1.0);
+        bishop.put(innerhalfXRatio,            .0); // todo
+        bishop.put(baseTriangleAreaRatio,     1.0);
+        bishop.put(piecelikeTriangleAreaRatio, .792);
+        bishop.put(perimeterRatio,             .0); // todo
+        bishop.put(straightLineRatio,          .0);
+        bishop.put(curveLineRatio,            1.0);
+        bishop.put(sharpAnglesRatio,           .154);
+        bishop.put(gentleAnglesRatio,          .385);
 
-        HashMap<String, Double> queen = new HashMap<>();
+        Map<Feature, Double> queen = new HashMap<>();
         hm.put("queen", queen);
-        queen.put("widthRatio",                 .523);
-        queen.put("heightRatio",                .90);
-        queen.put("areaRatio",                  .204);
-        queen.put("topRatio",                   .238);
-        queen.put("middleRatio",                .287);
-        queen.put("symmetryRatio",             1.0);
-        queen.put("innerhalfXRatio",            .0); // todo
-        queen.put("baseTriangleAreaRatio",      .981);
-        queen.put("piecelikeTriangleAreaRatio", .809);
-        queen.put("perimeterRatio",             .0); // todo
-        queen.put("straightLineRatio",          .0);
-        queen.put("curveLineRatio",            1.0);
-        queen.put("sharpAnglesRatio",           .267);
-        queen.put("gentleAnglesRatio",          .333);
+        queen.put(widthRatio,                 .523);
+        queen.put(heightRatio,                .90);
+        queen.put(areaRatio,                  .204);
+        queen.put(topRatio,                   .238);
+        queen.put(middleRatio,                .287);
+        queen.put(symmetryRatio,             1.0);
+        queen.put(innerhalfXRatio,            .0); // todo
+        queen.put(baseTriangleAreaRatio,      .981);
+        queen.put(piecelikeTriangleAreaRatio, .809);
+        queen.put(perimeterRatio,             .0); // todo
+        queen.put(straightLineRatio,          .0);
+        queen.put(curveLineRatio,            1.0);
+        queen.put(sharpAnglesRatio,           .267);
+        queen.put(gentleAnglesRatio,          .333);
 
-        HashMap<String, Double> king = new HashMap<>();
+        Map<Feature, Double> king = new HashMap<>();
         hm.put("king", king);
-        king.put("widthRatio",                 .523);
-        king.put("heightRatio",                .975);
-        king.put("areaRatio",                  .255);
-        king.put("topRatio",                   .349);
-        king.put("middleRatio",                .25);
-        king.put("symmetryRatio",             1.0);
-        king.put("innerhalfXRatio",            .0); // todo
-        king.put("baseTriangleAreaRatio",      .875);
-        king.put("piecelikeTriangleAreaRatio", .691);
-        king.put("perimeterRatio",             .0); // TODO:
-        king.put("straightLineRatio",          .0);
-        king.put("curveLineRatio",            1.0);
-        king.put("sharpAnglesRatio",           .40);
-        king.put("gentleAnglesRatio",          .333);
+        king.put(widthRatio,                 .523);
+        king.put(heightRatio,                .975);
+        king.put(areaRatio,                  .255);
+        king.put(topRatio,                   .349);
+        king.put(middleRatio,                .25);
+        king.put(symmetryRatio,             1.0);
+        king.put(innerhalfXRatio,            .0); // todo
+        king.put(baseTriangleAreaRatio,      .875);
+        king.put(piecelikeTriangleAreaRatio, .691);
+        king.put(perimeterRatio,             .0); // TODO:
+        king.put(straightLineRatio,          .0);
+        king.put(curveLineRatio,            1.0);
+        king.put(sharpAnglesRatio,           .40);
+        king.put(gentleAnglesRatio,          .333);
 
-        HashMap<String, Double> AVG = new HashMap<>(); // todo - tu powinno być ładnie wyliczane AVG z wcześniej wstawionych wartości, ale java nie ma LINQ porządnego ani resharpera więc nie umiem takiego wyrażenia złożyć ;p.
+        final Collection<Map<Feature, Double>> baseMaps = hm.values();
+        final Map<Feature, Double> AVG = new HashMap<>();
+        king.keySet().forEach(key -> AVG.put(key, baseMaps.stream()
+                .filter(m -> m.containsKey(key))
+                .mapToDouble(m -> m.get(key))
+                .average().orElse(0)));
+
         hm.put("AVG", AVG);
-        AVG.put("widthRatio",                 .0);
-        AVG.put("heightRatio",                .0);
-        AVG.put("areaRatio",                  .0);
-        AVG.put("topRatio",                   .0);
-        AVG.put("middleRatio",                .0);
-        AVG.put("symmetryRatio",              .0);
-        AVG.put("innerhalfXRatio",            .0);
-        AVG.put("baseTriangleAreaRatio",      .0);
-        AVG.put("piecelikeTriangleAreaRatio", .0);
-        AVG.put("perimeterRatio",             .0);
-        AVG.put("straightLineRatio",          .0);
-        AVG.put("curveLineRatio",             .0);
-        AVG.put("sharpAnglesRatio",           .0);
-        AVG.put("gentleAnglesRatio",          .0);
 
         return hm;
     }
