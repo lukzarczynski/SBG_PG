@@ -6,6 +6,7 @@ package com.lukzar.config;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.lukzar.config.Feature.*;
 
@@ -162,7 +163,8 @@ public class Configuration {
 
         final Collection<Map<Feature, Double>> baseMaps = hm.values();
         final Map<Feature, Double> AVG = new HashMap<>();
-        king.keySet().forEach(key -> AVG.put(key, baseMaps.stream()
+        Stream.of(Feature.values())
+                .forEach(key -> AVG.put(key, baseMaps.stream()
                 .filter(m -> m.containsKey(key))
                 .mapToDouble(m -> m.get(key))
                 .average().orElse(0)));
