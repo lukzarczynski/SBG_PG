@@ -20,6 +20,30 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Locale.setDefault(Locale.US);
 
+
+        //runEvolution();
+
+        String[] pieces = {
+                "pawn",
+                "rook",
+                "knight",
+                "bishop",
+                "queen",
+                "king",
+                //"AVG";
+        };
+
+        for (String piece:pieces)
+        {
+            Configuration.TARGET_PIECE=piece;
+            System.out.println("GENERATING "+piece);
+            runEvolution();
+        }
+
+    }
+
+    public static void runEvolution() throws IOException
+    {
         final Evolution evolution = new Evolution();
         evolution.initialize();
         System.out.println("Initial population size: " + evolution.getPopulation().size());
@@ -29,7 +53,8 @@ public class Main {
             evolution.evolvePopulation();
             System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
 //            System.out.println(evolution.getPopulation().stream().filter(Piece::isAsymmetric).count());
-            writeToFile(evolution.getPopulation(), String.format("out/targetRook_%s", i));
+            writeToFile(evolution.getPopulation(),
+                    String.format("out/%s-%s_%s", Configuration.TARGET_PIECE==null?"population":Configuration.TARGET_PIECE, Configuration.INIT_POP_TRIANGLE?"TRI":"RND", i));
 
         }
     }

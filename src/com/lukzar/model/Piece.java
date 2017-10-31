@@ -186,6 +186,8 @@ public class Piece {
 
         Piece piece = (Piece) o;
 
+        //return toSvg().equals(piece.toSvg());
+
         return asymmetric == piece.asymmetric
                 && start.equals(piece.start)
                 && parts.equals(piece.parts);

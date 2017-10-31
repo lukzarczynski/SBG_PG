@@ -1,6 +1,7 @@
 package com.lukzar.services;
 
 import com.lukzar.config.Configuration;
+import com.lukzar.exceptions.IntersectsException;
 import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
@@ -44,6 +45,29 @@ public class Evolution {
     }
 
     public void initialize() {
+        if (Configuration.INIT_POP_TRIANGLE)
+        {
+            for (int i = 0; i < initial_population_size; i++) {
+                Piece triangle = new Piece(Point.of(150, 200));
+                triangle.add(new Line(Point.of(100, 50 - Math.random())));
+                triangle.setFitness(FitnessUtil.calculateFitness(triangle));
+                population.add(triangle);
+            }
+        }
+        else
+        {
+            while (population.size() < Configuration.Evolution.INITIAL_SIZE)
+            {
+                try
+                {
+                    population.add(PieceGenerator.generate());
+                } catch (IntersectsException ignored)
+                {
+                }
+            }
+            population.forEach(p -> p.setFitness(FitnessUtil.calculateFitness(p)));
+        }
+
         /*
         while (population.size() < Configuration.Evolution.INITIAL_SIZE) {
             try {
@@ -52,13 +76,6 @@ public class Evolution {
             }
         }
         */
-        for (int i = 0; i < initial_population_size; i++) {
-            Piece triangle = new Piece(Point.of(150, 200));
-            triangle.add(new Line(Point.of(100, 50 - Math.random())));
-            triangle.setFitness(FitnessUtil.calculateFitness(triangle));
-            population.add(triangle);
-        }
-
     }
 
     // Evolve a population
