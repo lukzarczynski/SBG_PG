@@ -16,7 +16,7 @@ public class Configuration {
 
     public static boolean INIT_POP_TRIANGLE = true;
 
-    public static int NUMBER_OF_EVOLUTIONS = 20;
+    public static int NUMBER_OF_GENERATIONS = 20;
 
     public static boolean ALLOW_INTERSECTIONS = false;
     public static final double PERIMETER_RATIO_MULTIPLIER = 2; // nie ruszać //todo - i szkoda, że % nie jest wypisywany przy figurach
@@ -34,8 +34,8 @@ public class Configuration {
     }
 
     public static class Evolution {
-        public static final int INITIAL_SIZE = 20;
-        public static final int MAXIMUM_POPULATION_SIZE = 200;
+        public static int INITIAL_SIZE = 20;
+        public static int MAXIMUM_POPULATION_SIZE = 200;
         public static final int TOURNAMENT_SIZE = 5;
         public static final int CROSSOVER_SIZE = 20;
 

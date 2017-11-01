@@ -28,13 +28,17 @@ public class Evolution {
         if (a.equals(b)) {
             return 0;
         }
-        return Double.compare(b.getFitness(), a.getFitness());
+        return Double.compare(a.getFitness(), b.getFitness()); // note - min ordering
     };
 
     private TreeSet<Piece> population = new TreeSet<>(FITNESS_COMPARATOR);
 
     public TreeSet<Piece> getPopulation() {
         return population;
+    }
+
+    public void setPopulation(Collection<Piece> population) {
+        this.population.addAll(population);
     }
 
     public void initialize() {
