@@ -23,12 +23,12 @@ public class Main {
 //        runEvolution();
 
         String[] pieces = {
-                "pawn",
-                "rook",
-                "knight",
-                "bishop",
-                "queen",
-                "king",
+                //"pawn",
+                //"rook",
+                //"knight",
+                //"bishop",
+                //"queen",
+                //"king",
                 "AVG"
         };
 
@@ -48,12 +48,12 @@ public class Main {
         final Evolution evolution = new Evolution();
         evolution.initialize();
         System.out.println("Initial population size: " + evolution.getPopulation().size());
-        writeToFile(evolution.getPopulation(), "out/" + target + "_0");
+        Evolution.writeToFile(evolution.getPopulation(), "out/" + target + "_0");
 
         for (int i = 1; i <= Configuration.NUMBER_OF_EVOLUTIONS; i++) {
             evolution.evolvePopulation();
             System.out.println("Population " + i + " size: " + evolution.getPopulation().size());
-            writeToFile(evolution.getPopulation(),
+            Evolution.writeToFile(evolution.getPopulation(),
                     String.format("out/%s-%s_%s",
                             target,
                             Configuration.INIT_POP_TRIANGLE
@@ -64,16 +64,7 @@ public class Main {
         }
     }
 
-    public static void writeToFile(Collection<Piece> pieces, String path) throws IOException {
-        final File file = new File(path + ".html");
 
-        try (FileOutputStream os = new FileOutputStream(file)) {
-            os.write(String.format(Templates.getListTemplate(), pieces.stream()
-                    .map(Piece::toSvg)
-                    .collect(Collectors.joining("\n"))
-            ).getBytes());
-        }
-    }
 
 
 }

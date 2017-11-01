@@ -160,6 +160,8 @@ public class FitnessUtil {
         double sharpAnglesRatio = sharpAngles / numberofAngles;
         double gentleAnglesRatio = gentleAngles / numberofAngles;
         Map<Feature, Double> measures = new HashMap<>();
+
+
         // comment this 'puts' to remove measure from fitness function
         measures.put(Feature.widthRatio, widthRatio);
         measures.put(Feature.heightRatio, heightRatio);
@@ -172,7 +174,7 @@ public class FitnessUtil {
         measures.put(Feature.piecelikeTriangleAreaRatio, piecelikeTriangleAreaRatio);
         measures.put(Feature.perimeterRatio,             perimeterRatio);
         measures.put(Feature.straightLineRatio, straightLineRatio);
-        measures.put(Feature.curveLineRatio,             curveLineRatio);
+        //measures.put(Feature.curveLineRatio,             curveLineRatio); // redundant
         measures.put(Feature.sharpAnglesRatio, sharpAnglesRatio);
         measures.put(Feature.gentleAnglesRatio, gentleAnglesRatio);
 
@@ -180,10 +182,10 @@ public class FitnessUtil {
         Map<Feature, Double> target = Configuration.getTargetFeatureValues().get(Configuration.TARGET_PIECE);
         double result = 0;
         for (Feature key : measures.keySet()) {
-            result += 1 - Math.abs(measures.get(key) - target.get(key)); // todo - some better function here?
+            result += (measures.get(key) - target.get(key)) * (measures.get(key) - target.get(key)); // Euclidian distance
         }
 
-        return result;
+        return Math.sqrt(result);
     }
 
     public static boolean isInTriangle(Point A, Point B, Point C, Point p) {
