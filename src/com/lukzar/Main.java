@@ -31,9 +31,11 @@ public class Main {
         */
 
 
-        PieceSetEvolver.EvolverPlusPicker("AVG", 6, 100, 10, "pawn;rook;knight;bishop;queen;king", null);
-        //PieceSetEvolver.EvolverPlusPicker("AVG", 50, 500, 100, "pawn;rook;knight;bishop;queen;king", "A");
-        //PieceSetEvolver.EvolverPlusEvolvers("AVG", 6, 100, 10, "pawn;rook;knight;bishop;queen;king", null);
+        //PieceSetEvolver.EvolverPlusPicker("AVG", 6, 100, 10, "pawn;rook;knight;bishop;queen;king", null);
+        PieceSetEvolver.EvolverPlusPicker("AVG", 30, 500, 100, "pawn;rook;knight;bishop;queen;king", "A");
+
+        //PieceSetEvolver.EvolverPlusEvolver("AVG", 6, 100, 10, "pawn;rook;knight;bishop;queen;king", 6, 100, 20, null);
+        PieceSetEvolver.EvolverPlusEvolver("AVG", 30, 500, 100, "pawn;rook;knight;bishop;queen;king", 6, 100, 20, "A");
 
     }
 
