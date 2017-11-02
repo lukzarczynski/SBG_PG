@@ -8,6 +8,7 @@ import com.lukzar.model.Point;
 import com.lukzar.model.elements.Arc;
 import com.lukzar.model.elements.DoubleArc;
 import com.lukzar.model.elements.Line;
+import com.lukzar.services.Evolution;
 import com.lukzar.utils.RayCasting;
 //import org.junit.Test;
 
@@ -112,7 +113,7 @@ public class Chess {
 
         rook.updateStartPoints();
 
-        Main.writeToFile(Arrays.asList(pawn, rook, knight, bishop, queen, king), "out/chess");
+        Evolution.writeToFile(Arrays.asList(pawn, rook, knight, bishop, queen, king), "out/chess");
     }
 
     //@Test

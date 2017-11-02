@@ -13,12 +13,13 @@ import static com.lukzar.config.Feature.*;
 public class Configuration {
 
     public static String TARGET_PIECE = "queen";
-    public static final double PERIMETER_RATIO_MULTIPLIER = 2;
+
     public static boolean INIT_POP_TRIANGLE = true;
 
-    public static int NUMBER_OF_EVOLUTIONS = 20;
+    public static int NUMBER_OF_GENERATIONS = 20;
 
     public static boolean ALLOW_INTERSECTIONS = false;
+    public static final double PERIMETER_RATIO_MULTIPLIER = 2; // nie ruszać //todo - i szkoda, że % nie jest wypisywany przy figurach
 
     public static class PieceGeneration {
         public static final int LINE_PERCENT = 20;
@@ -33,8 +34,8 @@ public class Configuration {
     }
 
     public static class Evolution {
-        public static final int INITIAL_SIZE = 20;
-        public static final int MAXIMUM_POPULATION_SIZE = 200;
+        public static int INITIAL_SIZE = 20;
+        public static int MAXIMUM_POPULATION_SIZE = 200;
         public static final int TOURNAMENT_SIZE = 5;
         public static final int CROSSOVER_SIZE = 20;
 
@@ -67,10 +68,10 @@ public class Configuration {
         pawn.put(topRatio,                   .293);
         pawn.put(middleRatio,                .286);
         pawn.put(symmetryRatio,             1.0);
-        pawn.put(innerhalfXRatio,            .0); // todo
+        pawn.put(innerhalfXRatio,            .846);
         pawn.put(baseTriangleAreaRatio,     1.0);
         pawn.put(piecelikeTriangleAreaRatio, .732);
-        pawn.put(perimeterRatio,             .0); // todo
+        pawn.put(perimeterRatio,             .409);
         pawn.put(straightLineRatio,          .0);
         pawn.put(curveLineRatio,            1.0);
         pawn.put(sharpAnglesRatio,           .222);
@@ -84,10 +85,10 @@ public class Configuration {
         rook.put(topRatio,                   .461);
         rook.put(middleRatio,                .178);
         rook.put(symmetryRatio,             1.0);
-        rook.put(innerhalfXRatio,            .0); // todo
+        rook.put(innerhalfXRatio,            .732);
         rook.put(baseTriangleAreaRatio,      .920);
         rook.put(piecelikeTriangleAreaRatio, .496);
-        rook.put(perimeterRatio,             .0); // todo
+        rook.put(perimeterRatio,             .449);
         rook.put(straightLineRatio,          .287);
         rook.put(curveLineRatio,             .713);
         rook.put(sharpAnglesRatio,           .0);
@@ -101,10 +102,10 @@ public class Configuration {
         knight.put(topRatio,                   .312);
         knight.put(middleRatio,                .309);
         knight.put(symmetryRatio,              .776);
-        knight.put(innerhalfXRatio,            .0); // todo
+        knight.put(innerhalfXRatio,            .732);
         knight.put(baseTriangleAreaRatio,      .922);
         knight.put(piecelikeTriangleAreaRatio, .58);
-        knight.put(perimeterRatio,             .0); // todo
+        knight.put(perimeterRatio,             .436);
         knight.put(straightLineRatio,          .037);
         knight.put(curveLineRatio,             1-.037);
         knight.put(sharpAnglesRatio,           .0);
@@ -118,10 +119,10 @@ public class Configuration {
         bishop.put(topRatio,                   .261);
         bishop.put(middleRatio,                .296);
         bishop.put(symmetryRatio,             1.0);
-        bishop.put(innerhalfXRatio,            .0); // todo
+        bishop.put(innerhalfXRatio,            .877);
         bishop.put(baseTriangleAreaRatio,     1.0);
         bishop.put(piecelikeTriangleAreaRatio, .792);
-        bishop.put(perimeterRatio,             .0); // todo
+        bishop.put(perimeterRatio,             .436);
         bishop.put(straightLineRatio,          .0);
         bishop.put(curveLineRatio,            1.0);
         bishop.put(sharpAnglesRatio,           .154);
@@ -135,10 +136,10 @@ public class Configuration {
         queen.put(topRatio,                   .238);
         queen.put(middleRatio,                .287);
         queen.put(symmetryRatio,             1.0);
-        queen.put(innerhalfXRatio,            .0); // todo
+        queen.put(innerhalfXRatio,            .852);
         queen.put(baseTriangleAreaRatio,      .981);
         queen.put(piecelikeTriangleAreaRatio, .809);
-        queen.put(perimeterRatio,             .0); // todo
+        queen.put(perimeterRatio,             .493);
         queen.put(straightLineRatio,          .0);
         queen.put(curveLineRatio,            1.0);
         queen.put(sharpAnglesRatio,           .267);
@@ -152,10 +153,10 @@ public class Configuration {
         king.put(topRatio,                   .349);
         king.put(middleRatio,                .25);
         king.put(symmetryRatio,             1.0);
-        king.put(innerhalfXRatio,            .0); // todo
+        king.put(innerhalfXRatio,            .826);
         king.put(baseTriangleAreaRatio,      .875);
         king.put(piecelikeTriangleAreaRatio, .691);
-        king.put(perimeterRatio,             .0); // TODO:
+        king.put(perimeterRatio,             .47);
         king.put(straightLineRatio,          .0);
         king.put(curveLineRatio,            1.0);
         king.put(sharpAnglesRatio,           .40);

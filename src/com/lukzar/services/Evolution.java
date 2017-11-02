@@ -1,6 +1,7 @@
 package com.lukzar.services;
 
 import com.lukzar.config.Configuration;
+import com.lukzar.config.Templates;
 import com.lukzar.exceptions.IntersectsException;
 import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
@@ -11,14 +12,11 @@ import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.RandomUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by lukasz on 16.07.17.
@@ -30,13 +28,17 @@ public class Evolution {
         if (a.equals(b)) {
             return 0;
         }
-        return Double.compare(b.getFitness(), a.getFitness());
+        return Double.compare(a.getFitness(), b.getFitness()); // note - min ordering
     };
 
     private TreeSet<Piece> population = new TreeSet<>(FITNESS_COMPARATOR);
 
     public TreeSet<Piece> getPopulation() {
         return population;
+    }
+
+    public void setPopulation(Collection<Piece> population) {
+        this.population.addAll(population);
     }
 
     public void initialize() {
@@ -310,6 +312,23 @@ public class Evolution {
             );
         }
 
+    }
+
+    public static void writeToFile(Collection<Piece> pieces, String path) throws IOException
+    {
+        writeToFile(pieces, path, null);
+    }
+
+    public static void writeToFile(Collection<Piece> pieces, String path, HashMap<Piece,String> names) throws IOException
+    {
+        final File file = new File(path + ".html");
+
+        try (FileOutputStream os = new FileOutputStream(file)) {
+            os.write(String.format(Templates.getListTemplate(), pieces.stream()
+                    .map(p -> (names!=null?names.get(p):"")+p.toSvg())
+                    .collect(Collectors.joining("\n"))
+            ).getBytes());
+        }
     }
 
 }
