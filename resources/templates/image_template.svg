@@ -1,12 +1,12 @@
 <div style="display: inline-block">
 
     <div style="float: left">
-        <svg viewBox="0 0 200 200"
+        <svg viewBox="0 0 200 210"
              class="svg"
-             height="200px"
+             height="210px"
              width="200px">
 
-            <rect height="200" width="200" stroke-width="1" stroke="black" fill="none"/>
+            <rect height="210" width="200" stroke-width="1" stroke="black" fill="none"/>
 
             <path d="M%s
      %sZ"/>

@@ -10,11 +10,21 @@ import java.util.stream.Stream;
 
 import static com.lukzar.config.Feature.*;
 
+
 public class Configuration {
 
     public static String TARGET_PIECE = "queen";
 
-    public static boolean INIT_POP_TRIANGLE = true;
+    public static InitShape INIT_POP_SHAPE = InitShape.pawn;
+    public static String InitPopShapeStr(){
+        switch (INIT_POP_SHAPE)
+        {
+            case pawn: return "PWN";
+            case triangle: return "TRI";
+            case random: return "RND";
+        }
+        return "WTF";
+    }
 
     public static int NUMBER_OF_GENERATIONS = 20;
 
@@ -31,6 +41,13 @@ public class Configuration {
 
         public static final int START_MIN = 110;
         public static final int START_MAX = 190;
+    }
+
+    public enum InitShape
+    {
+        triangle,
+        pawn,
+        random
     }
 
     public static class Evolution {

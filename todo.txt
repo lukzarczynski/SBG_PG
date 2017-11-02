@@ -1,0 +1,16 @@
+Bardziej do zrobienia:
+- skalowanie figur
+- miara podobieñstwa - wykluczanie identycznych
+- bez wykluczania w zerowej populacji
+- pionek jako startowa figura
+
+
+Bardziej luŸne idee:
+- jeszcze popracowaæ nad elityzmem?
+- drugi set kszta³tów jako bazowy dla szachów
+
+
+
+
+
+
