@@ -5,7 +5,6 @@ import com.lukzar.model.Point;
 import com.lukzar.utils.BezierUtil;
 
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by lukasz on 04.06.17.
@@ -59,5 +58,10 @@ public class Arc extends Part {
         int result = super.hashCode();
         result = 31 * result + q.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s - [%s] - %s", startPos.toSvg(), q.toString(), endPos.toString());
     }
 }

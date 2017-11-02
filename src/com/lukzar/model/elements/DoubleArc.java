@@ -74,4 +74,9 @@ public class DoubleArc extends Part {
         result = 31 * result + q2.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s - [%s] - [%s] - %s", startPos.toSvg(), q1.toString(), q2.toString(), endPos.toString());
+    }
 }

@@ -3,28 +3,31 @@ package com.lukzar.model;
 import java.util.Locale;
 
 public class Point {
-    private static final int PRECISION = 10;
-    private final double x;
-    private final double y;
+    private final int x;
+    private final int y;
 
-    private Point(double x, double y) {
+    private Point(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
     public static Point of(double x, double y) {
+        return new Point((int) x, (int) y);
+    }
+
+    public static Point of(int x, int y) {
         return new Point(x, y);
     }
 
     public String toSvg() {
-        return String.format(Locale.US, "%.3f,%.3f", x, y);
+        return String.format(Locale.US, "%d,%d", x, y);
     }
 
-    public double getX() {
+    public int getX() {
         return this.x;
     }
 
-    public double getY() {
+    public int getY() {
         return this.y;
     }
 
@@ -35,28 +38,20 @@ public class Point {
 
         Point point = (Point) o;
 
-        int ix = (int) (this.x * PRECISION);
-        int iy = (int) (this.x * PRECISION);
-        int ix1 = (int) (point.x * PRECISION);
-        int iy1 = (int) (point.x * PRECISION);
-
-        return Integer.compare(ix, ix1) == 0
-                && Integer.compare(iy, iy1) == 0;
+        return Integer.compare(this.x, point.x) == 0
+                && Integer.compare(this.y, point.y) == 0;
     }
 
     @Override
     public int hashCode() {
 
-        int ix = (int) (this.x * PRECISION);
-        int iy = (int) (this.x * PRECISION);
-
-        int result = ix;
-        result = 31 * result + iy;
+        int result = this.x;
+        result = 31 * result + this.y;
         return result;
     }
 
     @Override
     public String toString() {
-        return toSvg();
+        return "(" + toSvg() + ")";
     }
 }

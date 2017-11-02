@@ -14,7 +14,7 @@ public class Timer {
     }
 
     public void end(String message) {
-//        System.out.println(
-//                String.format("%s ms, %s", String.valueOf(System.currentTimeMillis() - start), message));
+        System.out.println(
+                String.format("%s ms, %s", String.valueOf(System.currentTimeMillis() - start), message));
     }
 }

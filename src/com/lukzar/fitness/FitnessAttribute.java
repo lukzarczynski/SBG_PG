@@ -36,7 +36,7 @@ public enum FitnessAttribute {
 
     private final String description;
     private final FitnessAttribute percentAttribute;
-    private final Double percentStatic;
+    private final Integer percentStatic;
 
     FitnessAttribute(String description) {
         this.description = description;
@@ -52,7 +52,7 @@ public enum FitnessAttribute {
     }
 
     FitnessAttribute(String description,
-                     Double staticVal) {
+                     Integer staticVal) {
         this.description = description;
         this.percentAttribute = null;
         this.percentStatic = staticVal;

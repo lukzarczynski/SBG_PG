@@ -8,28 +8,46 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.lukzar.config.Feature.*;
+import static com.lukzar.config.Feature.areaRatio;
+import static com.lukzar.config.Feature.baseTriangleAreaRatio;
+import static com.lukzar.config.Feature.curveLineRatio;
+import static com.lukzar.config.Feature.gentleAnglesRatio;
+import static com.lukzar.config.Feature.heightRatio;
+import static com.lukzar.config.Feature.innerhalfXRatio;
+import static com.lukzar.config.Feature.middleRatio;
+import static com.lukzar.config.Feature.perimeterRatio;
+import static com.lukzar.config.Feature.piecelikeTriangleAreaRatio;
+import static com.lukzar.config.Feature.sharpAnglesRatio;
+import static com.lukzar.config.Feature.straightLineRatio;
+import static com.lukzar.config.Feature.symmetryRatio;
+import static com.lukzar.config.Feature.topRatio;
+import static com.lukzar.config.Feature.widthRatio;
 
 
 public class Configuration {
 
+    public static final boolean INIT_POP_TRIANGLE = true;
+    public static final double MAXIMUM_SIMILARITY = 0.95;
+    public static final boolean ALLOW_INTERSECTIONS = false;
+    public static final double PERIMETER_RATIO_MULTIPLIER = 2; // nie ruszać //todo - i szkoda, że % nie jest wypisywany przy figurach
+
     public static String TARGET_PIECE = "queen";
 
     public static InitShape INIT_POP_SHAPE = InitShape.pawn;
-    public static String InitPopShapeStr(){
-        switch (INIT_POP_SHAPE)
-        {
-            case pawn: return "PWN";
-            case triangle: return "TRI";
-            case random: return "RND";
+
+    public static String InitPopShapeStr() {
+        switch (INIT_POP_SHAPE) {
+            case pawn:
+                return "PWN";
+            case triangle:
+                return "TRI";
+            case random:
+                return "RND";
         }
         return "WTF";
     }
 
     public static int NUMBER_OF_GENERATIONS = 20;
-
-    public static boolean ALLOW_INTERSECTIONS = false;
-    public static final double PERIMETER_RATIO_MULTIPLIER = 2; // nie ruszać //todo - i szkoda, że % nie jest wypisywany przy figurach
 
     public static class PieceGeneration {
         public static final int LINE_PERCENT = 20;
@@ -51,10 +69,9 @@ public class Configuration {
     }
 
     public static class Evolution {
-        public static int INITIAL_SIZE = 20;
-        public static int MAXIMUM_POPULATION_SIZE = 200;
         public static final int TOURNAMENT_SIZE = 5;
         public static final int CROSSOVER_SIZE = 20;
+        public static int MAXIMUM_POPULATION_SIZE = 200;
 
         public static class Mutation {
 
@@ -62,13 +79,14 @@ public class Configuration {
             public static final double CHANCE_TO_CHANGE_POINT = 0.6;
             public static final double CHANCE_TO_CHANGE_PART = 0.38;
             // CHANCE_TO_CONVERT_TO_ASYM = 1 - CHANCE_TO_CHANGE_POINT - CHANCE_TO_CHANGE_PART
+            public static final double CHANCE_TO_SPLIT_LINE = 0.8; // 20% to convert to Arc, 80% to split
             public static final double OFFSET = 40;
         }
     }
 
     public static class Piece {
-        public static final double WIDTH = 200;
-        public static final double HEIGHT = 200;
+        public static final int WIDTH = 200;
+        public static final int HEIGHT = 200;
         public static final double MIN_DEGREE = 0;
     }
 

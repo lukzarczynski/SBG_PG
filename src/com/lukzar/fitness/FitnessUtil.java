@@ -11,12 +11,44 @@ import com.lukzar.model.elements.Part;
 import com.lukzar.utils.PolygonUtils;
 import com.lukzar.utils.RayCasting;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.DoubleSummaryStatistics;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
-import static com.lukzar.fitness.FitnessAttribute.*;
+import static com.lukzar.fitness.FitnessAttribute.ARC_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.AREA;
+import static com.lukzar.fitness.FitnessAttribute.AVERAGE_DEGREE;
+import static com.lukzar.fitness.FitnessAttribute.BASE_WIDTH;
+import static com.lukzar.fitness.FitnessAttribute.BOTTOM_HALF_AREA;
+import static com.lukzar.fitness.FitnessAttribute.BOX_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.CENTROID;
+import static com.lukzar.fitness.FitnessAttribute.DOUBLE_ARC_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.HEIGHT;
+import static com.lukzar.fitness.FitnessAttribute.INNER_HALF_X_AREA;
+import static com.lukzar.fitness.FitnessAttribute.LINE_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.MID_X_AREA;
+import static com.lukzar.fitness.FitnessAttribute.MID_Y_AREA;
+import static com.lukzar.fitness.FitnessAttribute.MIN_DEGREE;
+import static com.lukzar.fitness.FitnessAttribute.NUMBER_OF_ANGLES;
+import static com.lukzar.fitness.FitnessAttribute.NUMBER_OF_GENTLE_ANGLES;
+import static com.lukzar.fitness.FitnessAttribute.NUMBER_OF_MEDIUM_ANGLES;
+import static com.lukzar.fitness.FitnessAttribute.NUMBER_OF_SHARP_ANGLES;
+import static com.lukzar.fitness.FitnessAttribute.SHAPE_LENGTH;
+import static com.lukzar.fitness.FitnessAttribute.SYMMETRIC;
+import static com.lukzar.fitness.FitnessAttribute.SYMMETRY;
+import static com.lukzar.fitness.FitnessAttribute.TOP_HALF_AREA;
+import static com.lukzar.fitness.FitnessAttribute.TRIANGLE_BASE_AREA;
+import static com.lukzar.fitness.FitnessAttribute.TRIANGLE_PIECE_AREA;
+import static com.lukzar.fitness.FitnessAttribute.WIDTH;
 import static com.lukzar.utils.PolygonUtils.distance;
 import static java.util.Objects.nonNull;
 
@@ -42,7 +74,8 @@ public class FitnessUtil {
     public static LinkedHashMap<FitnessAttribute, Object> getAttributes(Piece piece) {
         final List<Line> pieceAsLines = piece.getAsLines();
         final LinkedList<Part> pieceAllParts = piece.getAllParts();
-        boolean[][] ray = RayCasting.castLines(pieceAsLines);
+        final BitSet[] ray = RayCasting.castLines(pieceAsLines);
+        piece.setRay(ray);
         boolean asymmetric = piece.isAsymmetric();
         final List<Double> arcs = getArcs(pieceAllParts);
         final DoubleSummaryStatistics doubleSummaryStatistics = getDoubleSummaryStatistics(pieceAsLines);
@@ -169,10 +202,10 @@ public class FitnessUtil {
         measures.put(Feature.topRatio, topRatio);
         measures.put(Feature.middleRatio, middleRatio);
         measures.put(Feature.symmetryRatio, symmetryRatio);
-        measures.put(Feature.innerhalfXRatio,            innerhalfXRatio);
+        measures.put(Feature.innerhalfXRatio, innerhalfXRatio);
         measures.put(Feature.baseTriangleAreaRatio, baseTriangleAreaRatio);
         measures.put(Feature.piecelikeTriangleAreaRatio, piecelikeTriangleAreaRatio);
-        measures.put(Feature.perimeterRatio,             perimeterRatio);
+        measures.put(Feature.perimeterRatio, perimeterRatio);
         measures.put(Feature.straightLineRatio, straightLineRatio);
         //measures.put(Feature.curveLineRatio,             curveLineRatio); // redundant
         measures.put(Feature.sharpAnglesRatio, sharpAnglesRatio);
@@ -198,15 +231,6 @@ public class FitnessUtil {
         return d1 <= 0 && d2 <= 0;
     }
 
-    public static double normalize(double x) {
-
-        double v = 1 / (1 + Math.exp(-5 * (x - 1)));
-        if (Double.isNaN(v)) {
-            return 0.0;
-        }
-        return v;
-    }
-
     public static List<String> getAttributesDescription(Piece piece) {
 
         final LinkedHashMap<FitnessAttribute, Object> attributes = getAttributes(piece);
@@ -216,7 +240,7 @@ public class FitnessUtil {
         return result;
     }
 
-    private static double getSymmetryArea(boolean[][] ray, Piece svg) {
+    private static double getSymmetryArea(BitSet[] ray, Piece svg) {
         double area = area(ray, p -> true);
 
         if (!svg.isAsymmetric()) {
@@ -225,11 +249,11 @@ public class FitnessUtil {
 
         int counter = 0;
 
-        for (boolean[] row : ray) {
+        for (BitSet row : ray) {
             int left = 0;
             int right = ray.length - 1;
             while (left <= right) {
-                if (row[left] && row[right]) {
+                if (row.get(left) && row.get(right)) {
                     counter += 2;
                 }
                 left++;
@@ -282,15 +306,51 @@ public class FitnessUtil {
                 .sum();
     }
 
-    private static double area(boolean[][] ray, Predicate<Point> predicate) {
+    public static double overlapRatio(Piece piece1, Piece piece2) {
+        double and = areaAnd(piece1.getRay(), piece2.getRay());
+        double or = areaOr(piece1.getRay(), piece2.getRay());
+
+        return and / or;
+    }
+
+    public static double areaAnd(BitSet[] set1, BitSet[] set2) {
+
+        int count = 0;
+        for (int i = 0; i < set1.length; i++) {
+            BitSet clone = (BitSet) set1[i].clone();
+            clone.and(set2[i]);
+            count += clone.cardinality();
+        }
+
+        return count;
+    }
+
+    public static double areaOr(BitSet[] set1, BitSet[] set2) {
+
+        int count = 0;
+        for (int i = 0; i < set1.length; i++) {
+            BitSet clone = (BitSet) set1[i].clone();
+            clone.or(set2[i]);
+            count += clone.cardinality();
+        }
+
+        return count;
+    }
+
+    private static double area(BitSet[] ray, Predicate<Point> predicate) {
         int height = ray.length;
-        int width = ray[0].length;
         int counter = 0;
 
         for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                if (ray[row][col] && predicate.test(Point.of(col, row))) {
+            BitSet bs = ray[row];
+
+            for (int col = bs.nextSetBit(0); col >= 0; col = bs.nextSetBit(col + 1)) {
+                // operate on index i here
+                if (predicate.test(Point.of(col, row))) {
                     counter++;
+                }
+                if (col == Integer.MAX_VALUE) {
+                    break; // or (i+1) would overflow
                 }
             }
         }
