@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 public class PieceSetEvolver {
 
     public static List<Piece> SimpleGeneration(String target,
-                                                  int generations,
-                                                  int populationSize,
-                                                  int initialPopulationSize)
+                                               int generations,
+                                               int populationSize,
+                                               int initialPopulationSize)
             throws IOException {
 
         final Collection<Piece> initialize = Evolution.initialize(initialPopulationSize);
@@ -35,9 +35,9 @@ public class PieceSetEvolver {
     }
 
     public static List<Piece> SimpleGeneration(final String target,
-                                                  final int generations,
-                                                  final int populationSize,
-                                                  final Collection<Piece> startPopulation) throws IOException {
+                                               final int generations,
+                                               final int populationSize,
+                                               final Collection<Piece> startPopulation) throws IOException {
         Configuration.TARGET_PIECE = target;
         Configuration.NUMBER_OF_GENERATIONS = generations;
         Configuration.Evolution.MAXIMUM_POPULATION_SIZE = populationSize;
@@ -145,8 +145,7 @@ public class PieceSetEvolver {
             System.out.println("SecEvo " + subtarget + " (best AVG gets " + best.getFitness() + ")");
 
             ArrayList<Piece> secInitPop = new ArrayList<>();
-            for (int i = 0; i < secondaryInitPopulationSize; i++) // todo nie ma efektu na razie bo przeżywa tylko jedna - ale nie chcielibyśmy żeby tak było.. :(
-            {
+            for (int i = 0; i < secondaryInitPopulationSize; i++) {
                 Piece p = new Piece(best);
                 secInitPop.add(p);
             }
@@ -164,9 +163,7 @@ public class PieceSetEvolver {
 
         Main.writeToFile(chosen,
                 String.format("out/PlusEvolver-%s_%s-%s_%d-%d_%d-%d%S",
-                        Configuration.INIT_POP_TRIANGLE
-                                ? "TRI"
-                                : "RND",
+                        Configuration.InitPopShapeStr(),
                         target,
                         pickerPieces,
                         generations,

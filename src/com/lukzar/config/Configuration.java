@@ -26,7 +26,6 @@ import static com.lukzar.config.Feature.widthRatio;
 
 public class Configuration {
 
-    public static final boolean INIT_POP_TRIANGLE = true;
     public static final double MAXIMUM_SIMILARITY = 0.95;
     public static final boolean ALLOW_INTERSECTIONS = false;
     public static final double PERIMETER_RATIO_MULTIPLIER = 2; // nie ruszać //todo - i szkoda, że % nie jest wypisywany przy figurach
@@ -85,8 +84,8 @@ public class Configuration {
     }
 
     public static class Piece {
-        public static final int WIDTH = 200;
-        public static final int HEIGHT = 200;
+        public static final double WIDTH = 200;
+        public static final double HEIGHT = 200;
         public static final double MIN_DEGREE = 0;
     }
 

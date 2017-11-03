@@ -26,7 +26,7 @@ public class Line extends Part {
 
     @Override
     public Line reverse() {
-        int x = Configuration.Piece.WIDTH - startPos.getX();
+        int x = (int) (Configuration.Piece.WIDTH - startPos.getX());
         int y = startPos.getY();
         return new Line(Point.of(x, y));
     }

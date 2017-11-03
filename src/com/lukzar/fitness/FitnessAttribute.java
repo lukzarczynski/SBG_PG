@@ -30,7 +30,7 @@ public enum FitnessAttribute {
     MIN_DEGREE("%.3f"),
     PIECE_HEIGHT("%.3f ", FULL_HEIGHT),
     PIECE_WIDTH("%.3f ", FULL_WIDTH),
-    CENTROID("( %s )"),
+    CENTROID("%s"),
     SYMMETRIC("%s"),
     AVERAGE_DEGREE("%.3f"),
     NUMBER_OF_ANGLES("%.0f"),

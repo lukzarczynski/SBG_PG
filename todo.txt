@@ -1,13 +1,15 @@
-Bardziej do zrobienia:
+TODO:
 - skalowanie figur
-- miara podobieñstwa - wykluczanie identycznych
+- sprawdzic podobienstwo w EvolverPlusPicker
+
+DONE:
+- miara podobienstwa - wykluczanie identycznych
 - bez wykluczania w zerowej populacji
 - pionek jako startowa figura
 
-
-Bardziej luŸne idee:
+IDEAS:
 - jeszcze popracowaæ nad elityzmem?
-- drugi set kszta³tów jako bazowy dla szachów
+- drugi set ksztaltów jako bazowy dla szachów
 
 
 
