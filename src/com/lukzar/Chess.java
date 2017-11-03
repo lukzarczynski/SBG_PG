@@ -11,11 +11,6 @@ import java.util.Arrays;
 
 public class Chess {
 
-    //    @Test
-    public void testChess() throws IOException {
-        Chess.generate();
-    }
-
     public static void generate() throws IOException {
 
         Piece pawn = new Piece(Point.of(140, 200));
@@ -76,4 +71,9 @@ public class Chess {
 //        Main.writeToFileAsLines(Arrays.asList(pawn, rook, knight, bishop, queen, king), "out/chess_lines");
     }
 
+
+    //    @Test
+    public void testChess() throws IOException {
+        Chess.generate();
+    }
 }
