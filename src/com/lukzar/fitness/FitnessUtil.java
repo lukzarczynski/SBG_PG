@@ -11,7 +11,15 @@ import com.lukzar.model.elements.Part;
 import com.lukzar.utils.PolygonUtils;
 import com.lukzar.utils.RayCasting;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.DoubleSummaryStatistics;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -42,7 +50,8 @@ public class FitnessUtil {
     public static LinkedHashMap<FitnessAttribute, Object> getAttributes(Piece piece) {
         final List<Line> pieceAsLines = piece.getAsLines();
         final LinkedList<Part> pieceAllParts = piece.getAllParts();
-        boolean[][] ray = RayCasting.castLines(pieceAsLines);
+        final BitSet[] ray = RayCasting.castLines(pieceAsLines);
+        piece.setRay(ray);
         boolean asymmetric = piece.isAsymmetric();
         final List<Double> arcs = getArcs(pieceAllParts);
         final DoubleSummaryStatistics doubleSummaryStatistics = getDoubleSummaryStatistics(pieceAsLines);
@@ -89,27 +98,31 @@ public class FitnessUtil {
 
 
         LinkedHashMap<FitnessAttribute, Object> result = new LinkedHashMap<>();
-        result.put(SHAPE_LENGTH, lengthSum);
+        result.put(FULL_AREA, Configuration.Piece.WIDTH * Configuration.Piece.HEIGHT);
+        result.put(FULL_HEIGHT, Configuration.Piece.HEIGHT);
+        result.put(FULL_WIDTH, Configuration.Piece.WIDTH);
+        result.put(PERIMETER, lengthSum);
         result.put(DOUBLE_ARC_LENGTH, doubleArcLength);
         result.put(ARC_LENGTH, arcLength);
         result.put(LINE_LENGTH, linesLength);
         result.put(BOX_LENGTH, boxLength);
+        result.put(BOX_AREA, width * height);
         result.put(BASE_WIDTH, baseWidth);
-        result.put(AREA, area);
-        result.put(TOP_HALF_AREA, upperHalfArea);
-        result.put(MID_Y_AREA, middleHalfArea);
+        result.put(PIECE_AREA, area);
+        result.put(TOP_PIECE_AREA, upperHalfArea);
+        result.put(MIDDLE_PIECE_AREA, middleHalfArea);
         result.put(INNER_HALF_X_AREA, innerHalfXArea);
-        result.put(BOTTOM_HALF_AREA, lowerHalfArea);
-        result.put(MID_X_AREA, middleXHalfArea);
-        result.put(TRIANGLE_BASE_AREA, triangleArea);
-        result.put(TRIANGLE_PIECE_AREA, triangularity);
+        result.put(BOTTOM_PIECE_AREA, lowerHalfArea);
+        result.put(MIDDLE_FULL_AREA_OVER_X, middleXHalfArea);
+        result.put(BASE_TRIANGLE_AREA, triangleArea);
+        result.put(PIECELIKE_TRIANGLE_AREA, triangularity);
         result.put(MIN_DEGREE, minDegree);
         result.put(AVERAGE_DEGREE, averageDegree);
-        result.put(HEIGHT, height);
-        result.put(WIDTH, width);
+        result.put(PIECE_HEIGHT, height);
+        result.put(PIECE_WIDTH, width);
         result.put(CENTROID, centroid(piece));
         result.put(SYMMETRIC, !asymmetric);
-        result.put(SYMMETRY, symmetryArea);
+        result.put(SYMMETRY_AREA, symmetryArea);
         result.put(NUMBER_OF_ANGLES, numberOfArcs);
         result.put(NUMBER_OF_GENTLE_ANGLES, numberOfGentleArcs);
         result.put(NUMBER_OF_MEDIUM_ANGLES, numberOfMediumArcs);
@@ -122,19 +135,19 @@ public class FitnessUtil {
 
         final Map<FitnessAttribute, Object> attributes = getAttributes(svg);
 
-        double pieceHeight = (Double) attributes.get(HEIGHT);
-        double pieceWidth = (Double) attributes.get(WIDTH);
-        double pieceArea = (Double) attributes.get(AREA);
+        double pieceHeight = (Double) attributes.get(PIECE_HEIGHT);
+        double pieceWidth = (Double) attributes.get(PIECE_WIDTH);
+        double pieceArea = (Double) attributes.get(PIECE_AREA);
         double boxArea = pieceWidth * pieceHeight;
         double boxPerimeter = (Double) attributes.get(BOX_LENGTH);
-        double topPieceArea = (Double) attributes.get(TOP_HALF_AREA);
-        double bottomPieceArea = (Double) attributes.get(BOTTOM_HALF_AREA);
-        double middlePieceArea = (Double) attributes.get(MID_Y_AREA);
+        double topPieceArea = (Double) attributes.get(TOP_PIECE_AREA);
+        double bottomPieceArea = (Double) attributes.get(BOTTOM_PIECE_AREA);
+        double middlePieceArea = (Double) attributes.get(MIDDLE_PIECE_AREA);
         double innerhalfXArea = (Double) attributes.get(INNER_HALF_X_AREA);
-        double piecePerimeter = (Double) attributes.get(SHAPE_LENGTH);
-        double baseTriangleArea = (Double) attributes.get(TRIANGLE_BASE_AREA);
-        double piecelikeTriangleArea = (Double) attributes.get(TRIANGLE_PIECE_AREA);
-        double symmetry = (Double) attributes.get(SYMMETRY);
+        double piecePerimeter = (Double) attributes.get(PERIMETER);
+        double baseTriangleArea = (Double) attributes.get(BASE_TRIANGLE_AREA);
+        double piecelikeTriangleArea = (Double) attributes.get(PIECELIKE_TRIANGLE_AREA);
+        double symmetry = (Double) attributes.get(SYMMETRY_AREA);
         double straightLineLength = (Double) attributes.get(LINE_LENGTH);
         double doublearcLineLength = (Double) attributes.get(DOUBLE_ARC_LENGTH);
         double arcLineLength = (Double) attributes.get(ARC_LENGTH);
@@ -169,10 +182,10 @@ public class FitnessUtil {
         measures.put(Feature.topRatio, topRatio);
         measures.put(Feature.middleRatio, middleRatio);
         measures.put(Feature.symmetryRatio, symmetryRatio);
-        measures.put(Feature.innerhalfXRatio,            innerhalfXRatio);
+        measures.put(Feature.innerhalfXRatio, innerhalfXRatio);
         measures.put(Feature.baseTriangleAreaRatio, baseTriangleAreaRatio);
         measures.put(Feature.piecelikeTriangleAreaRatio, piecelikeTriangleAreaRatio);
-        measures.put(Feature.perimeterRatio,             perimeterRatio);
+        measures.put(Feature.perimeterRatio, perimeterRatio);
         measures.put(Feature.straightLineRatio, straightLineRatio);
         //measures.put(Feature.curveLineRatio,             curveLineRatio); // redundant
         measures.put(Feature.sharpAnglesRatio, sharpAnglesRatio);
@@ -198,15 +211,6 @@ public class FitnessUtil {
         return d1 <= 0 && d2 <= 0;
     }
 
-    public static double normalize(double x) {
-
-        double v = 1 / (1 + Math.exp(-5 * (x - 1)));
-        if (Double.isNaN(v)) {
-            return 0.0;
-        }
-        return v;
-    }
-
     public static List<String> getAttributesDescription(Piece piece) {
 
         final LinkedHashMap<FitnessAttribute, Object> attributes = getAttributes(piece);
@@ -216,7 +220,7 @@ public class FitnessUtil {
         return result;
     }
 
-    private static double getSymmetryArea(boolean[][] ray, Piece svg) {
+    private static double getSymmetryArea(BitSet[] ray, Piece svg) {
         double area = area(ray, p -> true);
 
         if (!svg.isAsymmetric()) {
@@ -225,11 +229,11 @@ public class FitnessUtil {
 
         int counter = 0;
 
-        for (boolean[] row : ray) {
+        for (BitSet row : ray) {
             int left = 0;
             int right = ray.length - 1;
             while (left <= right) {
-                if (row[left] && row[right]) {
+                if (row.get(left) && row.get(right)) {
                     counter += 2;
                 }
                 left++;
@@ -282,15 +286,51 @@ public class FitnessUtil {
                 .sum();
     }
 
-    private static double area(boolean[][] ray, Predicate<Point> predicate) {
+    public static double overlapRatio(Piece piece1, Piece piece2) {
+        double and = areaAnd(piece1.getRay(), piece2.getRay());
+        double or = areaOr(piece1.getRay(), piece2.getRay());
+
+        return and / or;
+    }
+
+    public static double areaAnd(BitSet[] set1, BitSet[] set2) {
+
+        int count = 0;
+        for (int i = 0; i < set1.length; i++) {
+            BitSet clone = (BitSet) set1[i].clone();
+            clone.and(set2[i]);
+            count += clone.cardinality();
+        }
+
+        return count;
+    }
+
+    public static double areaOr(BitSet[] set1, BitSet[] set2) {
+
+        int count = 0;
+        for (int i = 0; i < set1.length; i++) {
+            BitSet clone = (BitSet) set1[i].clone();
+            clone.or(set2[i]);
+            count += clone.cardinality();
+        }
+
+        return count;
+    }
+
+    private static double area(BitSet[] ray, Predicate<Point> predicate) {
         int height = ray.length;
-        int width = ray[0].length;
         int counter = 0;
 
         for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                if (ray[row][col] && predicate.test(Point.of(col, row))) {
+            BitSet bs = ray[row];
+
+            for (int col = bs.nextSetBit(0); col >= 0; col = bs.nextSetBit(col + 1)) {
+                // operate on index i here
+                if (predicate.test(Point.of(col, row))) {
                     counter++;
+                }
+                if (col == Integer.MAX_VALUE) {
+                    break; // or (i+1) would overflow
                 }
             }
         }

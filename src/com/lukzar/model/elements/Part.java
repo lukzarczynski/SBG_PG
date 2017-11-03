@@ -57,4 +57,9 @@ public abstract class Part {
     public int hashCode() {
         return endPos.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s - %s", startPos.toSvg(), endPos.toString());
+    }
 }

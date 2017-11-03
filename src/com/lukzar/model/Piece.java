@@ -5,8 +5,8 @@ import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.IntersectionUtil;
-import com.lukzar.utils.Timer;
 
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +23,9 @@ public class Piece {
 
     private boolean asymmetric;
 
+    // transient
     private double fitness = 0.0;
+    private BitSet[] ray = null;
 
     public Piece(Point start) {
         this.start = start;
@@ -33,12 +35,12 @@ public class Piece {
         this.start = start;
         this.parts.addAll(piece.getParts());
         this.asymmetric = piece.isAsymmetric();
+        this.fitness = piece.getFitness();
+        this.ray = piece.getRay();
     }
 
     public Piece(Piece piece) {
-        this.start = piece.getStart();
-        this.parts.addAll(piece.getParts());
-        this.asymmetric = piece.isAsymmetric();
+        this(piece.getStart(), piece);
     }
 
     public String toSvg() {
@@ -46,7 +48,7 @@ public class Piece {
 
         List<String> attributesDescription = FitnessUtil.getAttributesDescription(this);
         attributesDescription.add(0, "Fitness: " + FitnessUtil.calculateFitness(this));
-        String format = String.format(Templates.getImageTemplate(),
+        return String.format(Templates.getImageTemplate(),
                 this.start.toSvg(),
                 getAllParts().stream()
                         .map(Part::toSvg)
@@ -55,7 +57,6 @@ public class Piece {
                         .map(s -> "<li>" + s + "</li>")
                         .collect(Collectors.joining("\n"))
         );
-        return format;
     }
 
     public void convertToAsymmetric() {
@@ -123,7 +124,7 @@ public class Piece {
             final Part part = parts.get(i);
             for (Line l1 : part.convertToLines()) {
                 for (Line l2 : partToAdd.convertToLines()) {
-                    if (IntersectionUtil.lineToLineIntersection(l1, l2).isPresent()) {
+                    if (IntersectionUtil.linesIntersect(l1, l2)) {
                         return true;
                     }
                 }
@@ -177,6 +178,15 @@ public class Piece {
 
     public boolean isAsymmetric() {
         return asymmetric;
+    }
+
+
+    public BitSet[] getRay() {
+        return ray;
+    }
+
+    public void setRay(BitSet[] ray) {
+        this.ray = ray;
     }
 
     @Override

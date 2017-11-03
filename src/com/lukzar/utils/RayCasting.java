@@ -4,56 +4,52 @@
 package com.lukzar.utils;
 
 import com.lukzar.config.Configuration;
-import com.lukzar.model.Piece;
 import com.lukzar.model.Point;
 import com.lukzar.model.elements.Line;
 
+import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class RayCasting {
 
 
-    public static boolean[][] cast(Piece svg) {
-        return castLines(svg.getAsLines());
-    }
-
-    public static boolean[][] castLines(List<Line> converted) {
-        Timer t = Timer.start();
+    public static BitSet[] castLines(List<Line> converted) {
         final LinkedList<Line> ll = new LinkedList<>(converted);
 
         ll.addLast(new Line(ll.getLast().getEndPos(), ll.getFirst().getStartPos()));
-        boolean[][] cast = RayCasting.cast(ll);
-        t.end("Ray");
-        return cast;
+        return RayCasting.cast(ll);
     }
 
-    public static boolean[][] cast(List<Line> polygon) {
+    public static BitSet[] cast(List<Line> polygon) {
 
         int columns = (int) Math.ceil(Configuration.Piece.WIDTH);
         int rows = (int) Math.ceil(Configuration.Piece.HEIGHT);
-        boolean[][] result = new boolean[columns][rows];
+
+        BitSet[] res = new BitSet[rows];
+        for (int i = 0; i < rows; i++) {
+            res[i] = new BitSet(columns);
+        }
+
         IntStream.range(0, rows)
                 .parallel()
                 .forEach(row ->
                         IntStream.range(0, columns)
-                                .forEach(col ->
-                                        result[row][col] = isInside(polygon, Point.of(col, row)))
+                                .filter(col -> isInside(polygon, Point.of(col, row)))
+                                .forEach(col -> res[row].set(col))
                 );
-        return result;
+        return res;
     }
 
 
     private static boolean isInside(List<Line> polygon, Point point) {
-        Point start = Point.of(0.0, point.getY());
-        Point of = Point.of(point.getX() - 0.1, point.getY() - 0.1);
+        final Point start = Point.of(0, point.getY());
+        final Point of = Point.of(point.getX(), point.getY());
         return polygon
                 .stream()
-                .map(l -> IntersectionUtil.lineToLineIntersection(
+                .filter(l -> IntersectionUtil.linesIntersect(
                         l.getStartPos(), l.getEndPos(), start, of))
-                .filter(Optional::isPresent)
                 .count() % 2 == 1;
     }
 }

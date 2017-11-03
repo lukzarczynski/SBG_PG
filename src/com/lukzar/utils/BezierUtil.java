@@ -16,9 +16,7 @@ import java.util.stream.Collectors;
 
 public class BezierUtil {
 
-    public static double epsilon = 1;
-
-    public static List<Line> convertToLine(List<Point> bezier) {
+    private static List<Line> convertToLine(List<Point> bezier) {
         int parts = 20;
 
         double step = 1 / (double) parts;
@@ -27,19 +25,6 @@ public class BezierUtil {
 
         for (double i = 1; i <= parts; i++) {
             points.add(compute(i * step, bezier));
-        }
-
-        int i = 1;
-
-        while (i < points.size() - 1) {
-            Point pointa = points.get(i - 1);
-            Point pointb = points.get(i);
-            double distance = PolygonUtils.distance(pointa, pointb);
-            if (distance < epsilon) {
-                points.remove(pointb);
-            } else {
-                i++;
-            }
         }
 
         final List<Line> result = points.stream().map(Line::new).collect(Collectors.toList());
@@ -59,7 +44,7 @@ public class BezierUtil {
         return convertToLine(Arrays.asList(arc.getStartPos(), arc.getQ(), arc.getEndPos()));
     }
 
-    public static Point compute(double t, List<Point> bezier) {
+    private static Point compute(double t, List<Point> bezier) {
         int n = bezier.size();
         double[] x = new double[n];
         double[] y = new double[n];
