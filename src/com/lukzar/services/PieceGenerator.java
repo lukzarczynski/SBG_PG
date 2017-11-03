@@ -30,6 +30,16 @@ public class PieceGenerator {
         return triangle;
     }
 
+    public static Piece pawn() {
+        Piece pawn = new Piece(Point.of(140, 200));
+        pawn.add(new Arc(Point.of(125, 180), Point.of(155, 195)));
+        pawn.add(new Arc(Point.of(117, 140), Point.of(115, 190)));
+        pawn.add(new Arc(Point.of(115, 125), Point.of(140, 130)));
+        pawn.add(new Arc(Point.of(100, 95), Point.of(140, 100)));
+        pawn.setFitness(FitnessUtil.calculateFitness(pawn));
+        return pawn;
+    }
+
     public static Piece random() throws IntersectsException {
         int numberOfParts = randomRange(
                 Configuration.PieceGeneration.MIN_PARTS,

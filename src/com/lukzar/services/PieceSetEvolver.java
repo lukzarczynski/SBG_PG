@@ -41,9 +41,7 @@ public class PieceSetEvolver
       Evolution.writeToFile(evolution.getPopulation(),
               String.format("out/%s-%s_%s",
                       target,
-                      Configuration.INIT_POP_TRIANGLE
-                              ? "TRI"
-                              : "RND",
+                      Configuration.InitPopShapeStr(),
                       i));
     }
 
@@ -94,9 +92,6 @@ public class PieceSetEvolver
 
     Evolution.writeToFile(chosen,
             String.format("out/PlusPicker-%s_%s-%s_%d-%d%S",
-                    Configuration.INIT_POP_TRIANGLE
-                            ? "TRI"
-                            : "RND",
                     target,
                     pickerPieces,
                     generations,
@@ -142,15 +137,14 @@ public class PieceSetEvolver
       //Evolution.writeToFile(subEvo.getPopulation(), String.format("out/XXXX-%s", subtarget));
       System.out.println(subtarget + " " + subBest.getFitness()+ " \t\t\t//  " + subBest);
 
+      // todo - trzeba będzie sprawdzać podobieństwo z już dodanymi figurami
       chosen.add(subBest);
       chosenNames.put(subBest, subtarget);
     }
 
     Evolution.writeToFile(chosen,
             String.format("out/PlusEvolver-%s_%s-%s_%d-%d_%d-%d%S",
-                    Configuration.INIT_POP_TRIANGLE
-                            ? "TRI"
-                            : "RND",
+                    Configuration.InitPopShapeStr(),
                     target,
                     pickerPieces,
                     generations,

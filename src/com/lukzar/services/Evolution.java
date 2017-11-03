@@ -42,19 +42,32 @@ public class Evolution {
     }
 
     public void initialize() {
-        if (Configuration.INIT_POP_TRIANGLE) {
-            for (int i = 0; i < Configuration.Evolution.INITIAL_SIZE; i++) {
-                population.add(PieceGenerator.triangle());
-            }
-        } else {
-            while (population.size() < Configuration.Evolution.INITIAL_SIZE) {
-                try {
-                    population.add(PieceGenerator.random());
-                } catch (IntersectsException ignored) {
+        switch (Configuration.INIT_POP_SHAPE)
+        {
+            case pawn:
+                for (int i = 0; i < Configuration.Evolution.INITIAL_SIZE; i++)
+                {
+                    population.add(PieceGenerator.pawn());
                 }
-            }
+                break;
+            case triangle:
+                for (int i = 0; i < Configuration.Evolution.INITIAL_SIZE; i++)
+                {
+                    population.add(PieceGenerator.triangle());
+                }
+                break;
+            case random:
+                while (population.size() < Configuration.Evolution.INITIAL_SIZE)
+                {
+                    try
+                    {
+                        population.add(PieceGenerator.random());
+                    } catch (IntersectsException ignored)
+                    {
+                    }
+                    break;
+                }
         }
-
     }
 
     // Evolve a population
