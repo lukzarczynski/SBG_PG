@@ -6,6 +6,7 @@ import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
 import com.lukzar.services.evolution.Evolution;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,21 +24,28 @@ public class PieceSetEvolver {
     public static List<Piece> SimpleGeneration(String target,
                                                int generations,
                                                int populationSize,
-                                               int initialPopulationSize)
+                                               int initialPopulationSize,
+                                               String subdir)
             throws IOException {
 
         final Collection<Piece> initialize = Evolution.initialize(initialPopulationSize);
         System.out.println("Initial population size: " + initialize.size());
 
-        //Evolution.writeToFile(evolution.getPopulation(), "out/" + target + "_0");
+        Main.writeToFile(initialize,
+                String.format("out%s/%s-%s_%s",
+                        subdir==null?"":"/"+subdir,
+                        target,
+                        Configuration.InitPopShapeStr(),
+                        0));
 
-        return SimpleGeneration(target, generations, populationSize, initialize);
+        return SimpleGeneration(target, generations, populationSize, initialize, subdir);
     }
 
     public static List<Piece> SimpleGeneration(final String target,
                                                final int generations,
                                                final int populationSize,
-                                               final Collection<Piece> startPopulation) throws IOException {
+                                               final Collection<Piece> startPopulation,
+                                               String subdir) throws IOException {
         Configuration.TARGET_PIECE = target;
         Configuration.NUMBER_OF_GENERATIONS = generations;
         Configuration.Evolution.MAXIMUM_POPULATION_SIZE = populationSize;
@@ -52,7 +60,8 @@ public class PieceSetEvolver {
 
             System.out.println("Population " + i + " size: " + population.size());
             Main.writeToFile(population,
-                    String.format("out/%s-%s_%s",
+                    String.format("out%s/%s-%s_%s",
+                            subdir==null?"":"/"+subdir,
                             target,
                             Configuration.InitPopShapeStr(),
                             i));
@@ -67,11 +76,24 @@ public class PieceSetEvolver {
                                                       int initPopulationSize,
                                                       String pickerPieces,
                                                       String testname) throws IOException {
+        String subdir = String.format("PlusPicker-%s_%s-%s_%d-%d%s",
+                Configuration.InitPopShapeStr(),
+                target,
+                pickerPieces,
+                generations,
+                populationSize,
+                testname == null ? "" : ("_" + testname));
+
+        File directory = new File("out/"+subdir);
+        if (! directory.exists()){
+            directory.mkdir();
+        }
+
         final Collection<Piece> chosen = new ArrayList<>();
         final HashMap<Piece, String> chosenNames = new HashMap<>();
         final String[] piecesToPick = pickerPieces.split(";");
 
-        final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize);
+        final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize, subdir);
 
         final Piece best = finalPopulation.get(0);
         chosen.add(best);
@@ -107,15 +129,7 @@ public class PieceSetEvolver {
         }
 
 
-        Main.writeToFile(chosen,
-                String.format("out/PlusPicker-%s_%s-%s_%d-%d%S",
-                        Configuration.InitPopShapeStr(),
-                        target,
-                        pickerPieces,
-                        generations,
-                        populationSize,
-                        testname == null ? "" : ("_" + testname)),
-                chosenNames);
+        Main.writeToFile(chosen, String.format("out/%s", subdir), chosenNames);
 
         return chosen;
     }
@@ -129,11 +143,26 @@ public class PieceSetEvolver {
                                                       int secondaryPopulationSize,
                                                       int secondaryInitPopulationSize,
                                                       String testname) throws IOException {
+        String subdir = String.format("PlusEvolver-%s_%s-%s_%d-%d_%d-%d%S",
+                Configuration.InitPopShapeStr(),
+                target,
+                pickerPieces,
+                generations,
+                populationSize,
+                secondaryGenerations,
+                secondaryPopulationSize,
+                testname == null ? "" : ("_" + testname));
+
+        File directory = new File("out/"+subdir);
+        if (! directory.exists()){
+            directory.mkdir();
+        }
+
         final ArrayList<Piece> chosen = new ArrayList<>();
         final HashMap<Piece, String> chosenNames = new HashMap<>();
         final String[] piecesToPick = pickerPieces.split(";");
 
-        final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize);
+        final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize, subdir);
 
         final Piece best = finalPopulation.get(0);
         chosen.add(best);
@@ -150,7 +179,7 @@ public class PieceSetEvolver {
                 secInitPop.add(p);
             }
 
-            List<Piece> secResult = SimpleGeneration(subtarget, secondaryGenerations, secondaryPopulationSize, secInitPop);
+            List<Piece> secResult = SimpleGeneration(subtarget, secondaryGenerations, secondaryPopulationSize, secInitPop, subdir);
 
             Piece subBest = secResult.get(0);
 
@@ -161,17 +190,7 @@ public class PieceSetEvolver {
             chosenNames.put(subBest, subtarget);
         }
 
-        Main.writeToFile(chosen,
-                String.format("out/PlusEvolver-%s_%s-%s_%d-%d_%d-%d%S",
-                        Configuration.InitPopShapeStr(),
-                        target,
-                        pickerPieces,
-                        generations,
-                        populationSize,
-                        secondaryGenerations,
-                        secondaryPopulationSize,
-                        testname == null ? "" : ("_" + testname)),
-                chosenNames);
+        Main.writeToFile(chosen, String.format("out/%s", subdir), chosenNames);
 
         return chosen;
     }
