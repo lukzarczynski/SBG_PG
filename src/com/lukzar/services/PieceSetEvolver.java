@@ -28,7 +28,7 @@ public class PieceSetEvolver {
 
         Main.writeToFile(initialize,
                 String.format("out%s/%s-%s_%s",
-                        subdir==null?"":"/"+subdir,
+                        subdir == null ? "" : "/" + subdir,
                         target,
                         Configuration.InitPopShapeStr(),
                         0));
@@ -56,7 +56,7 @@ public class PieceSetEvolver {
             System.out.println("Population " + i + " size: " + population.size());
             Main.writeToFile(population,
                     String.format("out%s/%s-%s_%s",
-                            subdir==null?"":"/"+subdir,
+                            subdir == null ? "" : "/" + subdir,
                             target,
                             Configuration.InitPopShapeStr(),
                             i));
@@ -79,8 +79,8 @@ public class PieceSetEvolver {
                 populationSize,
                 testname == null ? "" : ("_" + testname));
 
-        File directory = new File("out/"+subdir);
-        if (! directory.exists()){
+        File directory = new File("out/" + subdir);
+        if (!directory.exists()) {
             directory.mkdir();
         }
 
@@ -147,8 +147,8 @@ public class PieceSetEvolver {
                 secondaryPopulationSize,
                 testname == null ? "" : ("_" + testname));
 
-        File directory = new File("out/"+subdir);
-        if (! directory.exists()){
+        File directory = new File("out/" + subdir);
+        if (!directory.exists()) {
             directory.mkdir();
         }
 
