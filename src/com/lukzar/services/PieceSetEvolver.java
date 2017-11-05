@@ -8,12 +8,7 @@ import com.lukzar.services.evolution.Evolution;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -74,7 +69,7 @@ public class PieceSetEvolver {
                                                       int generations,
                                                       int populationSize,
                                                       int initPopulationSize,
-                                                      String pickerPieces,
+                                                      Set<String> pickerPieces,
                                                       String testname) throws IOException {
         String subdir = String.format("PlusPicker-%s_%s-%s_%d-%d%s",
                 Configuration.InitPopShapeStr(),
@@ -91,7 +86,6 @@ public class PieceSetEvolver {
 
         final Collection<Piece> chosen = new ArrayList<>();
         final HashMap<Piece, String> chosenNames = new HashMap<>();
-        final String[] piecesToPick = pickerPieces.split(";");
 
         final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize, subdir);
 
@@ -101,7 +95,7 @@ public class PieceSetEvolver {
 
         final HashSet<Piece> picked = new HashSet<>();
 
-        for (String subtarget : piecesToPick) {
+        for (String subtarget : pickerPieces) {
             Configuration.TARGET_PIECE = subtarget;
 
             final Collection<Piece> copy = finalPopulation.stream()
@@ -138,7 +132,7 @@ public class PieceSetEvolver {
                                                       int generations,
                                                       int populationSize,
                                                       int initPopulationSize,
-                                                      String pickerPieces,
+                                                      Set<String> pickerPieces,
                                                       int secondaryGenerations,
                                                       int secondaryPopulationSize,
                                                       int secondaryInitPopulationSize,
@@ -160,7 +154,6 @@ public class PieceSetEvolver {
 
         final ArrayList<Piece> chosen = new ArrayList<>();
         final HashMap<Piece, String> chosenNames = new HashMap<>();
-        final String[] piecesToPick = pickerPieces.split(";");
 
         final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize, subdir);
 
@@ -168,7 +161,7 @@ public class PieceSetEvolver {
         chosen.add(best);
         chosenNames.put(best, target);
 
-        for (String subtarget : piecesToPick) {
+        for (String subtarget : pickerPieces) {
             Configuration.TARGET_PIECE = subtarget;
             best.setFitness(FitnessUtil.calculateFitness(best));
             System.out.println("SecEvo " + subtarget + " (best AVG gets " + best.getFitness() + ")");
