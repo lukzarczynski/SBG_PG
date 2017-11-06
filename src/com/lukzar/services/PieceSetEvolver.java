@@ -5,10 +5,10 @@ import com.lukzar.config.Configuration;
 import com.lukzar.fitness.FitnessUtil;
 import com.lukzar.model.Piece;
 import com.lukzar.services.evolution.Evolution;
-import com.sun.deploy.config.Config;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,7 +55,7 @@ public class PieceSetEvolver {
             population = Evolution.collectNewGeneration(oldGeneration, newGeneration);
             oldGeneration = population;
 
-            System.out.println("Population " + i+"/"+Configuration.NUMBER_OF_GENERATIONS + " size: " + population.size());
+            System.out.println(new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + " >> " + "Population " + i+"/"+Configuration.NUMBER_OF_GENERATIONS + " size: " + population.size());
             Main.writeToFile(population,
                     String.format("out%s/%s-%s_%s",
                             subdir == null ? "" : "/" + subdir,

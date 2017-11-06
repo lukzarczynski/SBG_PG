@@ -3,3 +3,8 @@
 /SBG_PG.iml
 /SB_PG.iml
 /.DS-Store
+*.class
+/src/resources/
+/src/out/
+/src/_sources.txt
+/src/*.out
