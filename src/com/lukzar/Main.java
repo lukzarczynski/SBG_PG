@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Locale.setDefault(Locale.US);
 
-        Configuration.targetFeatureValues = ConfigLoader.getConfig("resources/configuration/chess.csv");
+        Configuration.targetFeatureValues = ConfigLoader.getConfig("resources/configuration/ibis.csv");
 
 //        Chess.generate();
 
@@ -46,11 +46,12 @@ public class Main {
         targets.remove("AVG");
 
 
-        //PieceSetEvolver.EvolverPlusPicker("AVG", 6, 100, 10, "P;R;N;B;Q;K", null);
-        PieceSetEvolver.EvolverPlusPicker("AVG", 5, 500, 100, targets, "A");
+        PieceSetEvolver.EvolverPlusEvolver("AVG", 5, 100, 100, targets, 2, 100, 20, "A");
 
-        //PieceSetEvolver.EvolverPlusEvolver("AVG", 6, 100, 10, "P;R;N;B;Q;K", 6, 100, 20, null);
-        PieceSetEvolver.EvolverPlusEvolver("AVG", 5, 500, 100, targets, 6, 100, 20, "A");
+
+
+
+
 
     }
 

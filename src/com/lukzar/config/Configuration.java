@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 public class Configuration {
 
     public static final double MAXIMUM_SIMILARITY = 0.95;
+
+    public static final double CHOICE_MAX_SIMILARITY = 0.90;
+    public static final double CHOICE_MIN_SIMILARITY = 0.50;
+
     public static final boolean ALLOW_INTERSECTIONS = false;
     public static final double PERIMETER_RATIO_MULTIPLIER = 2; // nie ruszać //todo - i szkoda, że % nie jest wypisywany przy figurach
 
@@ -36,6 +40,7 @@ public class Configuration {
     public static List<String> getDescription() {
         List<String> result = new ArrayList<>();
         result.add("MAXIMUM_SIMILARITY: " + MAXIMUM_SIMILARITY);
+        result.add("CHOICE_SIMILARITY: (" + CHOICE_MIN_SIMILARITY+", "+CHOICE_MAX_SIMILARITY+")");
         result.add("ALLOW_INTERSECTIONS: " + ALLOW_INTERSECTIONS);
         result.add("PERIMETER_RATIO_MULTIPLIER: " + PERIMETER_RATIO_MULTIPLIER);
         result.add("INIT_POP_SHAPE: " + INIT_POP_SHAPE);
