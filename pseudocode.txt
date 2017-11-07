@@ -1,0 +1,93 @@
+
+SimpleGeneration(size):
+    population = initialize(size)
+
+    for generation i in 1..NUMBER_OF_GENERATIONS do:
+        newPopulation = evolve(population)
+        population = pickSurvivingMembers(population, newPopulation)
+
+        # export to file
+    return population
+
+
+pickSurvivingMembers ( oldPopulation, newPopulation )
+    population = oldPopulation + newPopulation
+    sort population by fitness
+    removeSimilarMembers(population) # leaves ones with best fitness
+    trimPopulationSize ( population, MAXIMUM_POPULATION_SIZE )
+    return population
+
+
+evolve(population):
+
+    newPopulation = empty
+
+    # crossover
+    for i in range CROSSOVER_SIZE do:
+        children = crossover( tournamentSelection(population), tournamentSelection(population))
+
+        for child in children:
+            child = mutate(child)
+
+        newPopulation += children
+
+    # mutation
+    for piece in population:
+        newPopulation += mutate(piece)
+
+    # filtering (intersections, MIN_ANGLE, NaN fitness etc.)
+    removeUnfitMembers(newPopulation)
+
+    return newPopulation
+
+
+mutate(piece):
+    random = random from 0..1
+
+    if( random < STARTING_POINT_CHANCE )
+        changeStartingPoint(piece)
+
+    part = getRandomPart( piece )
+
+    if( random < CHANCE_TO_CHANGE_POINT ):
+        changeRandomPointInPart ( part )
+    else if ( random < (CHANCE_TO_CHANGE_PART + CHANCE_TO_CHANGE_POINT) ):
+        promotePart ( part )
+    else
+        convertToAsymmetric( piece )
+
+    # ensures piece stars and ends on y = 200 (or ends on x = 100 for symmetric pieces)
+    # ensures that each point p is within bounds 0 <= p <= 200 (HEIGHT, WIDTH)
+    fixPieceAndEnsureIsWithinBounds ( piece )
+
+    return piece
+
+changeRandomPointInPart ( part ):
+    point = getRandomPointFromPart ( part ) # uniformly
+
+    point.x = random from range (point.x - OFFSET)..(point.x + OFFSET)
+    point.y = random from range (point.y - OFFSET)..(point.y + OFFSET)
+
+promotePart ( part ):
+    switch ( part ) :
+
+        case Line:
+            if( random from range (0..1) < CHANCE_TO_SPLIT_LINE):
+                return splitLineInHalf ( part )
+            else:
+                return convertLineToArc ( part ) # part.q becomes (middle of line += 5)
+
+        case Arc:
+            return convertArcToDoubleArc ( part ) # q1 = q2 = part.q
+
+        case DoubleArc:
+            return convertDoubleArcToLine( part )
+
+tournamentSelection ( population ):
+    elements = randomly pick TOURNAMENT_SIZE elements from population
+    sort elements by FITNESS
+    return best element from elements
+
+
+crossover ( parent1, parent2 )
+    # to się jeszcze zmieni

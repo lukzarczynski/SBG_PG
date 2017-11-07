@@ -76,4 +76,19 @@ public class Chess {
     public void testChess() throws IOException {
         Chess.generate();
     }
+
+    //    @Test
+    public void testScale() throws IOException {
+        Piece p = new Piece(Point.of(150, 200));
+        p.convertToAsymmetric();
+        p.add(new DoubleArc(Point.of(150, 100), Point.of(100, 100), Point.of(200, 0)));
+        p.add(new Line(Point.of(100, 50)));
+        p.add(new DoubleArc(Point.of(50, 200), Point.of(0, 100), Point.of(0, 0)));
+
+        double scale = 0.5;
+
+        Main.writeToFile(Arrays.asList(p, p.scale(scale)), "out/scale");
+    }
+
+
 }

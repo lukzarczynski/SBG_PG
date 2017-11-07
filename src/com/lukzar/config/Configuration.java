@@ -4,6 +4,7 @@
 package com.lukzar.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class Configuration {
 
     public static InitShape INIT_POP_SHAPE = InitShape.pawn;
     public static int NUMBER_OF_GENERATIONS = 20;
-    public static Map<String, Map<Feature, Double>> targetFeatureValues;
+    public static Map<String, Map<Feature, Double>> targetFeatureValues = new HashMap<>();
 
     public static String InitPopShapeStr() {
         switch (INIT_POP_SHAPE) {

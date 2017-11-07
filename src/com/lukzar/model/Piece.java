@@ -2,6 +2,8 @@ package com.lukzar.model;
 
 import com.lukzar.config.Templates;
 import com.lukzar.fitness.FitnessUtil;
+import com.lukzar.model.elements.Arc;
+import com.lukzar.model.elements.DoubleArc;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.IntersectionUtil;
@@ -56,6 +58,38 @@ public class Piece {
                 attributesDescription.stream()
                         .map(s -> "<li>" + s + "</li>")
                         .collect(Collectors.joining("\n"))
+        );
+    }
+
+    public Piece scale(double scale) {
+        Piece result = new Piece(scale(this.getStart(), scale));
+        if (this.isAsymmetric()) {
+            result.convertToAsymmetric();
+        }
+
+        for (Part part : this.getParts()) {
+            if (part instanceof Line) {
+                result.add(new Line(scale(part.getEndPos(), scale)));
+            } else if (part instanceof Arc) {
+                result.add(new Arc(
+                        scale(part.getEndPos(), scale),
+                        scale(((Arc) part).getQ(), scale)));
+            } else if (part instanceof DoubleArc) {
+                result.add(new DoubleArc(
+                        scale(part.getEndPos(), scale),
+                        scale(((DoubleArc) part).getQ1(), scale),
+                        scale(((DoubleArc) part).getQ2(), scale))
+                );
+            }
+        }
+        return result;
+    }
+
+    private Point scale(Point p, double scale) {
+        return Point.of(
+
+                p.getX() * scale + (100 * (1.0 - scale)),
+                p.getY() * scale + (200 * (1.0 - scale))
         );
     }
 
