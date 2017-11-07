@@ -1,7 +1,7 @@
-Name;widthRatio;heightRatio;areaRatio;topRatio;middleRatio;symmetryRatio;innerhalfXRatio;baseTriangleAreaRatio;piecelikeTriangleAreaRatio;perimeterRatio;straightLineRatio;sharpAnglesRatio;gentleAnglesRatio
-P;0.45;0.525;0.119;0.293;0.286;1;0.846;1;0.732;0.409;0;0.222;0.333
-R;0.539;0.625;0.19;0.461;0.178;1;0.732;0.92;0.496;0.449;0.287;0;0.294
-N;0.598;0.8;0.293;0.312;0.309;0.776;0.732;0.922;0.58;0.436;0.037;0;0.667
-B;0.523;0.825;0.186;0.261;0.296;1;0.877;1;0.792;0.436;0;0.154;0.385
-Q;0.523;0.9;0.204;0.238;0.287;1;0.852;0.981;0.809;0.493;0;0.267;0.333
-K;0.523;0.975;0.255;0.349;0.25;1;0.826;0.875;0.691;0.47;0;0.4;0.333
+Name,widthRatio,heightRatio,areaRatio,topRatio,middleRatio,symmetryRatio,innerhalfXRatio,baseTriangleAreaRatio,piecelikeTriangleAreaRatio,perimeterRatio,straightLineRatio,sharpAnglesRatio,gentleAnglesRatio
+P,0.45,0.525,0.119,0.293,0.286,1,0.846,1,0.732,0.409,0,0.222,0.333
+R,0.539,0.625,0.19,0.461,0.178,1,0.732,0.92,0.496,0.449,0.287,0,0.294
+N,0.598,0.8,0.293,0.312,0.309,0.776,0.732,0.922,0.58,0.436,0.037,0,0.667
+B,0.523,0.825,0.186,0.261,0.296,1,0.877,1,0.792,0.436,0,0.154,0.385
+Q,0.523,0.9,0.204,0.238,0.287,1,0.852,0.981,0.809,0.493,0,0.267,0.333
+K,0.523,0.975,0.255,0.349,0.25,1,0.826,0.875,0.691,0.47,0,0.4,0.333

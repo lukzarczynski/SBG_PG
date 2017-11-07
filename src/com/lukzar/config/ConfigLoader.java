@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  */
 public class ConfigLoader {
 
-    private static final String separator = ";";
+    private static final String separator = ",";
 
     public static Map<String, Map<Feature, Double>> getConfig(String path) throws IOException {
         final Map<String, Map<Feature, Double>> result = new HashMap<>();

@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
  */
 public class PieceSetEvolver {
 
-    public static List<Piece> SimpleGeneration(String target,
+    public static List<Piece> SimpleGeneration(String game,
+                                               String target,
                                                int generations,
                                                int populationSize,
                                                int initialPopulationSize,
@@ -29,16 +30,18 @@ public class PieceSetEvolver {
         System.out.println("Initial population size: " + initialize.size());
 
         Main.writeToFile(initialize,
-                String.format("out%s/%s-%s_%s",
+                String.format("out%s/%s-%s-%s_%s",
                         subdir == null ? "" : "/" + subdir,
+                        game,
                         target,
                         Configuration.InitPopShapeStr(),
                         0));
 
-        return SimpleGeneration(target, generations, populationSize, initialize, subdir);
+        return SimpleGeneration(game, target, generations, populationSize, initialize, subdir);
     }
 
-    public static List<Piece> SimpleGeneration(final String target,
+    public static List<Piece> SimpleGeneration(final String game,
+                                               final String target,
                                                final int generations,
                                                final int populationSize,
                                                final Collection<Piece> startPopulation,
@@ -57,8 +60,9 @@ public class PieceSetEvolver {
 
             System.out.println(new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + " >> " + "Population " + i+"/"+Configuration.NUMBER_OF_GENERATIONS + " size: " + population.size());
             Main.writeToFile(population,
-                    String.format("out%s/%s-%s_%s",
+                    String.format("out%s/%s-%s-%s_%s",
                             subdir == null ? "" : "/" + subdir,
+                            game,
                             target,
                             Configuration.InitPopShapeStr(),
                             i));
@@ -68,7 +72,8 @@ public class PieceSetEvolver {
     }
 
     @Deprecated
-    public static Collection<Piece> EvolverPlusPicker(String target,
+    public static Collection<Piece> EvolverPlusPicker(String game,
+                                                      String target,
                                                       int generations,
                                                       int populationSize,
                                                       int initPopulationSize,
@@ -90,7 +95,7 @@ public class PieceSetEvolver {
         final Collection<Piece> chosen = new ArrayList<>();
         final HashMap<Piece, String> chosenNames = new HashMap<>();
 
-        final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize, subdir);
+        final List<Piece> finalPopulation = SimpleGeneration(game, target, generations, populationSize, initPopulationSize, subdir);
 
         final Piece best = finalPopulation.get(0);
         chosen.add(best);
@@ -203,7 +208,8 @@ public class PieceSetEvolver {
         Main.writeToFile(chosen, String.format("out/Picker%s", evolver_subdir.substring(evolver_subdir.indexOf("-")+1)), chosenNames);
     }
 
-    public static ArrayList<Piece> EvolverPlusEvolver(String target,
+    public static ArrayList<Piece> EvolverPlusEvolver(String game,
+                                                      String target,
                                                       int generations,
                                                       int populationSize,
                                                       int initPopulationSize,
@@ -212,7 +218,7 @@ public class PieceSetEvolver {
                                                       int secondaryPopulationSize,
                                                       int secondaryInitPopulationSize,
                                                       String testname) throws IOException {
-        String subdir = String.format("Evolver-%s_%s-%s_%d-%d_%d-%d%S",
+        /*String subdir = String.format("Evolver-%s_%s-%s_%d-%d_%d-%d%S",
                 Configuration.InitPopShapeStr(),
                 target,
                 pickerPieces,
@@ -220,6 +226,10 @@ public class PieceSetEvolver {
                 populationSize,
                 secondaryGenerations,
                 secondaryPopulationSize,
+                testname == null ? "" : ("_" + testname));*/
+        String subdir = String.format("Evolver-%s-%s%s",
+                game,
+                Configuration.InitPopShapeStr(),
                 testname == null ? "" : ("_" + testname));
 
         File directory = new File("out/" + subdir);
@@ -230,7 +240,7 @@ public class PieceSetEvolver {
         final ArrayList<Piece> chosen = new ArrayList<>();
         final HashMap<Piece, String> chosenNames = new HashMap<>();
 
-        final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize, subdir);
+        final List<Piece> finalPopulation = SimpleGeneration(game, target, generations, populationSize, initPopulationSize, subdir);
 
         final Piece best = finalPopulation.get(0);
         chosen.add(best);
@@ -239,6 +249,7 @@ public class PieceSetEvolver {
 
         JustPicker(target, finalPopulation, pickerPieces, subdir);
 
+        final HashSet<Piece> picked = new HashSet<>();
 
         for (String subtarget : pickerPieces) {
             Configuration.TARGET_PIECE = subtarget;
@@ -251,10 +262,8 @@ public class PieceSetEvolver {
                 secInitPop.add(p);
             }
 
-            List<Piece> secResult = SimpleGeneration(subtarget, secondaryGenerations, secondaryPopulationSize, secInitPop, subdir);
+            List<Piece> secResult = SimpleGeneration(game, subtarget, secondaryGenerations, secondaryPopulationSize, secInitPop, subdir);
 
-
-            final HashSet<Piece> picked = new HashSet<>();
             Piece subBest = null;
             int skipped = 0;
             for (Piece candidate : secResult)

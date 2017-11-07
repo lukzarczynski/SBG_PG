@@ -31,14 +31,18 @@ public class Main {
         final Set<String> targets = new HashSet<>(Configuration.targetFeatureValues.keySet());
         targets.remove("AVG");
 
-        //PieceSetEvolver.EvolverPlusEvolver("AVG", 5, 100, 100, targets, 2, 100, 20, "A");
+        //PieceSetEvolver.EvolverPlusEvolver(game, "AVG", 5, 100, 100, targets, 2, 100, 20, "A");
 
         Random rnd = new Random();
 
+        String testname = args.length>0?args[0]:"A";
         Configuration.INIT_POP_SHAPE= Configuration.InitShape.triangle;
-        for (int test=1; test <= 100; test++)
+        int maxtests=100;
+        for (int test=1; test <= maxtests; test++)
         {
-            int generations = 50+50*rnd.nextInt(16); // 50-700
+            System.out.println(game+testname+test+"/"+maxtests);
+
+            int generations = 50+50*rnd.nextInt(11); // 50-550
             int populationSize = 200+100*rnd.nextInt(9); // 200-1000
             int initPopulationSize = 100+100*rnd.nextInt(5); // 100-500
             int secondaryGenerations = 1 + 1*rnd.nextInt(10); // 1-10
@@ -57,7 +61,7 @@ public class Main {
             Configuration.Evolution.Mutation.CHANCE_TO_SPLIT_LINE = 0.5+0.1*rnd.nextInt(6); // 0.5-1.0
             Configuration.Evolution.Mutation.OFFSET = 20 + 10*rnd.nextInt(4); // 20-50;
 
-            PieceSetEvolver.EvolverPlusEvolver("AVG", generations, populationSize, initPopulationSize, targets, secondaryGenerations, secondaryPopulationSize, secondaryInitPopulationSize, game+"A"+test);
+            PieceSetEvolver.EvolverPlusEvolver(game, "AVG", generations, populationSize, initPopulationSize, targets, secondaryGenerations, secondaryPopulationSize, secondaryInitPopulationSize, testname+test);
         }
 
 

@@ -5,7 +5,9 @@ import glob
 import shutil
 import subprocess
 
-
+# 0. clear 'out' and 'resources'
+shutil.rmtree('out')
+shutil.rmtree('resources')
 # 1. add 'out' directory to /src
 if not os.path.exists("out"):  os.mkdir("out"); print('INFO: "out" directory created')
 # 2. copy 'resources to \src
@@ -23,5 +25,6 @@ print('Done.')
 #What to do:
 
 #1. run this script on my machine
-#2. copy everything to remote
-#3. nohup java com.lukzar.Main B > B.out &
+#2. copy 'src' to remote
+#3a. ./run.sh A
+#3b. nohup java com.lukzar.Main A > A.out &
