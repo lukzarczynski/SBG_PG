@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Locale.setDefault(Locale.US);
 
-        String game="ibis";
+        String game="weather";
         Configuration.targetFeatureValues = ConfigLoader.getConfig("resources/configuration/"+game+".csv");
 
 
@@ -31,7 +31,7 @@ public class Main {
         final Set<String> targets = new HashSet<>(Configuration.targetFeatureValues.keySet());
         targets.remove("AVG");
 
-        //PieceSetEvolver.EvolverPlusEvolver(game, "AVG", 5, 100, 100, targets, 2, 100, 20, "A");
+        PieceSetEvolver.EvolverPlusEvolver(game, "AVG", 5, 50, 50, targets, 2, 100, 20, "A");
 
         Random rnd = new Random();
 
@@ -41,11 +41,15 @@ public class Main {
         for (int test=1; test <= maxtests; test++)
         {
             System.out.println(game+testname+test+"/"+maxtests);
+            // wider
+            int generations = 50+50*rnd.nextInt(4); // 50-200
+            int populationSize = 200+100*rnd.nextInt(4); // 200-500
+            // deeper
+            //int generations = 200+50*rnd.nextInt(5); // 200-400
+            //int populationSize = 40+20*rnd.nextInt(4); // 40-100
 
-            int generations = 50+50*rnd.nextInt(11); // 50-550
-            int populationSize = 200+100*rnd.nextInt(9); // 200-1000
             int initPopulationSize = 100+100*rnd.nextInt(5); // 100-500
-            int secondaryGenerations = 1 + 1*rnd.nextInt(10); // 1-10
+            int secondaryGenerations = 1 + 1*rnd.nextInt(8); // 1-8
             int secondaryPopulationSize = 200+100*rnd.nextInt(9); // 200-1000
             int secondaryInitPopulationSize = 100+100*rnd.nextInt(5); // 100-500
 
@@ -80,11 +84,11 @@ public class Main {
                         .map(p -> names.getOrDefault(p, "") + p.toSvg())
                         .collect(Collectors.joining("\n"))
         );
-        writeToFile(content, path);
+        writeToFile(content, path, null);
     }
 
-    private static void writeToFile(String content, String path) throws IOException {
-        try (FileOutputStream os = new FileOutputStream(new File(path + ".html"))) {
+    public static void writeToFile(String content, String path, String extension) throws IOException {
+        try (FileOutputStream os = new FileOutputStream(new File(path + "."+(extension==null?"html":extension)))) {
             os.write(content.getBytes());
         }
     }
@@ -97,7 +101,7 @@ public class Main {
                         .map(PieceFormatter::asPoints)
                         .collect(Collectors.joining("\n"))
         );
-        writeToFile(content, path);
+        writeToFile(content, path, null);
     }
 
     // ignore this
@@ -108,7 +112,7 @@ public class Main {
                         .map(PieceFormatter::asLines)
                         .collect(Collectors.joining("\n"))
         );
-        writeToFile(content, path);
+        writeToFile(content, path, null);
     }
 
     private static String getConfiguration() {
