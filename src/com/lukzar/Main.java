@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Locale.setDefault(Locale.US);
 
-        String game="weather";
+        String game=args.length>0?args[0]:"ibis";
         Configuration.targetFeatureValues = ConfigLoader.getConfig("resources/configuration/"+game+".csv");
 
 
@@ -31,22 +31,36 @@ public class Main {
         final Set<String> targets = new HashSet<>(Configuration.targetFeatureValues.keySet());
         targets.remove("AVG");
 
-        PieceSetEvolver.EvolverPlusEvolver(game, "AVG", 5, 50, 50, targets, 2, 100, 20, "A");
+        //PieceSetEvolver.EvolverPlusEvolver(game, "AVG", 5, 50, 50, targets, 2, 100, 20, "A");
 
         Random rnd = new Random();
 
-        String testname = args.length>0?args[0]:"A";
-        Configuration.INIT_POP_SHAPE= Configuration.InitShape.triangle;
+        String initshape = args.length>1?args[1]:"TRI";
+
+        Configuration.INIT_POP_SHAPE= initshape.equals("TRI")?Configuration.InitShape.triangle:
+        initshape.equals("PWN")? Configuration.InitShape.pawn: Configuration.InitShape.random;
+
+        String testname = args.length>2?args[2]:"A";
+
         int maxtests=100;
         for (int test=1; test <= maxtests; test++)
         {
-            System.out.println(game+testname+test+"/"+maxtests);
-            // wider
-            int generations = 50+50*rnd.nextInt(4); // 50-200
-            int populationSize = 200+100*rnd.nextInt(4); // 200-500
-            // deeper
-            //int generations = 200+50*rnd.nextInt(5); // 200-400
-            //int populationSize = 40+20*rnd.nextInt(4); // 40-100
+            String dw="";
+            int generations,populationSize;
+            if (rnd.nextDouble() < 0.5)
+            {
+                dw = "wider";
+                generations = 50 + 50 * rnd.nextInt(4); // 50-200
+                populationSize = 200 + 100 * rnd.nextInt(4); // 200-500
+            }
+            else
+            {
+                dw = "deeper";
+                generations = 200 + 50 * rnd.nextInt(5); // 200-400
+                populationSize = 40 + 20 * rnd.nextInt(4); // 40-100
+            }
+
+            System.out.println(game+testname+test+"/"+maxtests+"      // "+dw);
 
             int initPopulationSize = 100+100*rnd.nextInt(5); // 100-500
             int secondaryGenerations = 1 + 1*rnd.nextInt(8); // 1-8
