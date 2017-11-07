@@ -183,7 +183,7 @@ public class FitnessUtil {
         measures.put(Feature.middleRatio, middleRatio);
         measures.put(Feature.symmetryRatio, symmetryRatio);
         measures.put(Feature.innerhalfXRatio, innerhalfXRatio);
-        measures.put(Feature.baseTriangleAreaRatio, baseTriangleAreaRatio);
+        //measures.put(Feature.baseTriangleAreaRatio, baseTriangleAreaRatio); // OK, we decided to put that one out.
         measures.put(Feature.piecelikeTriangleAreaRatio, piecelikeTriangleAreaRatio);
         measures.put(Feature.perimeterRatio, perimeterRatio);
         measures.put(Feature.straightLineRatio, straightLineRatio);

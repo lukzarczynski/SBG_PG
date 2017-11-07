@@ -8,6 +8,7 @@ import com.lukzar.services.evolution.Evolution;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,27 +17,31 @@ import java.util.stream.Collectors;
  */
 public class PieceSetEvolver {
 
-    public static List<Piece> SimpleGeneration(String target,
+    public static List<Piece> SimpleGeneration(String game,
+                                               String target,
                                                int generations,
                                                int populationSize,
                                                int initialPopulationSize,
                                                String subdir)
             throws IOException {
 
+        Configuration.TARGET_PIECE = target;
         final Collection<Piece> initialize = Evolution.initialize(initialPopulationSize);
         System.out.println("Initial population size: " + initialize.size());
 
         Main.writeToFile(initialize,
-                String.format("out%s/%s-%s_%s",
+                String.format("out%s/%s-%s-%s_%s",
                         subdir == null ? "" : "/" + subdir,
+                        game,
                         target,
                         Configuration.InitPopShapeStr(),
                         0));
 
-        return SimpleGeneration(target, generations, populationSize, initialize, subdir);
+        return SimpleGeneration(game, target, generations, populationSize, initialize, subdir);
     }
 
-    public static List<Piece> SimpleGeneration(final String target,
+    public static List<Piece> SimpleGeneration(final String game,
+                                               final String target,
                                                final int generations,
                                                final int populationSize,
                                                final Collection<Piece> startPopulation,
@@ -53,10 +58,11 @@ public class PieceSetEvolver {
             population = Evolution.collectNewGeneration(oldGeneration, newGeneration);
             oldGeneration = population;
 
-            System.out.println("Population " + i + " size: " + population.size());
+            System.out.println(new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + " >> " + "Population " + i+"/"+Configuration.NUMBER_OF_GENERATIONS + " size: " + population.size());
             Main.writeToFile(population,
-                    String.format("out%s/%s-%s_%s",
+                    String.format("out%s/%s-%s-%s_%s",
                             subdir == null ? "" : "/" + subdir,
+                            game,
                             target,
                             Configuration.InitPopShapeStr(),
                             i));
@@ -65,7 +71,9 @@ public class PieceSetEvolver {
         return population;
     }
 
-    public static Collection<Piece> EvolverPlusPicker(String target,
+    @Deprecated
+    public static Collection<Piece> EvolverPlusPicker(String game,
+                                                      String target,
                                                       int generations,
                                                       int populationSize,
                                                       int initPopulationSize,
@@ -87,7 +95,7 @@ public class PieceSetEvolver {
         final Collection<Piece> chosen = new ArrayList<>();
         final HashMap<Piece, String> chosenNames = new HashMap<>();
 
-        final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize, subdir);
+        final List<Piece> finalPopulation = SimpleGeneration(game, target, generations, populationSize, initPopulationSize, subdir);
 
         final Piece best = finalPopulation.get(0);
         chosen.add(best);
@@ -105,9 +113,21 @@ public class PieceSetEvolver {
 
             Piece subBest = null;
             int skipped = 0;
-            for (Piece p : pieces) {
-                if (!picked.contains(p)) {
-                    subBest = p;
+            for (Piece candidate : pieces)
+            {
+                boolean ok = true;
+                for (Piece pick: picked)
+                {
+                    double sim = FitnessUtil.overlapRatio(pick, candidate);
+                    if (sim > Configuration.CHOICE_MAX_SIMILARITY || sim < Configuration.CHOICE_MIN_SIMILARITY)
+                    {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok)
+                {
+                    subBest = candidate;
                     break;
                 }
                 skipped++;
@@ -116,7 +136,6 @@ public class PieceSetEvolver {
             //Evolution.writeToFile(subEvo.getPopulation(), String.format("out/XXXX-%s", subtarget));
             System.out.println(subtarget + " " + pieces.get(0).getFitness() + " (" + skipped + " skipped)\t\t\t//  " + subBest);
 
-            // todo - trzeba będzie sprawdzać podobieństwo z już dodanymi figurami
             chosen.add(subBest);
             picked.add(subBest);
             chosenNames.put(subBest, subtarget);
@@ -128,7 +147,69 @@ public class PieceSetEvolver {
         return chosen;
     }
 
-    public static ArrayList<Piece> EvolverPlusEvolver(String target,
+    public static void JustPicker(String target,
+                                  List<Piece> population,
+                                  Set<String> pickerPieces,
+                                  String evolver_subdir) throws IOException {
+
+        final List<Piece> finalPopulation = new ArrayList<Piece>();
+        for(Piece p: population)
+            finalPopulation.add(new Piece(p));
+
+        final Collection<Piece> chosen = new ArrayList<>();
+        final HashMap<Piece, String> chosenNames = new HashMap<>();
+
+        final Piece best = finalPopulation.get(0);
+        chosen.add(best);
+        chosenNames.put(best, target);
+
+        final HashSet<Piece> picked = new HashSet<>();
+
+        for (String subtarget : pickerPieces) {
+            Configuration.TARGET_PIECE = subtarget;
+
+            final Collection<Piece> copy = finalPopulation.stream()
+                    .peek(p -> p.setFitness(FitnessUtil.calculateFitness(p)))
+                    .collect(Collectors.toList());
+            final List<Piece> pieces = Evolution.collectNewGeneration(copy, Collections.emptyList());
+
+            Piece subBest = null;
+            int skipped = 0;
+            for (Piece candidate : pieces)
+            {
+                boolean ok = true;
+                for (Piece pick: picked)
+                {
+                    double sim = FitnessUtil.overlapRatio(pick, candidate);
+                    if (sim > Configuration.CHOICE_MAX_SIMILARITY || sim < Configuration.CHOICE_MIN_SIMILARITY)
+                    {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok)
+                {
+                    subBest = candidate;
+                    break;
+                }
+                skipped++;
+            }
+
+            //Evolution.writeToFile(subEvo.getPopulation(), String.format("out/XXXX-%s", subtarget));
+            System.out.println(subtarget + " " + pieces.get(0).getFitness() + " (" + skipped + " skipped)");
+
+            // todo - trzeba będzie sprawdzać podobieństwo z już dodanymi figurami
+            chosen.add(subBest);
+            picked.add(subBest);
+            chosenNames.put(subBest, subtarget);
+        }
+
+
+        Main.writeToFile(chosen, String.format("out/Picker%s", evolver_subdir.substring(evolver_subdir.indexOf("-")+1)), chosenNames);
+    }
+
+    public static ArrayList<Piece> EvolverPlusEvolver(String game,
+                                                      String target,
                                                       int generations,
                                                       int populationSize,
                                                       int initPopulationSize,
@@ -137,7 +218,7 @@ public class PieceSetEvolver {
                                                       int secondaryPopulationSize,
                                                       int secondaryInitPopulationSize,
                                                       String testname) throws IOException {
-        String subdir = String.format("PlusEvolver-%s_%s-%s_%d-%d_%d-%d%S",
+        /*String subdir = String.format("Evolver-%s_%s-%s_%d-%d_%d-%d%S",
                 Configuration.InitPopShapeStr(),
                 target,
                 pickerPieces,
@@ -145,6 +226,10 @@ public class PieceSetEvolver {
                 populationSize,
                 secondaryGenerations,
                 secondaryPopulationSize,
+                testname == null ? "" : ("_" + testname));*/
+        String subdir = String.format("Evolver-%s-%s%s",
+                game,
+                Configuration.InitPopShapeStr(),
                 testname == null ? "" : ("_" + testname));
 
         File directory = new File("out/" + subdir);
@@ -155,11 +240,16 @@ public class PieceSetEvolver {
         final ArrayList<Piece> chosen = new ArrayList<>();
         final HashMap<Piece, String> chosenNames = new HashMap<>();
 
-        final List<Piece> finalPopulation = SimpleGeneration(target, generations, populationSize, initPopulationSize, subdir);
+        final List<Piece> finalPopulation = SimpleGeneration(game, target, generations, populationSize, initPopulationSize, subdir);
 
         final Piece best = finalPopulation.get(0);
         chosen.add(best);
         chosenNames.put(best, target);
+
+
+        JustPicker(target, finalPopulation, pickerPieces, subdir);
+
+        final HashSet<Piece> picked = new HashSet<>();
 
         for (String subtarget : pickerPieces) {
             Configuration.TARGET_PIECE = subtarget;
@@ -172,14 +262,34 @@ public class PieceSetEvolver {
                 secInitPop.add(p);
             }
 
-            List<Piece> secResult = SimpleGeneration(subtarget, secondaryGenerations, secondaryPopulationSize, secInitPop, subdir);
+            List<Piece> secResult = SimpleGeneration(game, subtarget, secondaryGenerations, secondaryPopulationSize, secInitPop, subdir);
 
-            Piece subBest = secResult.get(0);
+            Piece subBest = null;
+            int skipped = 0;
+            for (Piece candidate : secResult)
+            {
+                boolean ok = true;
+                for (Piece pick: picked)
+                {
+                    double sim = FitnessUtil.overlapRatio(pick, candidate);
+                    if (sim > Configuration.CHOICE_MAX_SIMILARITY || sim < Configuration.CHOICE_MIN_SIMILARITY)
+                    {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok)
+                {
+                    subBest = candidate;
+                    break;
+                }
+                skipped++;
+            }
 
-            //Evolution.writeToFile(subEvo.getPopulation(), String.format("out/XXXX-%s", subtarget));
-            System.out.println(subtarget + " " + subBest.getFitness() + " \t\t\t//  " + subBest);
+            System.out.println(subtarget + " " + subBest.getFitness() + " (" + skipped + " skipped)");
 
             chosen.add(subBest);
+            picked.add(subBest);
             chosenNames.put(subBest, subtarget);
         }
 

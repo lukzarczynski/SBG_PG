@@ -11,7 +11,11 @@ import java.util.stream.Collectors;
 
 public class Configuration {
 
-    public static final double MAXIMUM_SIMILARITY = 0.95;
+    public static double MAXIMUM_SIMILARITY = 0.95;
+
+    public static double CHOICE_MAX_SIMILARITY = 0.90;
+    public static double CHOICE_MIN_SIMILARITY = 0.50;
+
     public static final boolean ALLOW_INTERSECTIONS = false;
     public static final double PERIMETER_RATIO_MULTIPLIER = 2; // nie ruszać //todo - i szkoda, że % nie jest wypisywany przy figurach
 
@@ -36,6 +40,7 @@ public class Configuration {
     public static List<String> getDescription() {
         List<String> result = new ArrayList<>();
         result.add("MAXIMUM_SIMILARITY: " + MAXIMUM_SIMILARITY);
+        result.add("CHOICE_SIMILARITY: (" + CHOICE_MIN_SIMILARITY+", "+CHOICE_MAX_SIMILARITY+")");
         result.add("ALLOW_INTERSECTIONS: " + ALLOW_INTERSECTIONS);
         result.add("PERIMETER_RATIO_MULTIPLIER: " + PERIMETER_RATIO_MULTIPLIER);
         result.add("INIT_POP_SHAPE: " + INIT_POP_SHAPE);
@@ -89,8 +94,8 @@ public class Configuration {
     }
 
     public static class Evolution {
-        public static final int TOURNAMENT_SIZE = 5;
-        public static final int CROSSOVER_SIZE = 20;
+        public static int TOURNAMENT_SIZE = 5;
+        public static int CROSSOVER_SIZE = 20;
         public static int MAXIMUM_POPULATION_SIZE = 200;
 
         public static List<String> getDescription() {
@@ -108,12 +113,12 @@ public class Configuration {
 
         public static class Mutation {
 
-            public static final double STARTING_POINT_CHANCE = 0.1;
-            public static final double CHANCE_TO_CHANGE_POINT = 0.6;
-            public static final double CHANCE_TO_CHANGE_PART = 0.38;
+            public static double STARTING_POINT_CHANCE = 0.1;
+            public static double CHANCE_TO_CHANGE_POINT = 0.6;
+            public static double CHANCE_TO_CHANGE_PART = 0.38;
             // CHANCE_TO_CONVERT_TO_ASYM = 1 - CHANCE_TO_CHANGE_POINT - CHANCE_TO_CHANGE_PART
-            public static final double CHANCE_TO_SPLIT_LINE = 0.8; // 20% to convert to Arc, 80% to split
-            public static final double OFFSET = 40;
+            public static double CHANCE_TO_SPLIT_LINE = 0.8; // 20% to convert to Arc, 80% to split
+            public static double OFFSET = 40;
         }
     }
 
