@@ -55,7 +55,7 @@ public abstract class Evolution {
     public static Collection<Piece> evolvePopulation(Collection<Piece> input) {
         final Set<Piece> newPopulation = new HashSet<>();
 
-        for (int i = 0; i < Math.min(Configuration.Evolution.CROSSOVER_SIZE, input.size() / 2); i++) {
+        for (int i = 0; i < Math.min(Configuration.Evolution.CROSSOVER_SIZE, input.size()); i++) {
             final List<Piece> crossover = crossover(tournamentSelection(input), tournamentSelection(input));
             crossover
                     .stream()
@@ -125,7 +125,7 @@ public abstract class Evolution {
             startPoint = piece.getStart();
         }
 
-        final Piece result = new Piece(startPoint, piece);
+        Piece result = new Piece(startPoint, piece);
 
         final Point minBound = Point.of(result.isAsymmetric() ? 0 : Configuration.Piece.WIDTH / 2.0, 0);
         final Point maxBound = Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT);
@@ -137,10 +137,9 @@ public abstract class Evolution {
 
         final Part newPart;
 
+
         if (random <= Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_POINT) {
             // change points
-
-
             newPart = PointMutation.mutate(part, minBound, maxBound);
             newPart.setStartPos(part.getStartPos());
             result.getParts().set(partToChange, newPart);
@@ -152,9 +151,16 @@ public abstract class Evolution {
             for (int i = 0; i < mutate.size(); i++) {
                 result.getParts().add(partToChange + i, mutate.get(i));
             }
-        } else {
+        } else if (random <= Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_POINT + Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_PART
+                + Configuration.Evolution.Mutation.CHANCE_TO_CONVERT_TO_ASYNC) {
             // convert to asymmetric
             result.convertToAsymmetric();
+        } else {
+            double scaleMin = 1 - Configuration.Evolution.Mutation.SCALE_OFFSET;
+            double scaleMax = 1 + Configuration.Evolution.Mutation.SCALE_OFFSET;
+            result = result.scale(
+                    RandomUtils.randomRange(scaleMin, scaleMax),
+                    minBound, maxBound);
         }
 
         result.updateStartPoints();
@@ -200,8 +206,8 @@ public abstract class Evolution {
             right = piece2.getParts();
         }
 
-        int l = new Random().nextInt(left.size() - 2) + 1;
-        int r = new Random().nextInt(right.size() - 2) + 1;
+        int l = new Random().nextInt(left.size());
+        int r = new Random().nextInt(right.size());
 
         final List<Part> l1 = left.subList(0, l);
         final List<Part> l2 = left.subList(l, left.size());

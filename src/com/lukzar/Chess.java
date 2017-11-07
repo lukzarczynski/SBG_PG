@@ -87,7 +87,7 @@ public class Chess {
 
         double scale = 0.5;
 
-        Main.writeToFile(Arrays.asList(p, p.scale(scale)), "out/scale");
+        Main.writeToFile(Arrays.asList(p, p.scale(scale, Point.of(0,0), Point.of(200,200))), "out/scale");
     }
 
 
