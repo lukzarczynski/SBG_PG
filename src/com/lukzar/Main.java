@@ -32,6 +32,7 @@ public class Main {
         targets.remove("AVG");
 
         //PieceSetEvolver.EvolverPlusEvolver(game, "AVG", 5, 50, 50, targets, 2, 100, 20, "A");
+        //PieceSetEvolver.IndependentEvolver(game, 5, 50, 50, targets, "X");
 
         Random rnd = new Random();
 
@@ -41,6 +42,7 @@ public class Main {
         initshape.equals("PWN")? Configuration.InitShape.pawn: Configuration.InitShape.random;
 
         String testname = args.length>2?args[2]:"A";
+        String evoOrInit = args.length>3?args[3]:"E";
 
         int maxtests=100;
         for (int test=1; test <= maxtests; test++)
@@ -60,7 +62,9 @@ public class Main {
                 populationSize = 40 + 20 * rnd.nextInt(4); // 40-100
             }
 
-            System.out.println(game+testname+test+"/"+maxtests+"      // "+dw);
+            // todo - na twardo zmniejszyc tu trochę wartości?
+
+            System.out.println(game+testname+test+"/"+maxtests+" "+evoOrInit+"      // "+dw);
 
             int initPopulationSize = 100+100*rnd.nextInt(5); // 100-500
             int secondaryGenerations = 1 + 1*rnd.nextInt(8); // 1-8
@@ -68,7 +72,7 @@ public class Main {
             int secondaryInitPopulationSize = 100+100*rnd.nextInt(5); // 100-500
 
             Configuration.MAXIMUM_SIMILARITY = 0.85+0.05*rnd.nextInt(3); // 0.85-0.95
-            Configuration.CHOICE_MIN_SIMILARITY = 0.3+0.1*rnd.nextInt(4); // 0.3-0.6
+            Configuration.CHOICE_MIN_SIMILARITY = 0.0; //0.3+0.1*rnd.nextInt(4); // 0.3-0.6
             Configuration.CHOICE_MAX_SIMILARITY = 0.80+0.05*rnd.nextInt(4); // 0.80-0.95
 
             Configuration.Evolution.TOURNAMENT_SIZE = 3+1*rnd.nextInt(3); // 3-5
@@ -79,7 +83,12 @@ public class Main {
             Configuration.Evolution.Mutation.CHANCE_TO_SPLIT_LINE = 0.5+0.1*rnd.nextInt(6); // 0.5-1.0
             Configuration.Evolution.Mutation.OFFSET = 20 + 10*rnd.nextInt(4); // 20-50;
 
-            PieceSetEvolver.EvolverPlusEvolver(game, "AVG", generations, populationSize, initPopulationSize, targets, secondaryGenerations, secondaryPopulationSize, secondaryInitPopulationSize, testname+test);
+
+
+            if (evoOrInit.equals("E"))
+                PieceSetEvolver.EvolverPlusEvolver(game, "AVG", generations, populationSize, initPopulationSize, targets, secondaryGenerations, secondaryPopulationSize, secondaryInitPopulationSize, testname+test);
+            else
+                PieceSetEvolver.IndependentEvolver(game, generations, populationSize, initPopulationSize, targets, testname+test);
         }
 
 
