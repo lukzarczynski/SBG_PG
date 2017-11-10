@@ -9,7 +9,6 @@ import com.lukzar.model.elements.Part;
 import com.lukzar.services.PieceGenerator;
 import com.lukzar.utils.RandomUtils;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,8 +19,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Created by lukasz on 16.07.17.
@@ -58,7 +55,7 @@ public abstract class Evolution {
     public static Collection<Piece> evolvePopulation(Collection<Piece> input) {
         final Set<Piece> newPopulation = new HashSet<>();
 
-        for (int i = 0; i < Math.min(Configuration.Evolution.CROSSOVER_SIZE, input.size() / 2); i++) {
+        for (int i = 0; i < Math.min(Configuration.Evolution.CROSSOVER_SIZE, input.size()); i++) {
             final List<Piece> crossover = crossover(tournamentSelection(input), tournamentSelection(input));
             crossover
                     .stream()
@@ -128,7 +125,7 @@ public abstract class Evolution {
             startPoint = piece.getStart();
         }
 
-        final Piece result = new Piece(startPoint, piece);
+        Piece result = new Piece(startPoint, piece);
 
         final Point minBound = Point.of(result.isAsymmetric() ? 0 : Configuration.Piece.WIDTH / 2.0, 0);
         final Point maxBound = Point.of(Configuration.Piece.WIDTH, Configuration.Piece.HEIGHT);
@@ -140,10 +137,9 @@ public abstract class Evolution {
 
         final Part newPart;
 
+
         if (random <= Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_POINT) {
             // change points
-
-
             newPart = PointMutation.mutate(part, minBound, maxBound);
             newPart.setStartPos(part.getStartPos());
             result.getParts().set(partToChange, newPart);
@@ -155,9 +151,16 @@ public abstract class Evolution {
             for (int i = 0; i < mutate.size(); i++) {
                 result.getParts().add(partToChange + i, mutate.get(i));
             }
-        } else {
+        } else if (random <= Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_POINT + Configuration.Evolution.Mutation.CHANCE_TO_CHANGE_PART
+                + Configuration.Evolution.Mutation.CHANCE_TO_CONVERT_TO_ASYNC) {
             // convert to asymmetric
             result.convertToAsymmetric();
+        } else {
+            double scaleMin = 1 - Configuration.Evolution.Mutation.SCALE_OFFSET;
+            double scaleMax = 1 + Configuration.Evolution.Mutation.SCALE_OFFSET;
+            result = result.scale(
+                    RandomUtils.randomRange(scaleMin, scaleMax),
+                    minBound, maxBound);
         }
 
         result.updateStartPoints();
@@ -187,13 +190,8 @@ public abstract class Evolution {
     }
 
     private static List<Piece> crossover(Piece piece1, Piece piece2) {
-        return Arrays.asList(
-                produceChild(piece1, piece2),
-                produceChild(piece2, piece1));
-    }
-
-    private static Piece produceChild(Piece piece1, Piece piece2) {
-        final Piece child = new Piece(piece1.getStart());
+        final Piece child1 = new Piece(piece1.getStart());
+        final Piece child2 = new Piece(piece2.getStart());
 
         List<Part> left;
         List<Part> right;
@@ -201,22 +199,28 @@ public abstract class Evolution {
         if (piece1.isAsymmetric() || piece2.isAsymmetric()) {
             left = piece1.getAllParts();
             right = piece2.getAllParts();
-            child.convertToAsymmetric();
+            child1.convertToAsymmetric();
+            child2.convertToAsymmetric();
         } else {
             left = piece1.getParts();
             right = piece2.getParts();
         }
 
-        for (int i = 0; i < Math.ceil(left.size() / 2); i++) {
-            child.add(left.get(i));
-        }
+        int l = new Random().nextInt(left.size());
+        int r = new Random().nextInt(right.size());
 
-        for (int i = right.size() / 2; i < right.size(); i++) {
-            child.add(right.get(i));
-        }
+        final List<Part> l1 = left.subList(0, l);
+        final List<Part> l2 = left.subList(l, left.size());
+        final List<Part> r1 = right.subList(0, r);
+        final List<Part> r2 = right.subList(r, right.size());
 
-        child.updateStartPoints();
-        return child;
+        l1.forEach(child1::add);
+        r2.forEach(child1::add);
+
+        r1.forEach(child2::add);
+        l2.forEach(child2::add);
+
+        return Arrays.asList(child1, child2);
     }
 
     // Select individuals for crossover

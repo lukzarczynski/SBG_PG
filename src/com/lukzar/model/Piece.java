@@ -1,10 +1,16 @@
 package com.lukzar.model;
 
+import com.lukzar.config.Configuration;
 import com.lukzar.config.Templates;
 import com.lukzar.fitness.FitnessUtil;
+import com.lukzar.model.elements.Arc;
+import com.lukzar.model.elements.DoubleArc;
 import com.lukzar.model.elements.Line;
 import com.lukzar.model.elements.Part;
 import com.lukzar.utils.IntersectionUtil;
+import com.lukzar.utils.RandomUtils;
+
+import sun.security.krb5.Config;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -56,6 +62,40 @@ public class Piece {
                 attributesDescription.stream()
                         .map(s -> "<li>" + s + "</li>")
                         .collect(Collectors.joining("\n"))
+        );
+    }
+
+    public Piece scale(double scale, Point minBound, Point maxBound) {
+        Point startPoint = scale(this.getStart(), scale, minBound, maxBound);
+        Piece result = new Piece(Point.of(startPoint.getX(), Configuration.Piece.HEIGHT));
+        if (this.isAsymmetric()) {
+            result.convertToAsymmetric();
+        }
+
+        for (Part part : this.getParts()) {
+            if (part instanceof Line) {
+                result.add(new Line(scale(part.getEndPos(), scale, minBound, maxBound)));
+            } else if (part instanceof Arc) {
+                result.add(new Arc(
+                        scale(part.getEndPos(), scale, minBound, maxBound),
+                        scale(((Arc) part).getQ(), scale, minBound, maxBound)));
+            } else if (part instanceof DoubleArc) {
+                result.add(new DoubleArc(
+                        scale(part.getEndPos(), scale, minBound, maxBound),
+                        scale(((DoubleArc) part).getQ1(), scale, minBound, maxBound),
+                        scale(((DoubleArc) part).getQ2(), scale, minBound, maxBound))
+                );
+            }
+        }
+        return result;
+    }
+
+    private Point scale(Point p, double scale, Point min, Point max) {
+        double scaledX = p.getX() * scale + ((Configuration.Piece.WIDTH / 2) * (1.0 - scale));
+        double scaledY = p.getY() * scale + (Configuration.Piece.HEIGHT * (1.0 - scale));
+        return Point.of(
+                RandomUtils.ensureRange(scaledX, min.getX(), max.getX()),
+                RandomUtils.ensureRange(scaledY, min.getY(), max.getY())
         );
     }
 

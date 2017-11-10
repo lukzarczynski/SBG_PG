@@ -192,10 +192,11 @@ public class FitnessUtil {
         measures.put(Feature.gentleAnglesRatio, gentleAnglesRatio);
 
         // Calculating fitness
-        Map<Feature, Double> target = Configuration.targetFeatureValues.get(Configuration.TARGET_PIECE);
+        Map<Feature, Double> target = Configuration.targetFeatureValues.getOrDefault(Configuration.TARGET_PIECE, new HashMap<>());
         double result = 0;
         for (Feature key : measures.keySet()) {
-            result += (measures.get(key) - target.get(key)) * (measures.get(key) - target.get(key)); // Euclidian distance
+            Double targetValue = target.getOrDefault(key, 0.0);
+            result += (measures.get(key) - targetValue) * (measures.get(key) - targetValue); // Euclidian distance
         }
 
         return Math.sqrt(result);

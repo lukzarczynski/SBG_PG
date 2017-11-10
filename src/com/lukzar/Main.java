@@ -77,6 +77,7 @@ public class Main {
         final String content = String.format(Templates.getListTemplate(),
                 getConfiguration(),
                 pieces.stream()
+                        .filter(Objects::nonNull)
                         .map(p -> names.getOrDefault(p, "") + p.toSvg())
                         .collect(Collectors.joining("\n"))
         );

@@ -4,6 +4,7 @@
 package com.lukzar.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class Configuration {
 
     public static InitShape INIT_POP_SHAPE = InitShape.pawn;
     public static int NUMBER_OF_GENERATIONS = 20;
-    public static Map<String, Map<Feature, Double>> targetFeatureValues;
+    public static Map<String, Map<Feature, Double>> targetFeatureValues = new HashMap<>();
 
     public static String InitPopShapeStr() {
         switch (INIT_POP_SHAPE) {
@@ -114,9 +115,11 @@ public class Configuration {
         public static class Mutation {
 
             public static double STARTING_POINT_CHANCE = 0.1;
-            public static double CHANCE_TO_CHANGE_POINT = 0.6;
+            public static double CHANCE_TO_CHANGE_POINT = 0.5;
             public static double CHANCE_TO_CHANGE_PART = 0.38;
-            // CHANCE_TO_CONVERT_TO_ASYM = 1 - CHANCE_TO_CHANGE_POINT - CHANCE_TO_CHANGE_PART
+            public static double CHANCE_TO_CONVERT_TO_ASYNC = 0.02;
+            public static double CHANCE_TO_SCALE = 1.0 - CHANCE_TO_CHANGE_POINT - CHANCE_TO_CHANGE_PART - CHANCE_TO_CONVERT_TO_ASYNC;
+            public static double SCALE_OFFSET = 0.1;
             public static double CHANCE_TO_SPLIT_LINE = 0.8; // 20% to convert to Arc, 80% to split
             public static double OFFSET = 40;
         }
