@@ -407,4 +407,82 @@ public class FitnessUtil {
         return result;
 
     }
+
+
+    // Verry sorry, that's dirty copypasteworkaround, cause Antonios needs another measure
+    public static Map<Feature, Double> calculateFitnessMeasures(Piece svg) {
+
+        final Map<FitnessAttribute, Object> attributes = getAttributes(svg);
+
+        double pieceHeight = (Double) attributes.get(PIECE_HEIGHT);
+        double pieceWidth = (Double) attributes.get(PIECE_WIDTH);
+        double pieceArea = (Double) attributes.get(PIECE_AREA);
+        double boxArea = pieceWidth * pieceHeight;
+        double boxPerimeter = (Double) attributes.get(BOX_LENGTH);
+        double topPieceArea = (Double) attributes.get(TOP_PIECE_AREA);
+        double bottomPieceArea = (Double) attributes.get(BOTTOM_PIECE_AREA);
+        double middlePieceArea = (Double) attributes.get(MIDDLE_PIECE_AREA);
+        double innerhalfXArea = (Double) attributes.get(INNER_HALF_X_AREA);
+        double piecePerimeter = (Double) attributes.get(PERIMETER);
+        double baseTriangleArea = (Double) attributes.get(BASE_TRIANGLE_AREA);
+        double piecelikeTriangleArea = (Double) attributes.get(PIECELIKE_TRIANGLE_AREA);
+        double symmetry = (Double) attributes.get(SYMMETRY_AREA);
+        double straightLineLength = (Double) attributes.get(LINE_LENGTH);
+        double doublearcLineLength = (Double) attributes.get(DOUBLE_ARC_LENGTH);
+        double arcLineLength = (Double) attributes.get(ARC_LENGTH);
+        double numberofAngles = (Double) attributes.get(NUMBER_OF_ANGLES);
+        double sharpAngles = (Double) attributes.get(NUMBER_OF_SHARP_ANGLES);
+        double gentleAngles = (Double) attributes.get(NUMBER_OF_GENTLE_ANGLES);
+        double averageDegree = (Double) attributes.get(AVERAGE_DEGREE);
+        double minDegree = (Double) attributes.get(MIN_DEGREE);
+
+        // Measures
+        double widthRatio = pieceWidth / fullWidth;
+        double heightRatio = pieceHeight / fullHeight;
+        double areaRatio = pieceArea / fullArea;
+        double topRatio = topPieceArea / pieceArea;
+        double middleRatio = middlePieceArea / pieceArea;
+        double symmetryRatio = symmetry / pieceArea;
+        double innerhalfXRatio = innerhalfXArea / pieceArea;
+        double baseTriangleAreaRatio = baseTriangleArea / pieceArea;
+        double piecelikeTriangleAreaRatio = piecelikeTriangleArea / pieceArea;
+        double perimeterRatio = piecePerimeter / (boxPerimeter * Configuration.PERIMETER_RATIO_MULTIPLIER);
+        double straightLineRatio = straightLineLength / piecePerimeter;
+        double curveLineRatio = 1 - straightLineRatio;
+        double sharpAnglesRatio = sharpAngles / numberofAngles;
+        double gentleAnglesRatio = gentleAngles / numberofAngles;
+        Map<Feature, Double> measures = new HashMap<>();
+
+
+        // comment this 'puts' to remove measure from fitness function
+        measures.put(Feature.widthRatio, widthRatio);
+        measures.put(Feature.heightRatio, heightRatio);
+        measures.put(Feature.areaRatio, areaRatio);
+        measures.put(Feature.topRatio, topRatio);
+        measures.put(Feature.middleRatio, middleRatio);
+        measures.put(Feature.symmetryRatio, symmetryRatio);
+        measures.put(Feature.innerhalfXRatio, innerhalfXRatio);
+        //measures.put(Feature.baseTriangleAreaRatio, baseTriangleAreaRatio); // OK, we decided to put that one out.
+        measures.put(Feature.piecelikeTriangleAreaRatio, piecelikeTriangleAreaRatio);
+        measures.put(Feature.perimeterRatio, perimeterRatio);
+        measures.put(Feature.straightLineRatio, straightLineRatio);
+        //measures.put(Feature.curveLineRatio,             curveLineRatio); // redundant
+        measures.put(Feature.sharpAnglesRatio, sharpAnglesRatio);
+        measures.put(Feature.gentleAnglesRatio, gentleAnglesRatio);
+        return measures;
+
+
+    }
+
+    public static Double fitnessBetweenPieces(Map<Feature, Double> measures1, Map<Feature, Double> measures2)
+    {
+        // Calculating fitness
+        double result = 0;
+        for (Feature key : measures1.keySet()) {
+            result += (measures1.get(key) - measures2.get(key)) * (measures1.get(key) - measures2.get(key)); // Euclidian distance
+        }
+
+        return Math.sqrt(result);
+
+    }
 }

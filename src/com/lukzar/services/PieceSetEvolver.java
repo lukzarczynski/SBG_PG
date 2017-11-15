@@ -163,7 +163,8 @@ public class PieceSetEvolver {
         chosen.add(best);
         chosenNames.put(best, target);
 
-        final HashSet<Piece> picked = new HashSet<>();
+        //final HashSet<Piece> picked = new HashSet<>();
+        final HashMap<Piece,Double> picked = new HashMap<>();
 
         for (String subtarget : pickerPieces) {
             Configuration.TARGET_PIECE = subtarget;
@@ -178,7 +179,7 @@ public class PieceSetEvolver {
             for (Piece candidate : pieces)
             {
                 boolean ok = true;
-                for (Piece pick: picked)
+                for (Piece pick: picked.keySet())
                 {
                     double sim = FitnessUtil.overlapRatio(pick, candidate);
                     if (sim > Configuration.CHOICE_MAX_SIMILARITY || sim < Configuration.CHOICE_MIN_SIMILARITY)
@@ -195,17 +196,24 @@ public class PieceSetEvolver {
                 skipped++;
             }
 
+            if (subBest==null)
+            {
+                System.out.println(subtarget + " - all shapes skipped - computations aborted");
+                return;
+            }
+
             //Evolution.writeToFile(subEvo.getPopulation(), String.format("out/XXXX-%s", subtarget));
-            System.out.println(subtarget + " " + pieces.get(0).getFitness() + " (" + skipped + " skipped)");
+            System.out.println(subtarget + " " + subBest.getFitness() + " (" + skipped + " skipped)");
 
             // todo - trzeba będzie sprawdzać podobieństwo z już dodanymi figurami
             chosen.add(subBest);
-            picked.add(subBest);
+            picked.put(subBest,subBest.getFitness());
             chosenNames.put(subBest, subtarget);
         }
 
 
-        Main.writeToFile(chosen, String.format("out/Picker%s", evolver_subdir.substring(evolver_subdir.indexOf("-")+1)), chosenNames);
+        Main.writeToFile(chosen, String.format("out/Picker%s", evolver_subdir.substring(evolver_subdir.indexOf("-"))), chosenNames);
+        calculateAndSaveMeasures(picked, String.format("out/Picker%s", evolver_subdir.substring(evolver_subdir.indexOf("-"))));
     }
 
     public static ArrayList<Piece> EvolverPlusEvolver(String game,
@@ -249,7 +257,8 @@ public class PieceSetEvolver {
 
         JustPicker(target, finalPopulation, pickerPieces, subdir);
 
-        final HashSet<Piece> picked = new HashSet<>();
+        //final HashSet<Piece> picked = new HashSet<>();
+        final HashMap<Piece,Double> picked = new HashMap<>();
 
         for (String subtarget : pickerPieces) {
             Configuration.TARGET_PIECE = subtarget;
@@ -269,7 +278,7 @@ public class PieceSetEvolver {
             for (Piece candidate : secResult)
             {
                 boolean ok = true;
-                for (Piece pick: picked)
+                for (Piece pick: picked.keySet())
                 {
                     double sim = FitnessUtil.overlapRatio(pick, candidate);
                     if (sim > Configuration.CHOICE_MAX_SIMILARITY || sim < Configuration.CHOICE_MIN_SIMILARITY)
@@ -286,17 +295,86 @@ public class PieceSetEvolver {
                 skipped++;
             }
 
+            if (subBest==null)
+            {
+                System.out.println(subtarget + " - all shapes skipped - computations aborted");
+                return null;
+            }
+
             System.out.println(subtarget + " " + subBest.getFitness() + " (" + skipped + " skipped)");
 
             chosen.add(subBest);
-            picked.add(subBest);
+            picked.put(subBest,subBest.getFitness() );
             chosenNames.put(subBest, subtarget);
         }
 
         Main.writeToFile(chosen, String.format("out/%s", subdir), chosenNames);
+        calculateAndSaveMeasures(picked, String.format("out/%s", subdir));
 
         return chosen;
     }
 
+    public static ArrayList<Piece> IndependentEvolver(String game,
+                                                      int generations,
+                                                      int populationSize,
+                                                      int initPopulationSize,
+                                                      Set<String> pickerPieces,
+                                                      String testname) throws IOException {
+        String subdir = String.format("Independent-%s-%s%s",
+                game,
+                Configuration.InitPopShapeStr(),
+                testname == null ? "" : ("_" + testname));
+
+        File directory = new File("out/" + subdir);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+
+        final ArrayList<Piece> chosen = new ArrayList<>();
+        final HashMap<Piece, String> chosenNames = new HashMap<>();
+
+        final HashMap<Piece,Double> picked = new HashMap<>();
+
+        for (String subtarget : pickerPieces) {
+            Configuration.TARGET_PIECE = subtarget;
+
+            List<Piece> secResult = SimpleGeneration(game, subtarget, generations, populationSize, initPopulationSize, subdir);
+
+            Piece subBest = secResult.get(0);
+
+            System.out.println(subtarget + " " + subBest.getFitness() + " (no skipping here)");
+
+            chosen.add(subBest);
+            picked.put(subBest,subBest.getFitness() );
+            chosenNames.put(subBest, subtarget);
+        }
+
+        Main.writeToFile(chosen, String.format("out/%s", subdir), chosenNames);
+        calculateAndSaveMeasures(picked, String.format("out/%s", subdir));
+
+        return chosen;
+    }
+
+    private static void calculateAndSaveMeasures(HashMap<Piece,Double> picked, String subdir) throws IOException
+    {
+        ArrayList<String> a = new ArrayList<>();
+        ArrayList<String> b = new ArrayList<>();
+
+        List<Piece> pieces = new ArrayList<>(picked.keySet());
+        for (int i=0; i<pieces.size(); i++)
+        {
+            Piece p = pieces.get(i);
+            a.add(picked.get(p).toString());
+            for (int j=i+1; j<pieces.size(); j++)
+            {
+                Piece q = pieces.get(j);
+                if (p.equals(q)) continue;
+                b.add(FitnessUtil.fitnessBetweenPieces(FitnessUtil.calculateFitnessMeasures(p), FitnessUtil.calculateFitnessMeasures(q)).toString());
+            }
+
+        }
+
+        Main.writeToFile(String.join(" ", a)+"\n"+String.join(" ", b), subdir, "txt");
+    }
 
 }
